@@ -5,7 +5,7 @@ import type { Post, Comment } from "@/lib/db"
 import { formatDistanceToNow } from "date-fns"
 import CommentSection from "./CommentSection"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, RefreshCw, AlertCircle, Clock, FileText, Heart, Eye } from "lucide-react"
+import { ArrowLeft, RefreshCw, AlertCircle, Clock, FileText, Heart, Eye } from 'lucide-react'
 import Link from "next/link"
 import { countWords, estimateReadingTime } from "@/lib/utils"
 
@@ -65,11 +65,15 @@ export default function PostPageClient({ postId, initialPost, initialComments }:
 
   const fetchLikeStatus = async () => {
     try {
+      console.log("Fetching like status for post:", postId)
       const response = await fetch(`/api/posts/${postId}/like`)
       if (response.ok) {
         const data = await response.json()
+        console.log("Like status received:", data)
         setLiked(data.liked)
         setLikesCount(data.likes_count)
+      } else {
+        console.error("Failed to fetch like status:", response.status)
       }
     } catch (error) {
       console.error("Error fetching like status:", error)
@@ -78,12 +82,16 @@ export default function PostPageClient({ postId, initialPost, initialComments }:
 
   const recordView = async () => {
     try {
+      console.log("Recording view for post:", postId)
       const response = await fetch(`/api/posts/${postId}/view`, {
         method: "POST",
       })
       if (response.ok) {
         const data = await response.json()
+        console.log("View recorded:", data)
         setViewsCount(data.views_count)
+      } else {
+        console.error("Failed to record view:", response.status)
       }
     } catch (error) {
       console.error("Error recording view:", error)
@@ -96,16 +104,20 @@ export default function PostPageClient({ postId, initialPost, initialComments }:
     setLikeLoading(true)
     try {
       const method = liked ? "DELETE" : "POST"
+      console.log("Toggling like:", method, "for post:", postId)
+      
       const response = await fetch(`/api/posts/${postId}/like`, {
         method,
       })
 
       if (response.ok) {
         const data = await response.json()
+        console.log("Like toggled successfully:", data)
         setLiked(data.liked)
         setLikesCount(data.likes_count)
       } else {
         const errorData = await response.json()
+        console.error("Like toggle failed:", errorData)
         if (errorData.error === "Already liked") {
           // Refresh like status
           fetchLikeStatus()

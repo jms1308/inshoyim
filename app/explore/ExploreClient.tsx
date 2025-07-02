@@ -40,7 +40,7 @@ export default function ExploreClient() {
         params.set("search", search.trim())
       }
 
-      console.log("Fetching posts with params:", params.toString())
+      console.log("ExploreClient: Fetching posts with params:", params.toString())
 
       const response = await fetch(`/api/posts?${params}`)
 
@@ -49,12 +49,29 @@ export default function ExploreClient() {
       }
 
       const data: PostsResponse = await response.json()
-      console.log("Received posts data:", data)
+      console.log("ExploreClient: Received posts data:", {
+        postsCount: data.posts.length,
+        totalInDB: data.pagination.total,
+        currentPage: data.pagination.page,
+        totalPages: data.pagination.totalPages,
+      })
+
+      // Log sample of received posts for debugging
+      if (data.posts.length > 0) {
+        console.log("ExploreClient: Sample posts received:")
+        data.posts.slice(0, 3).forEach((post, index) => {
+          console.log(
+            `  ${index + 1}. ID=${post.id}, Title="${post.title.substring(0, 40)}...", Author="${post.author}"`,
+          )
+        })
+      } else {
+        console.log("ExploreClient: No posts received!")
+      }
 
       setPostsData(data)
       setCurrentPage(page)
     } catch (err) {
-      console.error("Error fetching posts:", err)
+      console.error("ExploreClient: Error fetching posts:", err)
       setError(err instanceof Error ? err.message : "Insholarni yuklashda xatolik yuz berdi")
     } finally {
       setLoading(false)
@@ -72,23 +89,28 @@ export default function ExploreClient() {
           total: postsData.pagination.total - 1,
         },
       })
+      console.log("ExploreClient: Removed deleted post", deletedPostId, "from display")
     }
   }
 
   useEffect(() => {
+    console.log("ExploreClient: Initial load or search query changed:", searchQuery)
     fetchPosts(1, searchQuery)
   }, [searchQuery])
 
   const handleSearch = (query: string) => {
+    console.log("ExploreClient: Search query changed to:", query)
     setSearchQuery(query)
     setCurrentPage(1)
   }
 
   const handlePageChange = (newPage: number) => {
+    console.log("ExploreClient: Page changed to:", newPage)
     fetchPosts(newPage, searchQuery)
   }
 
   const handleRefresh = () => {
+    console.log("ExploreClient: Manual refresh triggered")
     fetchPosts(currentPage, searchQuery)
   }
 
@@ -121,6 +143,8 @@ export default function ExploreClient() {
 
   const posts = postsData?.posts || []
   const pagination = postsData?.pagination
+
+  console.log("ExploreClient: Rendering with", posts.length, "posts")
 
   return (
     <div className="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
@@ -170,13 +194,28 @@ export default function ExploreClient() {
               ? `"${searchQuery}" uchun insholar topilmadi`
               : "Hali insholar mavjud emas. Birinchi bo'lib yozing!"}
           </p>
+          {!searchQuery && (
+            <div className="mt-4">
+              <Button onClick={handleRefresh} variant="outline" className="bg-transparent">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Qayta Yuklash
+              </Button>
+            </div>
+          )}
         </div>
       ) : (
         <>
           <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-8">
-            {posts.map((post) => (
-              <PostCard key={post.id} post={post} onDelete={handlePostDelete} showDeleteButton={true} />
-            ))}
+            {posts.map((post, index) => {
+              console.log(`ExploreClient: Rendering post ${index + 1}:`, {
+                id: post.id,
+                title: post.title.substring(0, 30),
+                author: post.author,
+                likes: post.likes_count,
+                views: post.views_count,
+              })
+              return <PostCard key={post.id} post={post} onDelete={handlePostDelete} showDeleteButton={true} />
+            })}
           </div>
 
           {pagination && pagination.totalPages > 1 && (

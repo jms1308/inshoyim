@@ -27,21 +27,28 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     const userIP = getClientIP(request)
     const userAgent = request.headers.get("user-agent") || ""
 
+    console.log("Like POST: postId =", postId, "userIP =", userIP)
+
     // Check if user already liked this post
     const existingLike = await sql`
       SELECT * FROM post_likes 
       WHERE post_id = ${postId} AND user_ip = ${userIP}
     `
 
+    console.log("Existing likes found:", existingLike.length)
+
     if (existingLike.length > 0) {
       return NextResponse.json({ error: "Already liked" }, { status: 400 })
     }
 
     // Add like
-    await sql`
+    const insertResult = await sql`
       INSERT INTO post_likes (post_id, user_ip, user_agent)
       VALUES (${postId}, ${userIP}, ${userAgent})
+      RETURNING id
     `
+
+    console.log("Like inserted:", insertResult.length > 0)
 
     // Update post likes count
     await sql`
@@ -56,6 +63,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     `
 
     const likesCount = posts[0]?.likes_count || 0
+    console.log("Updated likes count:", likesCount)
 
     return NextResponse.json({
       success: true,
@@ -77,12 +85,16 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     }
 
     const userIP = getClientIP(request)
+    console.log("Like DELETE: postId =", postId, "userIP =", userIP)
 
     // Remove like
     const result = await sql`
       DELETE FROM post_likes 
       WHERE post_id = ${postId} AND user_ip = ${userIP}
+      RETURNING id
     `
+
+    console.log("Likes deleted:", result.length)
 
     if (result.length === 0) {
       return NextResponse.json({ error: "Like not found" }, { status: 404 })
@@ -101,6 +113,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     `
 
     const likesCount = posts[0]?.likes_count || 0
+    console.log("Updated likes count after delete:", likesCount)
 
     return NextResponse.json({
       success: true,
@@ -122,6 +135,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     }
 
     const userIP = getClientIP(request)
+    console.log("Like GET: postId =", postId, "userIP =", userIP)
 
     // Check if user liked this post
     const existingLike = await sql`
@@ -135,9 +149,12 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     `
 
     const likesCount = posts[0]?.likes_count || 0
+    const liked = existingLike.length > 0
+
+    console.log("Like status:", { liked, likesCount })
 
     return NextResponse.json({
-      liked: existingLike.length > 0,
+      liked,
       likes_count: Number(likesCount),
     })
   } catch (error) {

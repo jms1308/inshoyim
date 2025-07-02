@@ -40,34 +40,61 @@ function createStubClient() {
    * Enhanced SQL "parser" with delete support and likes/views
    * - Handles the query shapes used by this demo
    * - Persists data for the lifetime of the process
+   * - Returns ALL posts to ALL users (no user-based filtering)
    */
   const posts: any[] = [
-    // Add some sample data for preview
+    // Add diverse sample data for testing
     {
       id: 1,
-      title: "Welcome to WriteSpace",
+      title: "Inshoyim Platformasiga Xush Kelibsiz",
       content:
-        "This is a sample essay to demonstrate the platform. WriteSpace is a modern platform for sharing long-form content, similar to Medium. You can write essays, share your thoughts, and engage with other writers through comments.\n\nThe platform is built with Next.js and deployed on Vercel, making it fast and reliable. Whether you're a seasoned writer or just starting out, WriteSpace provides a clean, distraction-free environment for your creativity.",
-      author: "WriteSpace Team",
+        "Bu platforma imkoniyatlarini ko'rsatish uchun namuna insho. Inshoyim - Medium ga o'xshash uzun matnlarni ulashish uchun zamonaviy platforma. Siz insholar yozishingiz, o'z fikrlaringizni baham ko'rishingiz va izohlar orqali boshqa yozuvchilar bilan muloqot qilishingiz mumkin.\n\nPlatforma Next.js bilan qurilgan va Vercel da joylashtirilgan, bu uni tez va ishonchli qiladi. Siz tajribali yozuvchi bo'lasizmi yoki endigina boshlayotgan bo'lasizmi, Inshoyim sizning ijodingiz uchun toza, chalg'ituvchi elementlarsiz muhit taqdim etadi.\n\nBu yerda siz o'z hikoyalaringizni yozishingiz, boshqalar bilan ulashishingiz va keng auditoriya bilan bog'lanishingiz mumkin.",
+      author: "Inshoyim Jamoasi",
       excerpt:
-        "This is a sample essay to demonstrate the platform. WriteSpace is a modern platform for sharing long-form content, similar to Medium...",
+        "Bu platforma imkoniyatlarini ko'rsatish uchun namuna insho. Inshoyim - Medium ga o'xshash uzun matnlarni ulashish uchun zamonaviy platforma...",
       created_at: new Date(Date.now() - 86400000), // 1 day ago
       updated_at: new Date(Date.now() - 86400000),
-      likes_count: 5,
-      views_count: 23,
+      likes_count: 15,
+      views_count: 89,
     },
     {
       id: 2,
-      title: "The Art of Writing",
+      title: "Yozish San'ati",
       content:
-        "Writing is both an art and a craft. It requires creativity, discipline, and continuous practice. In this digital age, platforms like WriteSpace make it easier than ever to share your thoughts with the world.\n\nGood writing starts with clear thinking. Before you put pen to paper (or fingers to keyboard), take time to organize your thoughts. What is the main message you want to convey? Who is your audience? What tone do you want to strike?\n\nRemember, writing is rewriting. Your first draft is just the beginning. The real magic happens in the editing process, where you refine your ideas and polish your prose.",
-      author: "Literary Enthusiast",
+        "Yozish ham san'at, ham hunarmandlikdir. Bu ijodkorlik, intizom va doimiy amaliyotni talab qiladi. Ushbu raqamli asrda Inshoyim kabi platformalar sizning fikrlaringizni dunyo bilan baham ko'rishni har qachongidan ham osonlashtiradi.\n\nYaxshi yozish aniq fikrlashdan boshlanadi. Qalam qog'ozga (yoki barmoqlaringizni klaviaturaga) qo'yishdan oldin, fikrlaringizni tartibga solish uchun vaqt ajrating. Siz qanday asosiy xabarni etkazmoqchisiz? Sizning auditoriyangiz kim? Qanday ohangni urmoqchisiz?\n\nEslab qoling, yozish - bu qayta yozishdir. Sizning birinchi qoralama faqat boshlanish. Haqiqiy sehr tahrirlash jarayonida sodir bo'ladi, bu yerda siz g'oyalaringizni aniqlashtirasiz va nasringizni sayqallaysiz.\n\nHar bir yozuvchi o'zining noyob ovoziga ega. Boshqalarni taqlid qilishga harakat qilmang - o'zingizning haqiqiy ovozingizni toping va rivojlantiring.",
+      author: "Adabiyot Ishqibozi",
       excerpt:
-        "Writing is both an art and a craft. It requires creativity, discipline, and continuous practice. In this digital age, platforms like WriteSpace...",
+        "Yozish ham san'at, ham hunarmandlikdir. Bu ijodkorlik, intizom va doimiy amaliyotni talab qiladi. Ushbu raqamli asrda Inshoyim kabi platformalar...",
       created_at: new Date(Date.now() - 172800000), // 2 days ago
       updated_at: new Date(Date.now() - 172800000),
-      likes_count: 12,
-      views_count: 45,
+      likes_count: 23,
+      views_count: 156,
+    },
+    {
+      id: 3,
+      title: "Texnologiya va Kelajak",
+      content:
+        "Texnologiya hayotimizning har bir qismiga kirib keldi. Smartfonlardan sun'iy intellektgacha, biz texnologik inqilob o'rtasida yashayapmiz. Lekin bu o'zgarishlar nimani anglatadi va kelajakda bizni nima kutmoqda?\n\nSun'iy intellekt (AI) eng muhim texnologik yutuqlardan biri hisoblanadi. U tibbiyotdan ta'limgacha, transportdan moliyagacha barcha sohalarda inqilob qilmoqda. Ammo AI ning rivojlanishi bilan birga, yangi savollar ham paydo bo'lmoqda: ish o'rinlari qanday o'zgaradi? Maxfiylik va xavfsizlik masalalari qanday hal qilinadi?\n\nKelajakda muvaffaqiyatli bo'lish uchun biz doimiy o'rganishga va moslashishga tayyor bo'lishimiz kerak. Texnologiya vositadir, maqsad emas. Uni insoniyat manfaati uchun qanday ishlatishimiz muhim.\n\nYosh avlod uchun eng muhim ko'nikma - bu o'rganishni o'rganish. Chunki texnologiya tez o'zgaradi, lekin o'rganish qobiliyati doimo foydali bo'lib qoladi.",
+      author: "Texnolog",
+      excerpt:
+        "Texnologiya hayotimizning har bir qismiga kirib keldi. Smartfonlardan sun'iy intellektgacha, biz texnologik inqilob o'rtasida yashayapmiz...",
+      created_at: new Date(Date.now() - 259200000), // 3 days ago
+      updated_at: new Date(Date.now() - 259200000),
+      likes_count: 8,
+      views_count: 67,
+    },
+    {
+      id: 4,
+      title: "O'zbekiston Tabiati",
+      content:
+        "O'zbekiston boy tabiiy boyliklariga ega mamlakat. Orol dengizidan Pamir tog'larigacha, cho'llardan yashil vodiylarigacha - bu yer ajoyib manzaralar bilan to'la.\n\nAral dengizi muammosi butun dunyoga ma'lum. Bir paytlar dunyoning to'rtinchi eng katta ko'li bo'lgan Aral dengizi inson faoliyati natijasida quriy boshladi. Bu ekologik fojia bizga tabiatni muhofaza qilish qanchalik muhimligini ko'rsatadi.\n\nAmmo O'zbekistonda ko'plab go'zal joylar ham bor. Chimyon tog'lari, Ugam-Chatqal milliy bog'i, Zarafshon vodiysi - bularning barchasi noyob tabiy manzaralar.\n\nBiz kelajak avlodlar uchun bu go'zalliklarni saqlab qolishimiz kerak. Har birimiz tabiatni muhofaza qilishda o'z hissamizni qo'shishimiz zarur.",
+      author: "Tabiat Sevgisi",
+      excerpt:
+        "O'zbekiston boy tabiiy boyliklariga ega mamlakat. Orol dengizidan Pamir tog'larigacha, cho'llardan yashil vodiylarigacha...",
+      created_at: new Date(Date.now() - 345600000), // 4 days ago
+      updated_at: new Date(Date.now() - 345600000),
+      likes_count: 31,
+      views_count: 203,
     },
   ]
   const comments: any[] = []
@@ -88,7 +115,7 @@ function createStubClient() {
         id: Date.now(),
         title,
         content,
-        author,
+        author: author || "Anonymous",
         excerpt,
         created_at: now,
         updated_at: now,
@@ -97,7 +124,32 @@ function createStubClient() {
       }
       posts.unshift(row) // Add to beginning for newest first
       console.log("Stub: Added new post, total posts:", posts.length)
+      console.log("Stub: New post details:", { id: row.id, title: row.title.substring(0, 50), author: row.author })
       return [row]
+    }
+
+    if (upper.startsWith("UPDATE POSTS SET LIKES_COUNT")) {
+      const postId = Number(args[args.length - 1]) // Last arg is usually the ID
+      const post = posts.find((p) => p.id === postId)
+      if (post) {
+        if (upper.includes("+ 1")) {
+          post.likes_count = (post.likes_count || 0) + 1
+        } else if (upper.includes("- 1")) {
+          post.likes_count = Math.max(0, (post.likes_count || 0) - 1)
+        }
+        console.log("Stub: Updated likes count for post", postId, "to", post.likes_count)
+      }
+      return []
+    }
+
+    if (upper.startsWith("UPDATE POSTS SET VIEWS_COUNT")) {
+      const postId = Number(args[args.length - 1]) // Last arg is usually the ID
+      const post = posts.find((p) => p.id === postId)
+      if (post) {
+        post.views_count = (post.views_count || 0) + 1
+        console.log("Stub: Updated views count for post", postId, "to", post.views_count)
+      }
+      return []
     }
 
     if (upper.startsWith("DELETE FROM COMMENTS WHERE POST_ID")) {
@@ -134,8 +186,10 @@ function createStubClient() {
             p.content.toLowerCase().includes(term) ||
             p.author.toLowerCase().includes(term),
         ).length
+        console.log("Stub: Search count for term '" + term + "':", count)
         return [{ total: count }]
       }
+      console.log("Stub: Total posts count:", posts.length)
       return [{ total: posts.length }]
     }
 
@@ -144,10 +198,25 @@ function createStubClient() {
       return posts.filter((p) => p.id === id).map((p) => ({ id: p.id }))
     }
 
-    if (upper.startsWith("SELECT ID, TITLE, CONTENT") && upper.includes("FROM POSTS")) {
-      let filteredPosts = [...posts]
+    if (upper.startsWith("SELECT LIKES_COUNT FROM POSTS WHERE ID")) {
+      const id = Number(args[0])
+      const post = posts.find((p) => p.id === id)
+      return post ? [{ likes_count: post.likes_count || 0 }] : []
+    }
 
-      // Handle search
+    if (upper.startsWith("SELECT VIEWS_COUNT FROM POSTS WHERE ID")) {
+      const id = Number(args[0])
+      const post = posts.find((p) => p.id === id)
+      return post ? [{ views_count: post.views_count || 0 }] : []
+    }
+
+    // Main posts query - RETURN ALL POSTS TO EVERYONE
+    if (upper.startsWith("SELECT ID, TITLE, CONTENT") && upper.includes("FROM POSTS")) {
+      let filteredPosts = [...posts] // Start with ALL posts
+
+      console.log("Stub: Starting with ALL posts:", posts.length)
+
+      // Handle search filtering
       if (upper.includes("ILIKE")) {
         const term = String(args[0] ?? "")
           .replace(/%/g, "")
@@ -158,12 +227,15 @@ function createStubClient() {
             p.content.toLowerCase().includes(term) ||
             p.author.toLowerCase().includes(term),
         )
+        console.log("Stub: After search filter '" + term + "':", filteredPosts.length)
       }
 
       // Handle single post lookup
       if (upper.includes("WHERE ID =")) {
         const id = Number(args[args.length - 1]) // ID is usually the last arg
-        return posts.filter((p) => p.id === id)
+        const result = posts.filter((p) => p.id === id)
+        console.log("Stub: Single post lookup for ID", id, "found:", result.length)
+        return result
       }
 
       // Handle pagination
@@ -187,16 +259,32 @@ function createStubClient() {
       const paginatedPosts = sortedPosts.slice(offset, offset + limit)
 
       console.log(
-        `Stub: Returning ${paginatedPosts.length} posts (offset: ${offset}, limit: ${limit}, total: ${filteredPosts.length})`,
+        `Stub: Returning ${paginatedPosts.length} posts (offset: ${offset}, limit: ${limit}, total available: ${filteredPosts.length})`,
       )
+
+      // Log the posts being returned for debugging
+      paginatedPosts.forEach((post, index) => {
+        console.log(
+          `Stub: Post ${index + 1}: ID=${post.id}, Title="${post.title.substring(0, 30)}...", Author="${post.author}"`,
+        )
+      })
+
       return paginatedPosts
     }
 
     /* ---- LIKES --------------------------------------------------------- */
+    if (upper.startsWith("SELECT * FROM POST_LIKES WHERE POST_ID")) {
+      const [post_id, user_ip] = args
+      const result = postLikes.filter((l) => l.post_id === Number(post_id) && l.user_ip === user_ip)
+      console.log("Stub: Found", result.length, "likes for post", post_id, "and IP", user_ip)
+      return result
+    }
+
     if (upper.startsWith("INSERT INTO POST_LIKES")) {
       const [post_id, user_ip, user_agent] = args
       const existingLike = postLikes.find((l) => l.post_id === Number(post_id) && l.user_ip === user_ip)
       if (existingLike) {
+        console.log("Stub: Like already exists for post", post_id, "and IP", user_ip)
         return [] // Already liked
       }
       const like = {
@@ -207,39 +295,35 @@ function createStubClient() {
         created_at: new Date(),
       }
       postLikes.push(like)
-      // Update post likes count
-      const post = posts.find((p) => p.id === Number(post_id))
-      if (post) {
-        post.likes_count = (post.likes_count || 0) + 1
-      }
+      console.log("Stub: Added like for post", post_id, "total likes:", postLikes.length)
       return [like]
     }
 
-    if (upper.startsWith("DELETE FROM POST_LIKES")) {
+    if (upper.startsWith("DELETE FROM POST_LIKES WHERE POST_ID")) {
       const [post_id, user_ip] = args
       const index = postLikes.findIndex((l) => l.post_id === Number(post_id) && l.user_ip === user_ip)
       if (index !== -1) {
         postLikes.splice(index, 1)
-        // Update post likes count
-        const post = posts.find((p) => p.id === Number(post_id))
-        if (post) {
-          post.likes_count = Math.max(0, (post.likes_count || 0) - 1)
-        }
+        console.log("Stub: Removed like for post", post_id, "total likes:", postLikes.length)
         return [{ success: true }]
       }
+      console.log("Stub: No like found to remove for post", post_id, "and IP", user_ip)
       return []
     }
 
-    if (upper.startsWith("SELECT * FROM POST_LIKES WHERE")) {
+    /* ---- VIEWS --------------------------------------------------------- */
+    if (upper.startsWith("SELECT * FROM POST_VIEWS WHERE POST_ID")) {
       const [post_id, user_ip] = args
-      return postLikes.filter((l) => l.post_id === Number(post_id) && l.user_ip === user_ip)
+      const result = postViews.filter((v) => v.post_id === Number(post_id) && v.user_ip === user_ip)
+      console.log("Stub: Found", result.length, "views for post", post_id, "and IP", user_ip)
+      return result
     }
 
-    /* ---- VIEWS --------------------------------------------------------- */
     if (upper.startsWith("INSERT INTO POST_VIEWS")) {
       const [post_id, user_ip, user_agent] = args
       const existingView = postViews.find((v) => v.post_id === Number(post_id) && v.user_ip === user_ip)
       if (existingView) {
+        console.log("Stub: View already exists for post", post_id, "and IP", user_ip)
         return [] // Already viewed
       }
       const view = {
@@ -250,11 +334,7 @@ function createStubClient() {
         created_at: new Date(),
       }
       postViews.push(view)
-      // Update post views count
-      const post = posts.find((p) => p.id === Number(post_id))
-      if (post) {
-        post.views_count = (post.views_count || 0) + 1
-      }
+      console.log("Stub: Added view for post", post_id, "total views:", postViews.length)
       return [view]
     }
 

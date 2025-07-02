@@ -12,16 +12,20 @@ export async function GET(request: NextRequest) {
     const limit = Number.parseInt(searchParams.get("limit") || "20")
     const offset = (page - 1) * limit
 
-    console.log("API: Fetching posts with params:", { search, page, limit, offset })
+    console.log("API: Fetching ALL posts with params:", { search, page, limit, offset })
 
     let posts: any[] = []
     let totalCount = 0
 
     if (search && search.trim()) {
-      // Search query
+      // Search query - get ALL matching posts regardless of author
       const searchTerm = `%${search.trim()}%`
+      console.log("API: Performing search with term:", searchTerm)
+
       posts = await sql`
-        SELECT id, title, content, author, excerpt, created_at, updated_at 
+        SELECT id, title, content, author, excerpt, created_at, updated_at, 
+               COALESCE(likes_count, 0) as likes_count, 
+               COALESCE(views_count, 0) as views_count
         FROM posts 
         WHERE title ILIKE ${searchTerm} OR content ILIKE ${searchTerm} OR author ILIKE ${searchTerm}
         ORDER BY created_at DESC
@@ -35,9 +39,13 @@ export async function GET(request: NextRequest) {
       `
       totalCount = Number(countResult[0]?.total || 0)
     } else {
-      // Get all posts
+      // Get ALL posts from ALL users - no filtering by author or user
+      console.log("API: Fetching ALL posts without search filter")
+
       posts = await sql`
-        SELECT id, title, content, author, excerpt, created_at, updated_at 
+        SELECT id, title, content, author, excerpt, created_at, updated_at,
+               COALESCE(likes_count, 0) as likes_count, 
+               COALESCE(views_count, 0) as views_count
         FROM posts 
         ORDER BY created_at DESC
         LIMIT ${limit} OFFSET ${offset}
@@ -47,18 +55,30 @@ export async function GET(request: NextRequest) {
       totalCount = Number(countResult[0]?.total || 0)
     }
 
-    console.log(`API: Found ${posts.length} posts out of ${totalCount} total`)
+    console.log(`API: Found ${posts.length} posts out of ${totalCount} total posts in database`)
 
-    // Ensure structured-clone-safe response
+    // Log first few post titles for debugging
+    if (posts.length > 0) {
+      console.log(
+        "API: Sample posts:",
+        posts.slice(0, 3).map((p) => ({ id: p.id, title: p.title?.substring(0, 50), author: p.author })),
+      )
+    }
+
+    // Ensure structured-clone-safe response with all required fields
     const safePosts = posts.map((row: any) => ({
       id: Number(row.id),
-      title: row.title,
-      content: row.content,
-      author: row.author,
-      excerpt: row.excerpt,
+      title: row.title || "",
+      content: row.content || "",
+      author: row.author || "Anonymous",
+      excerpt: row.excerpt || "",
       created_at: row.created_at instanceof Date ? row.created_at.toISOString() : String(row.created_at),
       updated_at: row.updated_at instanceof Date ? row.updated_at.toISOString() : String(row.updated_at),
+      likes_count: Number(row.likes_count || 0),
+      views_count: Number(row.views_count || 0),
     }))
+
+    console.log(`API: Returning ${safePosts.length} processed posts`)
 
     return NextResponse.json({
       posts: safePosts,
@@ -72,7 +92,7 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error("Error fetching posts:", error)
+    console.error("API: Error fetching posts:", error)
     return NextResponse.json(
       {
         error: "Failed to fetch posts",
@@ -108,16 +128,16 @@ export async function POST(request: NextRequest) {
 
     console.log("API: Creating new post:", {
       title: title.substring(0, 50),
-      author,
+      author: author || "Anonymous",
       wordCount,
       characterCount: content.length,
       meetsMinimum: wordCount >= MIN_WORD_COUNT,
     })
 
     const result = await sql`
-      INSERT INTO posts (title, content, author, excerpt)
-      VALUES (${title}, ${content}, ${author || "Anonymous"}, ${excerpt})
-      RETURNING id, title, content, author, excerpt, created_at, updated_at
+      INSERT INTO posts (title, content, author, excerpt, likes_count, views_count)
+      VALUES (${title}, ${content}, ${author || "Anonymous"}, ${excerpt}, 0, 0)
+      RETURNING id, title, content, author, excerpt, created_at, updated_at, likes_count, views_count
     `
 
     // Handle both real DB and stub responses
@@ -132,6 +152,8 @@ export async function POST(request: NextRequest) {
         excerpt,
         created_at: now,
         updated_at: now,
+        likes_count: 0,
+        views_count: 0,
       }
     }
 
@@ -143,6 +165,8 @@ export async function POST(request: NextRequest) {
       excerpt: row.excerpt,
       created_at: row.created_at instanceof Date ? row.created_at.toISOString() : String(row.created_at),
       updated_at: row.updated_at instanceof Date ? row.updated_at.toISOString() : String(row.updated_at),
+      likes_count: Number(row.likes_count || 0),
+      views_count: Number(row.views_count || 0),
     }
 
     console.log("API: Successfully created post with ID:", post.id, "Word count:", wordCount)

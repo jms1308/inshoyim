@@ -27,11 +27,15 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     const userIP = getClientIP(request)
     const userAgent = request.headers.get("user-agent") || ""
 
+    console.log("View POST: postId =", postId, "userIP =", userIP)
+
     // Check if user already viewed this post
     const existingView = await sql`
       SELECT * FROM post_views 
       WHERE post_id = ${postId} AND user_ip = ${userIP}
     `
+
+    console.log("Existing views found:", existingView.length)
 
     if (existingView.length > 0) {
       // Already viewed, just return current count
@@ -40,6 +44,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       `
 
       const viewsCount = posts[0]?.views_count || 0
+      console.log("Already viewed, current count:", viewsCount)
+      
       return NextResponse.json({
         success: true,
         views_count: Number(viewsCount),
@@ -48,10 +54,13 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     }
 
     // Add view
-    await sql`
+    const insertResult = await sql`
       INSERT INTO post_views (post_id, user_ip, user_agent)
       VALUES (${postId}, ${userIP}, ${userAgent})
+      RETURNING id
     `
+
+    console.log("View inserted:", insertResult.length > 0)
 
     // Update post views count
     await sql`
@@ -66,6 +75,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     `
 
     const viewsCount = posts[0]?.views_count || 0
+    console.log("New view count:", viewsCount)
 
     return NextResponse.json({
       success: true,
