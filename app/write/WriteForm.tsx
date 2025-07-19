@@ -17,7 +17,7 @@ export default function WriteForm() {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
 
-  const MIN_WORD_COUNT = 150
+  const MIN_WORD_COUNT = 70
   const wordCount = countWords(content)
   const isContentValid = wordCount >= MIN_WORD_COUNT
   const remainingWords = MIN_WORD_COUNT - wordCount
@@ -48,44 +48,32 @@ export default function WriteForm() {
     setSuccess(false)
 
     try {
-      console.log("Submitting post:", {
-        title: title.substring(0, 50),
-        author,
-        wordCount,
-        characterCount: content.length,
-      })
+      // TODO: Replace with your Google Apps Script Web App URL
+      const webAppUrl = 'https://script.google.com/macros/s/AKfycbxylwiUyIiZ5baAb8RmnBO9EQXnR1FJ7h3ZRROA5rVOXE4URdjelBFKX9FBb5mff_Ow/exec';
+      // Send to Google Apps Script Web App using form data
+      const formData = new URLSearchParams();
+      formData.append('name', title.trim());
+      formData.append('by', author.trim() || "Anonim");
+      formData.append('text', content.trim());
 
-      const response = await fetch("/api/posts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          title: title.trim(),
-          content: content.trim(),
-          author: author.trim() || "Anonim",
-        }),
-      })
+      const response = await fetch(webAppUrl, {
+        method: 'POST',
+        body: formData,
+      });
 
-      const responseData = await response.json()
-      console.log("Response:", responseData)
-
-      if (response.ok) {
-        setSuccess(true)
-        console.log("Post created successfully, redirecting to:", `/post/${responseData.id}`)
-
-        // Small delay to show success message
+      const result = await response.json();
+      if (result.result === 'success') {
+        setSuccess(true);
         setTimeout(() => {
-          router.push(`/post/${responseData.id}`)
-        }, 1500)
+          window.location.href = "/explore";
+        }, 1500);
       } else {
-        setError(responseData.error || "Inshoni nashr qilishda xatolik yuz berdi")
+        setError("Failed to submit essay.");
       }
     } catch (error) {
-      console.error("Network error:", error)
-      setError("Tarmoq xatosi. Internetga ulanishni tekshiring va qayta urinib ko'ring.")
+      setError("Tarmoq xatosi. Internetga ulanishni tekshiring va qayta urinib ko'ring.");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
   }
 
