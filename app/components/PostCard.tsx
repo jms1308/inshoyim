@@ -98,32 +98,7 @@ export default function PostCard({ post, onDelete, showDeleteButton = true }: Po
                 <span>{post.views_count || 0}</span>
               </div>
             </div>
-
-            <Link href={`/post/${post.id}`}>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 px-3 text-xs bg-transparent border-gray-200 hover:border-blue-300 hover:text-blue-600"
-              >
-                <Eye className="h-3 w-3 mr-1" />
-                <span className="hidden xs:inline">O'qish</span>
-                <span className="xs:hidden">Read</span>
-              </Button>
-            </Link>
-
-            {showDeleteButton && (
-              <Button
-                onClick={handleDelete}
-                disabled={isDeleting}
-                variant="destructive"
-                size="sm"
-                className="h-8 px-3 text-xs"
-              >
-                <Trash2 className="h-3 w-3 mr-1" />
-                <span className="hidden xs:inline">{isDeleting ? "O'chirilmoqda..." : "O'chirish"}</span>
-                <span className="xs:hidden">{isDeleting ? "..." : "Del"}</span>
-              </Button>
-            )}
+            {/* Removed read and delete buttons */}
           </div>
         </div>
       </div>

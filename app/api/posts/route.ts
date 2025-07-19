@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     };
 
     // Map posts to expected structure using robust header matching
-    const safePosts = posts.map((row, idx) => {
+    let safePosts = posts.map((row, idx) => {
       const title = getField(row, ["name", "Name", "title", "Title"]);
       const content = getField(row, ["text", "Text", "content", "Content"]);
       const author = getField(row, ["by", "By", "author", "Author"], "Anonymous");
@@ -53,6 +53,14 @@ export async function GET(request: NextRequest) {
         views_count: Number(row.views_count || row.Views_count || 0),
       };
     });
+
+    // Implement search by title
+    const { searchParams } = new URL(request.url);
+    const search = searchParams.get("search");
+    if (search && search.trim()) {
+      const searchLower = search.trim().toLowerCase();
+      safePosts = safePosts.filter(post => post.title.toLowerCase().includes(searchLower));
+    }
 
     return NextResponse.json({
       posts: safePosts,
