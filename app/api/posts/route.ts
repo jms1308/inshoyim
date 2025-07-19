@@ -5,6 +5,17 @@ import { fetchPostsFromSheet } from "@/lib/fetchPostsFromSheet"
 
 const MIN_WORD_COUNT = 150
 
+// Helper to generate a URL-safe slug from a string
+function slugify(str: string) {
+  return str
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '') // Remove non-alphanumeric
+    .replace(/\s+/g, '-') // Replace spaces with -
+    .replace(/-+/g, '-'); // Remove multiple -
+}
+
 export async function GET(request: NextRequest) {
   try {
     // Fetch all posts from Google Sheets
@@ -36,13 +47,19 @@ export async function GET(request: NextRequest) {
       return fallback;
     };
 
-    // Map posts to expected structure using robust header matching
-    let safePosts = posts.map((row, idx) => {
+    // Filter out rows without a valid title
+    const filteredPosts = posts.filter(row => {
+      const title = getField(row, ["name", "Name", "title", "Title"]);
+      return title && title.trim();
+    });
+
+    let safePosts = filteredPosts.map((row, idx) => {
       const title = getField(row, ["name", "Name", "title", "Title"]);
       const content = getField(row, ["text", "Text", "content", "Content"]);
       const author = getField(row, ["by", "By", "author", "Author"], "Anonymous");
+      const slug = slugify(title);
       return {
-        id: idx + 1,
+        id: slug,
         title,
         content,
         author,
@@ -61,6 +78,9 @@ export async function GET(request: NextRequest) {
       const searchLower = search.trim().toLowerCase();
       safePosts = safePosts.filter(post => post.title.toLowerCase().includes(searchLower));
     }
+
+    // Log all generated slugs for debugging
+    console.log("Essay slugs:", safePosts.map(p => p.id));
 
     return NextResponse.json({
       posts: safePosts,

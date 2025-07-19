@@ -10,12 +10,13 @@ import Link from "next/link"
 import { countWords, estimateReadingTime } from "@/lib/utils"
 
 interface PostPageClientProps {
-  postId: number
+  postId: string
   initialPost: Post | null
   initialComments: Comment[]
+  onBack?: () => void
 }
 
-export default function PostPageClient({ postId, initialPost, initialComments }: PostPageClientProps) {
+export default function PostPageClient({ postId, initialPost, initialComments, onBack }: PostPageClientProps) {
   const [post, setPost] = useState<Post | null>(initialPost)
   const [comments, setComments] = useState<Comment[]>(initialComments)
   const [loading, setLoading] = useState(!initialPost)
@@ -169,12 +170,19 @@ export default function PostPageClient({ postId, initialPost, initialComments }:
               : error || "Something went wrong while loading the post."}
           </p>
           <div className="flex justify-center space-x-4">
-            <Link href="/explore">
-              <Button variant="outline" className="flex items-center space-x-2 bg-transparent">
+            {onBack ? (
+              <Button variant="outline" className="flex items-center space-x-2 bg-transparent" onClick={onBack}>
                 <ArrowLeft className="h-4 w-4" />
                 <span>Back to Explore</span>
               </Button>
-            </Link>
+            ) : (
+              <Link href="/explore">
+                <Button variant="outline" className="flex items-center space-x-2 bg-transparent">
+                  <ArrowLeft className="h-4 w-4" />
+                  <span>Back to Explore</span>
+                </Button>
+              </Link>
+            )}
             {error !== "Post not found" && (
               <Button onClick={fetchPost} className="flex items-center space-x-2">
                 <RefreshCw className="h-4 w-4" />
@@ -187,28 +195,32 @@ export default function PostPageClient({ postId, initialPost, initialComments }:
     )
   }
 
-  const timeAgo = formatDistanceToNow(new Date(post.created_at), { addSuffix: true })
   const wordCount = countWords(post.content)
   const readingTime = estimateReadingTime(wordCount)
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-6">
-        <Link href="/explore">
-          <Button variant="outline" size="sm" className="flex items-center space-x-2 bg-transparent">
+        {onBack ? (
+          <Button variant="outline" size="sm" className="flex items-center space-x-2 bg-transparent" onClick={onBack}>
             <ArrowLeft className="h-4 w-4" />
             <span>Orqaga</span>
           </Button>
-        </Link>
+        ) : (
+          <Link href="/explore">
+            <Button variant="outline" size="sm" className="flex items-center space-x-2 bg-transparent">
+              <ArrowLeft className="h-4 w-4" />
+              <span>Orqaga</span>
+            </Button>
+          </Link>
+        )}
       </div>
 
-      <article className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-8 mb-8">
+      <article className="bg-white rounded-xl shadow-sm border-[0.5px] border-gray-200 mx-0 sm:border sm:mx-2 md:mx-4 p-6 sm:p-8 mb-4 sm:mb-8">
         <header className="mb-8">
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 leading-tight">{post.title}</h1>
           <div className="flex flex-wrap items-center text-gray-600 text-sm gap-x-3 gap-y-2">
             <span className="font-medium">{post.author}</span>
-            <span className="hidden sm:inline">•</span>
-            <time dateTime={post.created_at.toString()}>{timeAgo}</time>
             <span className="hidden sm:inline">•</span>
             <div className="flex items-center space-x-1">
               <Clock className="h-4 w-4" />
@@ -234,36 +246,7 @@ export default function PostPageClient({ postId, initialPost, initialComments }:
           )}
         </div>
 
-        {/* Like and View Section */}
-        <div className="flex items-center justify-between pt-6 border-t border-gray-200">
-          <div className="flex items-center space-x-6">
-            <Button
-              onClick={handleLike}
-              disabled={likeLoading}
-              variant={liked ? "default" : "outline"}
-              size="sm"
-              className={`flex items-center space-x-2 ${
-                liked
-                  ? "bg-red-500 hover:bg-red-600 text-white border-red-500"
-                  : "bg-transparent hover:bg-red-50 hover:text-red-600 hover:border-red-300"
-              }`}
-            >
-              <Heart className={`h-4 w-4 ${liked ? "fill-current" : ""}`} />
-              <span>{likesCount}</span>
-              <span className="hidden sm:inline">{liked ? "Yoqtirilgan" : "Yoqtirish"}</span>
-            </Button>
-
-            <div className="flex items-center space-x-2 text-gray-500">
-              <Eye className="h-4 w-4" />
-              <span>{viewsCount}</span>
-              <span className="hidden sm:inline">ko'rishlar</span>
-            </div>
-          </div>
-
-          <div className="text-sm text-gray-500">
-            <span className="hidden sm:inline">Bu inshoni ulashing</span>
-          </div>
-        </div>
+        {/* Removed Like and View Section */}
       </article>
 
       <CommentSection postId={postId} initialComments={comments} />

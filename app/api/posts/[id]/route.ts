@@ -1,12 +1,20 @@
 import { fetchPostsFromSheet } from "@/lib/fetchPostsFromSheet"
 import { type NextRequest, NextResponse } from "next/server"
 
+// Helper to generate a URL-safe slug from a string
+function slugify(str: string) {
+  return str
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '') // Remove non-alphanumeric
+    .replace(/\s+/g, '-') // Replace spaces with -
+    .replace(/-+/g, '-'); // Remove multiple -
+}
+
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const postId = Number.parseInt(params.id)
-    if (isNaN(postId)) {
-      return NextResponse.json({ error: "Invalid post ID" }, { status: 400 })
-    }
+    const postId = params.id;
     const posts = await fetchPostsFromSheet()
     if (posts.length > 0) {
       const firstRow = posts[0];
@@ -29,8 +37,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       }
       return fallback;
     };
-    const post = posts.map((row, idx) => ({
-      id: idx + 1,
+    const safePosts = posts.map((row, idx) => ({
+      id: slugify(getField(row, ["name", "Name", "title", "Title"])),
       title: getField(row, ["name", "Name", "title", "Title"]),
       content: getField(row, ["text", "Text", "content", "Content"]),
       author: getField(row, ["by", "By", "author", "Author"], "Anonymous"),
@@ -39,7 +47,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       updated_at: row.updated_at || row.Updated_at || new Date().toISOString(),
       likes_count: Number(row.likes_count || row.Likes_count || 0),
       views_count: Number(row.views_count || row.Views_count || 0),
-    })).find((p) => p.id === postId)
+    }));
+    const post = safePosts.find((p) => p.id === postId);
     if (!post) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 })
     }

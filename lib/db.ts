@@ -368,7 +368,7 @@ function createStubClient() {
 /* ---------- Shared Types ----------------------------------------------- */
 
 export interface Post {
-  id: number
+  id: string // was number, now string (slug)
   title: string
   content: string
   author: string

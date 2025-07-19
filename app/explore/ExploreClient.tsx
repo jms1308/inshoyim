@@ -6,6 +6,7 @@ import PostCard from "../components/PostCard"
 import SearchBar from "../components/SearchBar"
 import { Button } from "@/components/ui/button"
 import { RefreshCw, AlertCircle } from "lucide-react"
+import PostPageClient from "../post/[id]/PostPageClient"
 
 interface PostsResponse {
   posts: Post[]
@@ -25,6 +26,7 @@ export default function ExploreClient() {
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [searchQuery, setSearchQuery] = useState("")
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null)
 
   const fetchPosts = async (page = 1, search = "") => {
     try {
@@ -78,7 +80,7 @@ export default function ExploreClient() {
     }
   }
 
-  const handlePostDelete = (deletedPostId: number) => {
+  const handlePostDelete = (deletedPostId: string) => {
     if (postsData) {
       const updatedPosts = postsData.posts.filter((post) => post.id !== deletedPostId)
       setPostsData({
@@ -214,7 +216,7 @@ export default function ExploreClient() {
                 likes: post.likes_count,
                 views: post.views_count,
               })
-              return <PostCard key={post.id} post={post} onDelete={handlePostDelete} showDeleteButton={true} />
+              return <PostCard key={post.id} post={post} onDelete={handlePostDelete} showDeleteButton={true} onClick={() => setSelectedPost(post)} />
             })}
           </div>
 
@@ -246,6 +248,25 @@ export default function ExploreClient() {
             </div>
           )}
         </>
+      )}
+      {/* Modal overlay for full essay */}
+      {selectedPost && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+          {/* Mobile full-screen modal */}
+          <div className="bg-white w-full h-full max-w-none max-h-none rounded-none p-0 sm:rounded-lg sm:max-w-2xl sm:max-h-[90vh] sm:p-6 relative overflow-y-auto flex flex-col">
+            {/* Desktop close button */}
+            <button
+              className="hidden sm:block absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-2xl font-bold"
+              onClick={() => setSelectedPost(null)}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+            <div className="flex-1 overflow-y-auto p-4 sm:p-0">
+              <PostPageClient postId={selectedPost.id} initialPost={selectedPost} initialComments={[]} onBack={() => setSelectedPost(null)} />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
