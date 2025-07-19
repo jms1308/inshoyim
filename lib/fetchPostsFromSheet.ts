@@ -1,7 +1,7 @@
 export async function fetchPostsFromSheet(): Promise<Record<string, string>[]> {
   const apiKey = 'AIzaSyAXuXeTyq6595HH7dVf3reWCehTgtwqG8A';
   const spreadsheetId = '1RTDiNdcgQ7oetYcBN_QqQfo7xivM9S-tnueGVlBAjOU';
-  const range = 'Sheet1!A1:Z100';
+  const range = 'Sheet1!A1:Z1000'; // Increased range for more essays
 
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(range)}?key=${apiKey}`;
 
