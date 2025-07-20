@@ -135,7 +135,7 @@ function formatRelativeTime(timeString: string): string {
     
     // If the difference is negative (future date), return "Recently"
     if (diffInMs < 0) {
-      console.log(`Time: "${cleanTimeString}" -> Recently (future date)`);
+      console.log(`Time: "${cleanTimeString}" -> Recently (future date) - uploadTime: ${uploadTime.toISOString()}, now: ${now.toISOString()}, diff: ${diffInMs}ms`);
       return "Recently";
     }
     
@@ -169,7 +169,7 @@ function formatRelativeTime(timeString: string): string {
       result = `${diffInYears} year${diffInYears !== 1 ? 's' : ''} ago`;
     }
     
-    console.log(`Time: "${cleanTimeString}" -> "${result}"`);
+    console.log(`Time: "${cleanTimeString}" -> "${result}" - uploadTime: ${uploadTime.toISOString()}, now: ${now.toISOString()}, diff: ${diffInMs}ms`);
     return result;
     
   } catch (error) {
