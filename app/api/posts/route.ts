@@ -38,15 +38,27 @@ function formatRelativeTime(timeString: string): string {
     // Try multiple date parsing strategies
     let uploadTime: Date | null = null;
     
-    // Strategy 1: ISO 8601 format (2023-12-25T14:30:00.000Z)
-    if (cleanTimeString.includes('T') || cleanTimeString.includes('Z')) {
-      uploadTime = new Date(cleanTimeString);
+    // Strategy 1: Google Sheets specific format (M/D/YYYY H:M:S) - PRIORITY
+    const googleSheetsMatch = cleanTimeString.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{1,2}):(\d{1,2})$/);
+    if (googleSheetsMatch) {
+      const [, month, day, year, hour, minute, second] = googleSheetsMatch;
+      uploadTime = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute), parseInt(second));
       if (!isNaN(uploadTime.getTime())) {
-        console.log(`Time: "${cleanTimeString}" -> ISO format`);
+        console.log(`Time: "${cleanTimeString}" -> Google Sheets format (M/D/YYYY H:M:S)`);
       }
     }
     
-    // Strategy 2: Standard date format (12/25/2023 14:30:00)
+    // Strategy 2: ISO 8601 format (2023-12-25T14:30:00.000Z)
+    if (!uploadTime || isNaN(uploadTime.getTime())) {
+      if (cleanTimeString.includes('T') || cleanTimeString.includes('Z')) {
+        uploadTime = new Date(cleanTimeString);
+        if (!isNaN(uploadTime.getTime())) {
+          console.log(`Time: "${cleanTimeString}" -> ISO format`);
+        }
+      }
+    }
+    
+    // Strategy 3: Standard date format (12/25/2023 14:30:00)
     if (!uploadTime || isNaN(uploadTime.getTime())) {
       uploadTime = new Date(cleanTimeString);
       if (!isNaN(uploadTime.getTime())) {
@@ -54,7 +66,7 @@ function formatRelativeTime(timeString: string): string {
       }
     }
     
-    // Strategy 3: Date only (12/25/2023)
+    // Strategy 4: Date only (12/25/2023)
     if (!uploadTime || isNaN(uploadTime.getTime())) {
       const dateOnly = cleanTimeString.split(' ')[0];
       uploadTime = new Date(dateOnly);
@@ -63,7 +75,7 @@ function formatRelativeTime(timeString: string): string {
       }
     }
     
-    // Strategy 4: DD/MM/YYYY format
+    // Strategy 5: DD/MM/YYYY format
     if (!uploadTime || isNaN(uploadTime.getTime())) {
       const parts = cleanTimeString.split('/');
       if (parts.length === 3) {
@@ -75,7 +87,7 @@ function formatRelativeTime(timeString: string): string {
       }
     }
     
-    // Strategy 5: MM/DD/YYYY format
+    // Strategy 6: MM/DD/YYYY format
     if (!uploadTime || isNaN(uploadTime.getTime())) {
       const parts = cleanTimeString.split('/');
       if (parts.length === 3) {
@@ -87,7 +99,7 @@ function formatRelativeTime(timeString: string): string {
       }
     }
     
-    // Strategy 6: YYYY-MM-DD format
+    // Strategy 7: YYYY-MM-DD format
     if (!uploadTime || isNaN(uploadTime.getTime())) {
       if (/^\d{4}-\d{2}-\d{2}/.test(cleanTimeString)) {
         uploadTime = new Date(cleanTimeString);
@@ -97,7 +109,7 @@ function formatRelativeTime(timeString: string): string {
       }
     }
     
-    // Strategy 7: Unix timestamp
+    // Strategy 8: Unix timestamp
     if (!uploadTime || isNaN(uploadTime.getTime())) {
       const timestamp = parseInt(cleanTimeString);
       if (!isNaN(timestamp) && timestamp > 0) {
@@ -108,28 +120,13 @@ function formatRelativeTime(timeString: string): string {
       }
     }
     
-    // Strategy 8: Try parsing with different locales
-    if (!uploadTime || isNaN(uploadTime.getTime())) {
-      const locales = ['en-US', 'en-GB', 'de-DE', 'fr-FR', 'es-ES'];
-      for (const locale of locales) {
-        try {
-          uploadTime = new Date(cleanTimeString + ' ' + locale);
-          if (!isNaN(uploadTime.getTime())) {
-            console.log(`Time: "${cleanTimeString}" -> Locale format (${locale})`);
-            break;
-          }
-        } catch (e) {
-          // Continue to next locale
-        }
-      }
-    }
-    
     // If all parsing strategies failed, return "Recently"
     if (!uploadTime || isNaN(uploadTime.getTime())) {
       console.log(`Time: "${cleanTimeString}" -> Recently (parse failed)`);
       return "Recently";
     }
     
+    // Use server time for consistent comparison
     const now = new Date();
     const diffInMs = now.getTime() - uploadTime.getTime();
     
