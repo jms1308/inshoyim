@@ -28,14 +28,11 @@ function formatRelativeTime(timeString: string): string {
 
   try {
     const cleanTimeString = timeString.trim();
-
-    // Parse Google Sheets format: "7/20/2025 9:06:22"
     const match = cleanTimeString.match(/^([0-9]{1,2})\/([0-9]{1,2})\/([0-9]{4})\s+([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})$/);
     let uploadTime: Date;
 
     if (match) {
       const [, month, day, year, hour, minute, second] = match;
-      // Treat as Asia/Tashkent (GMT+5) by subtracting 5 hours from the local time to get UTC
       uploadTime = new Date(
         Date.UTC(
           parseInt(year),
@@ -47,27 +44,26 @@ function formatRelativeTime(timeString: string): string {
         )
       );
     } else {
-      // Fallback: use current time as upload time
       uploadTime = new Date();
     }
 
     const now = new Date();
     const diffInMs = now.getTime() - uploadTime.getTime();
-
     if (diffInMs < 0) return "Just now";
     if (diffInMs < 60000) return "Just now";
 
     const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
     const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
     const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+    const diffInMonths = Math.floor(diffInDays / 30);
+    const diffInYears = Math.floor(diffInDays / 365);
 
-    if (diffInMinutes < 60) return `${diffInMinutes} minute${diffInMinutes !== 1 ? 's' : ''} ago`;
-    if (diffInHours < 24) return `${diffInHours} hour${diffInHours !== 1 ? 's' : ''} ago`;
-    if (diffInDays < 7) return `${diffInDays} day${diffInDays !== 1 ? 's' : ''} ago`;
-
-    return `${Math.floor(diffInDays / 7)} week${Math.floor(diffInDays / 7) !== 1 ? 's' : ''} ago`;
+    if (diffInYears >= 1) return `${diffInYears} year${diffInYears !== 1 ? 's' : ''} ago`;
+    if (diffInMonths >= 1) return `${diffInMonths} month${diffInMonths !== 1 ? 's' : ''} ago`;
+    if (diffInDays >= 1) return `${diffInDays} day${diffInDays !== 1 ? 's' : ''} ago`;
+    if (diffInHours >= 1) return `${diffInHours} hour${diffInHours !== 1 ? 's' : ''} ago`;
+    return `${diffInMinutes} minute${diffInMinutes !== 1 ? 's' : ''} ago`;
   } catch (error) {
-    // Fallback: always show "Just now" if something goes wrong
     return "Just now";
   }
 }
