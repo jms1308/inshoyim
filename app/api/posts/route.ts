@@ -27,25 +27,77 @@ function formatRelativeTime(timeString: string): string {
   if (!timeString) return "";
   
   try {
-    const uploadTime = new Date(timeString);
+    // Clean the time string - remove extra spaces and normalize
+    const cleanTimeString = timeString.trim();
+    
+    // If it's already a relative time format, return as is
+    if (cleanTimeString.includes('ago') || cleanTimeString.includes('minute') || cleanTimeString.includes('hour') || cleanTimeString.includes('day')) {
+      return cleanTimeString;
+    }
+    
+    // Try different date parsing approaches
+    let uploadTime: Date | null = null;
+    
+    // Try parsing as ISO string
+    if (cleanTimeString.includes('T') || cleanTimeString.includes('Z')) {
+      uploadTime = new Date(cleanTimeString);
+    }
+    
+    // Try parsing as Google Sheets date format (e.g., "12/25/2023 14:30:00")
+    if (!uploadTime || isNaN(uploadTime.getTime())) {
+      uploadTime = new Date(cleanTimeString);
+    }
+    
+    // Try parsing as just date (e.g., "12/25/2023")
+    if (!uploadTime || isNaN(uploadTime.getTime())) {
+      const dateOnly = cleanTimeString.split(' ')[0];
+      uploadTime = new Date(dateOnly);
+    }
+    
+    // Check if we have a valid date
+    if (!uploadTime || isNaN(uploadTime.getTime())) {
+      // Return a fallback - just show the original string or "Recently"
+      return cleanTimeString || "Recently";
+    }
+    
     const now = new Date();
     const diffInMs = now.getTime() - uploadTime.getTime();
+    
+    // If the difference is negative (future date) or very small, return "Recently"
+    if (diffInMs < 0) {
+      return "Recently";
+    }
+    
+    // If it's less than 1 minute, return "Just now"
+    if (diffInMs < 60000) {
+      return "Just now";
+    }
+    
     const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
     const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
     const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+    const diffInWeeks = Math.floor(diffInDays / 7);
+    const diffInMonths = Math.floor(diffInDays / 30);
     const diffInYears = Math.floor(diffInDays / 365);
     
+    let result = "";
     if (diffInMinutes < 60) {
-      return `${diffInMinutes} minute${diffInMinutes !== 1 ? 's' : ''} ago`;
+      result = `${diffInMinutes} minute${diffInMinutes !== 1 ? 's' : ''} ago`;
     } else if (diffInHours < 24) {
-      return `${diffInHours} hour${diffInHours !== 1 ? 's' : ''} ago`;
-    } else if (diffInDays < 365) {
-      return `${diffInDays} day${diffInDays !== 1 ? 's' : ''} ago`;
+      result = `${diffInHours} hour${diffInHours !== 1 ? 's' : ''} ago`;
+    } else if (diffInDays < 7) {
+      result = `${diffInDays} day${diffInDays !== 1 ? 's' : ''} ago`;
+    } else if (diffInWeeks < 4) {
+      result = `${diffInWeeks} week${diffInWeeks !== 1 ? 's' : ''} ago`;
+    } else if (diffInMonths < 12) {
+      result = `${diffInMonths} month${diffInMonths !== 1 ? 's' : ''} ago`;
     } else {
-      return `${diffInYears} year${diffInYears !== 1 ? 's' : ''} ago`;
+      result = `${diffInYears} year${diffInYears !== 1 ? 's' : ''} ago`;
     }
+    
+    return result;
   } catch (error) {
-    return timeString; // Return original if parsing fails
+    return "Recently"; // Return a safe fallback
   }
 }
 
@@ -92,6 +144,9 @@ export async function GET(request: NextRequest) {
       const author = getField(row, ["by", "By", "author", "Author"], "Anonymous");
       const uploadTime = getField(row, ["time", "Time", "upload_time", "uploadTime", "upload time"]);
       const slug = slugify(title);
+      
+
+      
       return {
         id: slug,
         title: capitalizeFirst(title),
