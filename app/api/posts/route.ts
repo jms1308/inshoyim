@@ -22,52 +22,53 @@ function capitalizeFirst(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-// Simple time difference calculator
+// Simple time difference calculator, always treats Google Sheet time as GMT+5
 function formatRelativeTime(timeString: string): string {
-  if (!timeString || timeString.trim() === "") return "";
-  
+  if (!timeString || timeString.trim() === "") return "Just now";
+
   try {
     const cleanTimeString = timeString.trim();
-    
+
     // Parse Google Sheets format: "7/20/2025 9:06:22"
-    const match = cleanTimeString.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{1,2}):(\d{1,2})$/);
-    if (!match) {
-      console.log(`No match for: "${cleanTimeString}"`);
-      return "Recently";
+    const match = cleanTimeString.match(/^([0-9]{1,2})\/([0-9]{1,2})\/([0-9]{4})\s+([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})$/);
+    let uploadTime: Date;
+
+    if (match) {
+      const [, month, day, year, hour, minute, second] = match;
+      // Treat as Asia/Tashkent (GMT+5) by subtracting 5 hours from the local time to get UTC
+      uploadTime = new Date(
+        Date.UTC(
+          parseInt(year),
+          parseInt(month) - 1,
+          parseInt(day),
+          parseInt(hour) - 5, // adjust for GMT+5
+          parseInt(minute),
+          parseInt(second)
+        )
+      );
+    } else {
+      // Fallback: use current time as upload time
+      uploadTime = new Date();
     }
-    
-    const [, month, day, year, hour, minute, second] = match;
-    const uploadTime = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute), parseInt(second));
-    
-    if (isNaN(uploadTime.getTime())) {
-      console.log(`Invalid date: "${cleanTimeString}"`);
-      return "Recently";
-    }
-    
+
     const now = new Date();
     const diffInMs = now.getTime() - uploadTime.getTime();
-    
-    console.log(`Time calc: "${cleanTimeString}" -> uploadTime: ${uploadTime.toISOString()}, now: ${now.toISOString()}, diff: ${diffInMs}ms`);
-    
-    if (diffInMs < 0) {
-      console.log(`Future date: diff = ${diffInMs}ms`);
-      return "Recently";
-    }
+
+    if (diffInMs < 0) return "Just now";
     if (diffInMs < 60000) return "Just now";
-    
+
     const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
     const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
     const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-    
+
     if (diffInMinutes < 60) return `${diffInMinutes} minute${diffInMinutes !== 1 ? 's' : ''} ago`;
     if (diffInHours < 24) return `${diffInHours} hour${diffInHours !== 1 ? 's' : ''} ago`;
     if (diffInDays < 7) return `${diffInDays} day${diffInDays !== 1 ? 's' : ''} ago`;
-    
+
     return `${Math.floor(diffInDays / 7)} week${Math.floor(diffInDays / 7) !== 1 ? 's' : ''} ago`;
-    
   } catch (error) {
-    console.log(`Error: "${timeString}"`, error);
-    return "Recently";
+    // Fallback: always show "Just now" if something goes wrong
+    return "Just now";
   }
 }
 
