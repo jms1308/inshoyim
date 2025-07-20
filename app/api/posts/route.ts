@@ -16,6 +16,12 @@ function slugify(str: string) {
     .replace(/-+/g, '-'); // Remove multiple -
 }
 
+// Helper to capitalize first letter of a string
+function capitalizeFirst(str: string) {
+  if (!str) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 export async function GET(request: NextRequest) {
   try {
     // Fetch all posts from Google Sheets
@@ -60,7 +66,7 @@ export async function GET(request: NextRequest) {
       const slug = slugify(title);
       return {
         id: slug,
-        title,
+        title: capitalizeFirst(title),
         content,
         author,
         excerpt: content.slice(0, 150),
