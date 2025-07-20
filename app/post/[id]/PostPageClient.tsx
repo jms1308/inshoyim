@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import type { Post, Comment } from "@/lib/db"
 import { formatDistanceToNow } from "date-fns"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, RefreshCw, AlertCircle, Clock, FileText, Heart, Eye } from 'lucide-react'
+import { ArrowLeft, RefreshCw, AlertCircle, Clock, FileText, Heart, Eye, Calendar, BookOpen } from 'lucide-react'
 import Link from "next/link"
 import { countWords, estimateReadingTime } from "@/lib/utils"
 
@@ -221,8 +221,17 @@ export default function PostPageClient({ postId, initialPost, initialComments, o
           <div className="flex flex-wrap items-center text-gray-600 text-sm gap-x-3 gap-y-2">
             <span className="font-medium">{post.author}</span>
             <span className="hidden sm:inline">•</span>
+            {post.upload_time && (
+              <>
+                <div className="flex items-center space-x-1">
+                  <Calendar className="h-4 w-4" />
+                  <span>{post.upload_time}</span>
+                </div>
+                <span className="hidden sm:inline">•</span>
+              </>
+            )}
             <div className="flex items-center space-x-1">
-              <Clock className="h-4 w-4" />
+              <BookOpen className="h-4 w-4" />
               <span>{readingTime}</span>
             </div>
             <span className="hidden sm:inline">•</span>

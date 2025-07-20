@@ -5,7 +5,7 @@ import type React from "react"
 import Link from "next/link"
 import type { Post } from "@/lib/db"
 import { formatDistanceToNow } from "date-fns"
-import { Trash2, Eye, User, Clock, Heart } from "lucide-react"
+import { Trash2, Eye, User, Clock, Heart, Calendar, BookOpen } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { countWords, estimateReadingTime } from "@/lib/utils"
@@ -43,10 +43,18 @@ export default function PostCard({ post, onDelete, showDeleteButton = true, onCl
               <User className="h-3 w-3" />
               <span className="font-medium truncate max-w-20 sm:max-w-none">{post.author}</span>
             </div>
-            {/* Removed time-ago display */}
             <span className="text-gray-300 shrink-0 hidden xs:inline">•</span>
+            {post.upload_time && (
+              <>
+                <div className="flex items-center gap-1 shrink-0">
+                  <Calendar className="h-3 w-3" />
+                  <span className="text-xs">{post.upload_time}</span>
+                </div>
+                <span className="text-gray-300 shrink-0 hidden xs:inline">•</span>
+              </>
+            )}
             <div className="flex items-center gap-1 shrink-0">
-              <Clock className="h-3 w-3" />
+              <BookOpen className="h-3 w-3" />
               <span className="text-xs">{readingTime}</span>
             </div>
           </div>

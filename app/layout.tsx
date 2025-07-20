@@ -7,7 +7,7 @@ import Navigation from "./components/Navigation"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "WriteSpace - Share Your Stories",
+  title: "Inshoyim - yozish orqali kuchliroq bo'lamiz",
   description: "A modern platform for writing and sharing long-form content",
     generator: 'v0.dev'
 }

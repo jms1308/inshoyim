@@ -22,6 +22,33 @@ function capitalizeFirst(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+// Helper to format time as relative time
+function formatRelativeTime(timeString: string): string {
+  if (!timeString) return "";
+  
+  try {
+    const uploadTime = new Date(timeString);
+    const now = new Date();
+    const diffInMs = now.getTime() - uploadTime.getTime();
+    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+    const diffInYears = Math.floor(diffInDays / 365);
+    
+    if (diffInMinutes < 60) {
+      return `${diffInMinutes} minute${diffInMinutes !== 1 ? 's' : ''} ago`;
+    } else if (diffInHours < 24) {
+      return `${diffInHours} hour${diffInHours !== 1 ? 's' : ''} ago`;
+    } else if (diffInDays < 365) {
+      return `${diffInDays} day${diffInDays !== 1 ? 's' : ''} ago`;
+    } else {
+      return `${diffInYears} year${diffInYears !== 1 ? 's' : ''} ago`;
+    }
+  } catch (error) {
+    return timeString; // Return original if parsing fails
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
     // Fetch all posts from Google Sheets
@@ -63,12 +90,14 @@ export async function GET(request: NextRequest) {
       const title = getField(row, ["name", "Name", "title", "Title"]);
       const content = getField(row, ["text", "Text", "content", "Content"]);
       const author = getField(row, ["by", "By", "author", "Author"], "Anonymous");
+      const uploadTime = getField(row, ["time", "Time", "upload_time", "uploadTime", "upload time"]);
       const slug = slugify(title);
       return {
         id: slug,
         title: capitalizeFirst(title),
         content,
         author,
+        upload_time: uploadTime ? formatRelativeTime(uploadTime) : "",
         excerpt: content.slice(0, 150),
         created_at: row.created_at || row.Created_at || new Date().toISOString(),
         updated_at: row.updated_at || row.Updated_at || new Date().toISOString(),

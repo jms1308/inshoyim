@@ -375,6 +375,7 @@ export interface Post {
   excerpt: string
   created_at: string | Date
   updated_at: string | Date
+  upload_time?: string
   likes_count?: number
   views_count?: number
 }
