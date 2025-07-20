@@ -33,10 +33,10 @@ export default function PostCard({ post, onDelete, showDeleteButton = true, onCl
       onKeyDown={e => { if ((e.key === 'Enter' || e.key === ' ') && onClick) onClick(post) }}
     >
       <div className="p-4 sm:p-5 md:p-6">
-        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3 group-hover:text-blue-600 transition-colors line-clamp-2 leading-tight">
-          {post.title}
-        </h2>
-        <p className="text-gray-600 mb-3 sm:mb-4 leading-relaxed text-sm sm:text-base line-clamp-3">{post.excerpt}</p>
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3 group-hover:text-blue-600 transition-colors line-clamp-2 leading-tight">
+            {post.title}
+          </h2>
+          <p className="text-gray-600 mb-3 sm:mb-4 leading-relaxed text-sm sm:text-base line-clamp-3">{post.excerpt}</p>
         <div className="flex items-start justify-between gap-3 mt-1">
           <div className="flex items-center text-xs sm:text-sm text-gray-500 gap-2 flex-wrap min-w-0 flex-1">
             <div className="flex items-center gap-1 shrink-0">

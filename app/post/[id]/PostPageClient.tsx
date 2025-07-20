@@ -199,7 +199,7 @@ export default function PostPageClient({ postId, initialPost, initialComments, o
   const readingTime = estimateReadingTime(wordCount)
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 py-2 sm:py-6 md:py-8">
       <div className="mb-6">
         {onBack ? (
           <Button variant="outline" size="sm" className="flex items-center space-x-2 bg-transparent" onClick={onBack}>
@@ -216,9 +216,9 @@ export default function PostPageClient({ postId, initialPost, initialComments, o
         )}
       </div>
 
-      <article className="bg-white rounded-xl shadow-sm border-[0.5px] border-gray-200 mx-0 sm:border sm:mx-2 md:mx-4 p-6 sm:p-8 mb-4 sm:mb-8">
-        <header className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 leading-tight">{post.title}</h1>
+      <article className="bg-white rounded-none sm:rounded-xl shadow-none sm:shadow-sm mx-0 sm:mx-2 md:mx-4 p-0 sm:p-6 md:p-8 mb-4 sm:mb-8">
+        <header className="mb-4 sm:mb-6 md:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight">{post.title}</h1>
           <div className="flex flex-wrap items-center text-gray-600 text-sm gap-x-3 gap-y-2">
             <span className="font-medium">{post.author}</span>
             <span className="hidden sm:inline">•</span>
@@ -234,10 +234,10 @@ export default function PostPageClient({ postId, initialPost, initialComments, o
           </div>
         </header>
 
-        <div className="prose prose-lg max-w-none mb-8">
+        <div className="prose max-w-none mb-8">
           {post.content.split("\n").map((paragraph, index) =>
             paragraph.trim() ? (
-              <p key={index} className="mb-4 leading-relaxed text-gray-800">
+              <p key={index} className="mb-0 sm:mb-1 md:mb-2 leading-7 text-lg sm:text-base text-gray-800">
                 {paragraph}
               </p>
             ) : (

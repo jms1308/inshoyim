@@ -3,7 +3,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { countWords } from "@/lib/utils"
 import { fetchPostsFromSheet } from "@/lib/fetchPostsFromSheet"
 
-const MIN_WORD_COUNT = 150
+const MIN_WORD_COUNT = 100
 
 // Helper to generate a URL-safe slug from a string
 function slugify(str: string) {

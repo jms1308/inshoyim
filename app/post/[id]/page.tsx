@@ -42,10 +42,10 @@ async function getPost(slug: string) {
       content,
       author,
       excerpt: content.slice(0, 150),
-      created_at: row.created_at || row.Created_at || new Date().toISOString(),
-      updated_at: row.updated_at || row.Updated_at || new Date().toISOString(),
-      likes_count: Number(row.likes_count || row.Likes_count || 0),
-      views_count: Number(row.views_count || row.Views_count || 0),
+    created_at: row.created_at || row.Created_at || new Date().toISOString(),
+    updated_at: row.updated_at || row.Updated_at || new Date().toISOString(),
+    likes_count: Number(row.likes_count || row.Likes_count || 0),
+    views_count: Number(row.views_count || row.Views_count || 0),
     }
   }).find((p) => p.id === slug) || null
 }

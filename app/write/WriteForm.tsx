@@ -17,7 +17,7 @@ export default function WriteForm() {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
 
-  const MIN_WORD_COUNT = 70
+  const MIN_WORD_COUNT = 100
   const wordCount = countWords(content)
   const isContentValid = wordCount >= MIN_WORD_COUNT
   const remainingWords = MIN_WORD_COUNT - wordCount
