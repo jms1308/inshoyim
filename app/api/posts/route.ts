@@ -31,17 +31,28 @@ function formatRelativeTime(timeString: string): string {
     
     // Parse Google Sheets format: "7/20/2025 9:06:22"
     const match = cleanTimeString.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{1,2}):(\d{1,2})$/);
-    if (!match) return "Recently";
+    if (!match) {
+      console.log(`No match for: "${cleanTimeString}"`);
+      return "Recently";
+    }
     
     const [, month, day, year, hour, minute, second] = match;
     const uploadTime = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute), parseInt(second));
     
-    if (isNaN(uploadTime.getTime())) return "Recently";
+    if (isNaN(uploadTime.getTime())) {
+      console.log(`Invalid date: "${cleanTimeString}"`);
+      return "Recently";
+    }
     
     const now = new Date();
     const diffInMs = now.getTime() - uploadTime.getTime();
     
-    if (diffInMs < 0) return "Recently";
+    console.log(`Time calc: "${cleanTimeString}" -> uploadTime: ${uploadTime.toISOString()}, now: ${now.toISOString()}, diff: ${diffInMs}ms`);
+    
+    if (diffInMs < 0) {
+      console.log(`Future date: diff = ${diffInMs}ms`);
+      return "Recently";
+    }
     if (diffInMs < 60000) return "Just now";
     
     const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
@@ -55,6 +66,7 @@ function formatRelativeTime(timeString: string): string {
     return `${Math.floor(diffInDays / 7)} week${Math.floor(diffInDays / 7) !== 1 ? 's' : ''} ago`;
     
   } catch (error) {
+    console.log(`Error: "${timeString}"`, error);
     return "Recently";
   }
 }
