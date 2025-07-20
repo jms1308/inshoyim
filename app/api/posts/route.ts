@@ -42,7 +42,8 @@ function formatRelativeTime(timeString: string): string {
     const googleSheetsMatch = cleanTimeString.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{1,2}):(\d{1,2})$/);
     if (googleSheetsMatch) {
       const [, month, day, year, hour, minute, second] = googleSheetsMatch;
-      uploadTime = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute), parseInt(second));
+      // Create date in UTC timezone (works consistently across all environments)
+      uploadTime = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute), parseInt(second)));
     }
     
     // Strategy 2: ISO 8601 format (2023-12-25T14:30:00.000Z)
@@ -101,9 +102,10 @@ function formatRelativeTime(timeString: string): string {
       return "Recently";
     }
     
-    // Use server time for consistent comparison
+    // Use UTC time for consistent comparison across all environments
     const now = new Date();
-    const diffInMs = now.getTime() - uploadTime.getTime();
+    const nowUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds()));
+    const diffInMs = nowUTC.getTime() - uploadTime.getTime();
     
     // If the difference is negative (future date), return "Recently"
     if (diffInMs < 0) {
