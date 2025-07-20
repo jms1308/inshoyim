@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import type { Post, Comment } from "@/lib/db"
 import { formatDistanceToNow } from "date-fns"
-import CommentSection from "./CommentSection"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, RefreshCw, AlertCircle, Clock, FileText, Heart, Eye } from 'lucide-react'
 import Link from "next/link"
@@ -249,7 +248,6 @@ export default function PostPageClient({ postId, initialPost, initialComments, o
         {/* Removed Like and View Section */}
       </article>
 
-      <CommentSection postId={postId} initialComments={comments} />
     </div>
   )
 }

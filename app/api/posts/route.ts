@@ -82,6 +82,9 @@ export async function GET(request: NextRequest) {
     // Log all generated slugs for debugging
     console.log("Essay slugs:", safePosts.map(p => p.id));
 
+    // Reverse the order so last essay in sheet appears first
+    safePosts.reverse();
+
     return NextResponse.json({
       posts: safePosts,
       pagination: {
