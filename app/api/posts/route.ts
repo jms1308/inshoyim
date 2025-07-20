@@ -22,57 +22,130 @@ function capitalizeFirst(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-// Helper to format time as relative time
+// Helper to format time as relative time - handles all possible formats
 function formatRelativeTime(timeString: string): string {
-  if (!timeString) return "";
+  if (!timeString || timeString.trim() === "") return "";
   
   try {
-    // Clean the time string - remove extra spaces and normalize
+    // Clean the time string
     const cleanTimeString = timeString.trim();
     
     // If it's already a relative time format, return as is
-    if (cleanTimeString.includes('ago') || cleanTimeString.includes('minute') || cleanTimeString.includes('hour') || cleanTimeString.includes('day')) {
+    if (cleanTimeString.includes('ago') || cleanTimeString.includes('minute') || cleanTimeString.includes('hour') || cleanTimeString.includes('day') || cleanTimeString.includes('week') || cleanTimeString.includes('month') || cleanTimeString.includes('year')) {
       return cleanTimeString;
     }
     
-    // Try different date parsing approaches
+    // Try multiple date parsing strategies
     let uploadTime: Date | null = null;
     
-    // Try parsing as ISO string
+    // Strategy 1: ISO 8601 format (2023-12-25T14:30:00.000Z)
     if (cleanTimeString.includes('T') || cleanTimeString.includes('Z')) {
       uploadTime = new Date(cleanTimeString);
+      if (!isNaN(uploadTime.getTime())) {
+        console.log(`Time: "${cleanTimeString}" -> ISO format`);
+      }
     }
     
-    // Try parsing as Google Sheets date format (e.g., "12/25/2023 14:30:00")
+    // Strategy 2: Standard date format (12/25/2023 14:30:00)
     if (!uploadTime || isNaN(uploadTime.getTime())) {
       uploadTime = new Date(cleanTimeString);
+      if (!isNaN(uploadTime.getTime())) {
+        console.log(`Time: "${cleanTimeString}" -> Standard format`);
+      }
     }
     
-    // Try parsing as just date (e.g., "12/25/2023")
+    // Strategy 3: Date only (12/25/2023)
     if (!uploadTime || isNaN(uploadTime.getTime())) {
       const dateOnly = cleanTimeString.split(' ')[0];
       uploadTime = new Date(dateOnly);
+      if (!isNaN(uploadTime.getTime())) {
+        console.log(`Time: "${cleanTimeString}" -> Date only format`);
+      }
     }
     
-    // Check if we have a valid date
+    // Strategy 4: DD/MM/YYYY format
     if (!uploadTime || isNaN(uploadTime.getTime())) {
-      // Return a fallback - just show the original string or "Recently"
-      return cleanTimeString || "Recently";
+      const parts = cleanTimeString.split('/');
+      if (parts.length === 3) {
+        // Try DD/MM/YYYY
+        uploadTime = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+        if (!isNaN(uploadTime.getTime())) {
+          console.log(`Time: "${cleanTimeString}" -> DD/MM/YYYY format`);
+        }
+      }
+    }
+    
+    // Strategy 5: MM/DD/YYYY format
+    if (!uploadTime || isNaN(uploadTime.getTime())) {
+      const parts = cleanTimeString.split('/');
+      if (parts.length === 3) {
+        // Try MM/DD/YYYY
+        uploadTime = new Date(parseInt(parts[2]), parseInt(parts[0]) - 1, parseInt(parts[1]));
+        if (!isNaN(uploadTime.getTime())) {
+          console.log(`Time: "${cleanTimeString}" -> MM/DD/YYYY format`);
+        }
+      }
+    }
+    
+    // Strategy 6: YYYY-MM-DD format
+    if (!uploadTime || isNaN(uploadTime.getTime())) {
+      if (/^\d{4}-\d{2}-\d{2}/.test(cleanTimeString)) {
+        uploadTime = new Date(cleanTimeString);
+        if (!isNaN(uploadTime.getTime())) {
+          console.log(`Time: "${cleanTimeString}" -> YYYY-MM-DD format`);
+        }
+      }
+    }
+    
+    // Strategy 7: Unix timestamp
+    if (!uploadTime || isNaN(uploadTime.getTime())) {
+      const timestamp = parseInt(cleanTimeString);
+      if (!isNaN(timestamp) && timestamp > 0) {
+        uploadTime = new Date(timestamp);
+        if (!isNaN(uploadTime.getTime())) {
+          console.log(`Time: "${cleanTimeString}" -> Unix timestamp`);
+        }
+      }
+    }
+    
+    // Strategy 8: Try parsing with different locales
+    if (!uploadTime || isNaN(uploadTime.getTime())) {
+      const locales = ['en-US', 'en-GB', 'de-DE', 'fr-FR', 'es-ES'];
+      for (const locale of locales) {
+        try {
+          uploadTime = new Date(cleanTimeString + ' ' + locale);
+          if (!isNaN(uploadTime.getTime())) {
+            console.log(`Time: "${cleanTimeString}" -> Locale format (${locale})`);
+            break;
+          }
+        } catch (e) {
+          // Continue to next locale
+        }
+      }
+    }
+    
+    // If all parsing strategies failed, return "Recently"
+    if (!uploadTime || isNaN(uploadTime.getTime())) {
+      console.log(`Time: "${cleanTimeString}" -> Recently (parse failed)`);
+      return "Recently";
     }
     
     const now = new Date();
     const diffInMs = now.getTime() - uploadTime.getTime();
     
-    // If the difference is negative (future date) or very small, return "Recently"
+    // If the difference is negative (future date), return "Recently"
     if (diffInMs < 0) {
+      console.log(`Time: "${cleanTimeString}" -> Recently (future date)`);
       return "Recently";
     }
     
     // If it's less than 1 minute, return "Just now"
     if (diffInMs < 60000) {
+      console.log(`Time: "${cleanTimeString}" -> Just now`);
       return "Just now";
     }
     
+    // Calculate time differences
     const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
     const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
     const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
@@ -80,6 +153,7 @@ function formatRelativeTime(timeString: string): string {
     const diffInMonths = Math.floor(diffInDays / 30);
     const diffInYears = Math.floor(diffInDays / 365);
     
+    // Format the result
     let result = "";
     if (diffInMinutes < 60) {
       result = `${diffInMinutes} minute${diffInMinutes !== 1 ? 's' : ''} ago`;
@@ -95,8 +169,11 @@ function formatRelativeTime(timeString: string): string {
       result = `${diffInYears} year${diffInYears !== 1 ? 's' : ''} ago`;
     }
     
+    console.log(`Time: "${cleanTimeString}" -> "${result}"`);
     return result;
+    
   } catch (error) {
+    console.log(`Time: "${timeString}" -> Recently (error)`);
     return "Recently"; // Return a safe fallback
   }
 }
