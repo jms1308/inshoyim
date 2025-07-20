@@ -43,36 +43,24 @@ function formatRelativeTime(timeString: string): string {
     if (googleSheetsMatch) {
       const [, month, day, year, hour, minute, second] = googleSheetsMatch;
       uploadTime = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute), parseInt(second));
-      if (!isNaN(uploadTime.getTime())) {
-        console.log(`Time: "${cleanTimeString}" -> Google Sheets format (M/D/YYYY H:M:S)`);
-      }
     }
     
     // Strategy 2: ISO 8601 format (2023-12-25T14:30:00.000Z)
     if (!uploadTime || isNaN(uploadTime.getTime())) {
       if (cleanTimeString.includes('T') || cleanTimeString.includes('Z')) {
         uploadTime = new Date(cleanTimeString);
-        if (!isNaN(uploadTime.getTime())) {
-          console.log(`Time: "${cleanTimeString}" -> ISO format`);
-        }
       }
     }
     
     // Strategy 3: Standard date format (12/25/2023 14:30:00)
     if (!uploadTime || isNaN(uploadTime.getTime())) {
       uploadTime = new Date(cleanTimeString);
-      if (!isNaN(uploadTime.getTime())) {
-        console.log(`Time: "${cleanTimeString}" -> Standard format`);
-      }
     }
     
     // Strategy 4: Date only (12/25/2023)
     if (!uploadTime || isNaN(uploadTime.getTime())) {
       const dateOnly = cleanTimeString.split(' ')[0];
       uploadTime = new Date(dateOnly);
-      if (!isNaN(uploadTime.getTime())) {
-        console.log(`Time: "${cleanTimeString}" -> Date only format`);
-      }
     }
     
     // Strategy 5: DD/MM/YYYY format
@@ -81,9 +69,6 @@ function formatRelativeTime(timeString: string): string {
       if (parts.length === 3) {
         // Try DD/MM/YYYY
         uploadTime = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
-        if (!isNaN(uploadTime.getTime())) {
-          console.log(`Time: "${cleanTimeString}" -> DD/MM/YYYY format`);
-        }
       }
     }
     
@@ -93,9 +78,6 @@ function formatRelativeTime(timeString: string): string {
       if (parts.length === 3) {
         // Try MM/DD/YYYY
         uploadTime = new Date(parseInt(parts[2]), parseInt(parts[0]) - 1, parseInt(parts[1]));
-        if (!isNaN(uploadTime.getTime())) {
-          console.log(`Time: "${cleanTimeString}" -> MM/DD/YYYY format`);
-        }
       }
     }
     
@@ -103,9 +85,6 @@ function formatRelativeTime(timeString: string): string {
     if (!uploadTime || isNaN(uploadTime.getTime())) {
       if (/^\d{4}-\d{2}-\d{2}/.test(cleanTimeString)) {
         uploadTime = new Date(cleanTimeString);
-        if (!isNaN(uploadTime.getTime())) {
-          console.log(`Time: "${cleanTimeString}" -> YYYY-MM-DD format`);
-        }
       }
     }
     
@@ -114,15 +93,11 @@ function formatRelativeTime(timeString: string): string {
       const timestamp = parseInt(cleanTimeString);
       if (!isNaN(timestamp) && timestamp > 0) {
         uploadTime = new Date(timestamp);
-        if (!isNaN(uploadTime.getTime())) {
-          console.log(`Time: "${cleanTimeString}" -> Unix timestamp`);
-        }
       }
     }
     
     // If all parsing strategies failed, return "Recently"
     if (!uploadTime || isNaN(uploadTime.getTime())) {
-      console.log(`Time: "${cleanTimeString}" -> Recently (parse failed)`);
       return "Recently";
     }
     
@@ -132,13 +107,11 @@ function formatRelativeTime(timeString: string): string {
     
     // If the difference is negative (future date), return "Recently"
     if (diffInMs < 0) {
-      console.log(`Time: "${cleanTimeString}" -> Recently (future date) - uploadTime: ${uploadTime.toISOString()}, now: ${now.toISOString()}, diff: ${diffInMs}ms`);
       return "Recently";
     }
     
     // If it's less than 1 minute, return "Just now"
     if (diffInMs < 60000) {
-      console.log(`Time: "${cleanTimeString}" -> Just now`);
       return "Just now";
     }
     
@@ -166,11 +139,9 @@ function formatRelativeTime(timeString: string): string {
       result = `${diffInYears} year${diffInYears !== 1 ? 's' : ''} ago`;
     }
     
-    console.log(`Time: "${cleanTimeString}" -> "${result}" - uploadTime: ${uploadTime.toISOString()}, now: ${now.toISOString()}, diff: ${diffInMs}ms`);
     return result;
     
   } catch (error) {
-    console.log(`Time: "${timeString}" -> Recently (error)`);
     return "Recently"; // Return a safe fallback
   }
 }
@@ -179,7 +150,7 @@ export async function GET(request: NextRequest) {
   try {
     // Fetch all posts from Google Sheets
     const posts = await fetchPostsFromSheet();
-    
+
     // If Google Sheets fails, return empty response
     if (!posts || posts.length === 0) {
       console.log('No posts fetched from Google Sheets, returning empty response');
@@ -189,18 +160,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Debug: Log the first row's keys and all time-related values
-    if (posts.length > 0) {
-      const firstRow = posts[0];
-      console.log("Sample row from Google Sheet:", firstRow);
-      console.log("Keys in first row:", Object.keys(firstRow));
-      console.log("All time-related fields:");
-      Object.keys(firstRow).forEach(key => {
-        if (key.toLowerCase().includes('time') || key.toLowerCase().includes('date') || key.toLowerCase().includes('created') || key.toLowerCase().includes('upload')) {
-          console.log(`  ${key}: "${firstRow[key]}"`);
-        }
-      });
-    }
+
 
     // Helper to get the first non-empty value from possible keys, trimming keys and values
     const getField = (row: Record<string, string>, keys: string[], fallback = "") => {
@@ -266,8 +226,7 @@ export async function GET(request: NextRequest) {
       safePosts = safePosts.filter(post => post.title.toLowerCase().includes(searchLower));
     }
 
-    // Log all generated slugs for debugging
-    console.log("Essay slugs:", safePosts.map(p => p.id));
+
 
     // Reverse the order so last essay in sheet appears first
     safePosts.reverse();

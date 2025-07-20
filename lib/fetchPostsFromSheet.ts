@@ -5,8 +5,6 @@ export async function fetchPostsFromSheet(): Promise<Record<string, string>[]> {
 
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(range)}?key=${apiKey}`;
 
-  console.log('Fetching from Google Sheets:', url);
-
   try {
     const response = await fetch(url, {
       method: 'GET',
@@ -15,8 +13,6 @@ export async function fetchPostsFromSheet(): Promise<Record<string, string>[]> {
       },
     });
     
-    console.log('Google Sheets response status:', response.status);
-    
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Google Sheets API error:', response.status, errorText);
@@ -24,21 +20,12 @@ export async function fetchPostsFromSheet(): Promise<Record<string, string>[]> {
     }
     
     const data = await response.json();
-    console.log('Google Sheets data received:', {
-      hasValues: !!data.values,
-      rowCount: data.values?.length || 0,
-      headers: data.values?.[0] || [],
-      sampleRow: data.values?.[1] || []
-    });
 
     if (!data.values || data.values.length === 0) {
-      console.log('No data found in Google Sheets');
       return [];
     }
 
     const [headers, ...rows]: [string[], ...string[][]] = data.values;
-    console.log('Google Sheets headers:', headers);
-    console.log('Google Sheets first row:', rows[0]);
     
     const result = rows.map((row: string[]) =>
       headers.reduce((obj: Record<string, string>, header: string, i: number) => {
@@ -47,7 +34,6 @@ export async function fetchPostsFromSheet(): Promise<Record<string, string>[]> {
       }, {} as Record<string, string>)
     );
     
-    console.log('Processed rows count:', result.length);
     return result;
     
   } catch (error) {
