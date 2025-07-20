@@ -198,7 +198,7 @@ export default function PostPageClient({ postId, initialPost, initialComments, o
   const readingTime = estimateReadingTime(wordCount)
 
   // Log raw Google Sheet time and browser time
-  console.log(`Client: Full post "${post.title}" | GoogleSheet: "${post.upload_time}" | BrowserNow: "${new Date().toString()}"`);
+  console.log(`Client: Full post "${post.title}" | GoogleSheet: "${post.upload_time_raw || post.upload_time}" | BrowserNow: "${new Date().toString()}"`);
 
   return (
     <div className="max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 py-2 sm:py-6 md:py-8">

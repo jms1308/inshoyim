@@ -376,6 +376,7 @@ export interface Post {
   created_at: string | Date
   updated_at: string | Date
   upload_time?: string
+  upload_time_raw?: string // Raw time from Google Sheets for debugging
   likes_count?: number
   views_count?: number
 }

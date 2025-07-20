@@ -182,13 +182,27 @@ export async function GET(request: NextRequest) {
   try {
     // Fetch all posts from Google Sheets
     const posts = await fetchPostsFromSheet();
+    
+    // If Google Sheets fails, return empty response
+    if (!posts || posts.length === 0) {
+      console.log('No posts fetched from Google Sheets, returning empty response');
+      return NextResponse.json({
+        posts: [],
+        pagination: { page: 1, limit: 20, total: 0, totalPages: 0, hasNext: false, hasPrev: false },
+      });
+    }
 
-    // Debug: Log the first row's keys and the value for 'Name'
+    // Debug: Log the first row's keys and all time-related values
     if (posts.length > 0) {
       const firstRow = posts[0];
       console.log("Sample row from Google Sheet:", firstRow);
       console.log("Keys in first row:", Object.keys(firstRow));
-      console.log("Value for 'Name':", firstRow["Name"]);
+      console.log("All time-related fields:");
+      Object.keys(firstRow).forEach(key => {
+        if (key.toLowerCase().includes('time') || key.toLowerCase().includes('date') || key.toLowerCase().includes('created') || key.toLowerCase().includes('upload')) {
+          console.log(`  ${key}: "${firstRow[key]}"`);
+        }
+      });
     }
 
     // Helper to get the first non-empty value from possible keys, trimming keys and values
@@ -219,7 +233,15 @@ export async function GET(request: NextRequest) {
       const title = getField(row, ["name", "Name", "title", "Title"]);
       const content = getField(row, ["text", "Text", "content", "Content"]);
       const author = getField(row, ["by", "By", "author", "Author"], "Anonymous");
-      const uploadTime = getField(row, ["time", "Time", "upload_time", "uploadTime", "upload time"]);
+      const uploadTime = getField(row, [
+        "time", "Time", "TIME",
+        "upload_time", "uploadTime", "upload time", "uploadTime", "Upload Time",
+        "date", "Date", "DATE", 
+        "created", "Created", "CREATED",
+        "timestamp", "Timestamp", "TIMESTAMP",
+        "submitted", "Submitted", "SUBMITTED",
+        "form_response_timestamp", "Form Response Timestamp"
+      ]);
       const slug = slugify(title);
       
 
@@ -230,6 +252,7 @@ export async function GET(request: NextRequest) {
         content,
         author,
         upload_time: uploadTime ? formatRelativeTime(uploadTime) : "",
+        upload_time_raw: uploadTime || "", // Add raw time for debugging
         excerpt: content.slice(0, 150),
         created_at: row.created_at || row.Created_at || new Date().toISOString(),
         updated_at: row.updated_at || row.Updated_at || new Date().toISOString(),
