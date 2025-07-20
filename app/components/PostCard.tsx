@@ -22,6 +22,9 @@ export default function PostCard({ post, onDelete, showDeleteButton = true, onCl
   const wordCount = countWords(post.content)
   const readingTime = estimateReadingTime(wordCount)
 
+  // Log raw Google Sheet time and browser time
+  console.log(`Client: Post "${post.title}" | GoogleSheet: "${post.upload_time}" | BrowserNow: "${new Date().toString()}"`);
+
   // Remove handleDelete and all delete button logic
   return (
     <article
