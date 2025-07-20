@@ -22,129 +22,40 @@ function capitalizeFirst(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-// Helper to format time as relative time - handles all possible formats
+// Simple time difference calculator
 function formatRelativeTime(timeString: string): string {
   if (!timeString || timeString.trim() === "") return "";
   
   try {
-    // Clean the time string
     const cleanTimeString = timeString.trim();
     
-    // If it's already a relative time format, return as is
-    if (cleanTimeString.includes('ago') || cleanTimeString.includes('minute') || cleanTimeString.includes('hour') || cleanTimeString.includes('day') || cleanTimeString.includes('week') || cleanTimeString.includes('month') || cleanTimeString.includes('year')) {
-      return cleanTimeString;
-    }
+    // Parse Google Sheets format: "7/20/2025 9:06:22"
+    const match = cleanTimeString.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{1,2}):(\d{1,2})$/);
+    if (!match) return "Recently";
     
-    // Try multiple date parsing strategies
-    let uploadTime: Date | null = null;
+    const [, month, day, year, hour, minute, second] = match;
+    const uploadTime = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute), parseInt(second));
     
-    // Strategy 1: Google Sheets specific format (M/D/YYYY H:M:S) - PRIORITY
-    const googleSheetsMatch = cleanTimeString.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{1,2}):(\d{1,2})$/);
-    if (googleSheetsMatch) {
-      const [, month, day, year, hour, minute, second] = googleSheetsMatch;
-      // Create date in UTC timezone (works consistently across all environments)
-      uploadTime = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute), parseInt(second)));
-    }
+    if (isNaN(uploadTime.getTime())) return "Recently";
     
-    // Strategy 2: ISO 8601 format (2023-12-25T14:30:00.000Z)
-    if (!uploadTime || isNaN(uploadTime.getTime())) {
-      if (cleanTimeString.includes('T') || cleanTimeString.includes('Z')) {
-        uploadTime = new Date(cleanTimeString);
-      }
-    }
-    
-    // Strategy 3: Standard date format (12/25/2023 14:30:00)
-    if (!uploadTime || isNaN(uploadTime.getTime())) {
-      uploadTime = new Date(cleanTimeString);
-    }
-    
-    // Strategy 4: Date only (12/25/2023)
-    if (!uploadTime || isNaN(uploadTime.getTime())) {
-      const dateOnly = cleanTimeString.split(' ')[0];
-      uploadTime = new Date(dateOnly);
-    }
-    
-    // Strategy 5: DD/MM/YYYY format
-    if (!uploadTime || isNaN(uploadTime.getTime())) {
-      const parts = cleanTimeString.split('/');
-      if (parts.length === 3) {
-        // Try DD/MM/YYYY
-        uploadTime = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
-      }
-    }
-    
-    // Strategy 6: MM/DD/YYYY format
-    if (!uploadTime || isNaN(uploadTime.getTime())) {
-      const parts = cleanTimeString.split('/');
-      if (parts.length === 3) {
-        // Try MM/DD/YYYY
-        uploadTime = new Date(parseInt(parts[2]), parseInt(parts[0]) - 1, parseInt(parts[1]));
-      }
-    }
-    
-    // Strategy 7: YYYY-MM-DD format
-    if (!uploadTime || isNaN(uploadTime.getTime())) {
-      if (/^\d{4}-\d{2}-\d{2}/.test(cleanTimeString)) {
-        uploadTime = new Date(cleanTimeString);
-      }
-    }
-    
-    // Strategy 8: Unix timestamp
-    if (!uploadTime || isNaN(uploadTime.getTime())) {
-      const timestamp = parseInt(cleanTimeString);
-      if (!isNaN(timestamp) && timestamp > 0) {
-        uploadTime = new Date(timestamp);
-      }
-    }
-    
-    // If all parsing strategies failed, return "Recently"
-    if (!uploadTime || isNaN(uploadTime.getTime())) {
-      return "Recently";
-    }
-    
-    // Use UTC time for consistent comparison across all environments
     const now = new Date();
-    const nowUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds()));
-    const diffInMs = nowUTC.getTime() - uploadTime.getTime();
+    const diffInMs = now.getTime() - uploadTime.getTime();
     
-    // If the difference is negative (future date), return "Recently"
-    if (diffInMs < 0) {
-      return "Recently";
-    }
+    if (diffInMs < 0) return "Recently";
+    if (diffInMs < 60000) return "Just now";
     
-    // If it's less than 1 minute, return "Just now"
-    if (diffInMs < 60000) {
-      return "Just now";
-    }
-    
-    // Calculate time differences
     const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
     const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
     const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-    const diffInWeeks = Math.floor(diffInDays / 7);
-    const diffInMonths = Math.floor(diffInDays / 30);
-    const diffInYears = Math.floor(diffInDays / 365);
     
-    // Format the result
-    let result = "";
-    if (diffInMinutes < 60) {
-      result = `${diffInMinutes} minute${diffInMinutes !== 1 ? 's' : ''} ago`;
-    } else if (diffInHours < 24) {
-      result = `${diffInHours} hour${diffInHours !== 1 ? 's' : ''} ago`;
-    } else if (diffInDays < 7) {
-      result = `${diffInDays} day${diffInDays !== 1 ? 's' : ''} ago`;
-    } else if (diffInWeeks < 4) {
-      result = `${diffInWeeks} week${diffInWeeks !== 1 ? 's' : ''} ago`;
-    } else if (diffInMonths < 12) {
-      result = `${diffInMonths} month${diffInMonths !== 1 ? 's' : ''} ago`;
-    } else {
-      result = `${diffInYears} year${diffInYears !== 1 ? 's' : ''} ago`;
-    }
+    if (diffInMinutes < 60) return `${diffInMinutes} minute${diffInMinutes !== 1 ? 's' : ''} ago`;
+    if (diffInHours < 24) return `${diffInHours} hour${diffInHours !== 1 ? 's' : ''} ago`;
+    if (diffInDays < 7) return `${diffInDays} day${diffInDays !== 1 ? 's' : ''} ago`;
     
-    return result;
+    return `${Math.floor(diffInDays / 7)} week${Math.floor(diffInDays / 7) !== 1 ? 's' : ''} ago`;
     
   } catch (error) {
-    return "Recently"; // Return a safe fallback
+    return "Recently";
   }
 }
 
