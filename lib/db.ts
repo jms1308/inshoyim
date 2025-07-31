@@ -367,40 +367,13 @@ function createStubClient() {
 
 /* ---------- Shared Types ----------------------------------------------- */
 
-export interface Post {
-  id: string // was number, now string (slug)
-  title: string
-  content: string
-  author: string
-  excerpt: string
-  created_at: string | Date
-  updated_at: string | Date
-  upload_time?: string
-  upload_time_raw?: string // Raw time from Google Sheets for debugging
-  likes_count?: number
-  views_count?: number
-}
+
+
 
 export interface Comment {
-  id: number
-  post_id: number
-  content: string
-  author: string
-  created_at: string | Date
-}
-
-export interface PostLike {
-  id: number
-  post_id: number
-  user_ip: string
-  user_agent: string
-  created_at: string | Date
-}
-
-export interface PostView {
-  id: number
-  post_id: number
-  user_ip: string
-  user_agent: string
-  created_at: string | Date
+  id: number;
+  post_id: number;
+  content: string;
+  author: string;
+  created_at: string | Date;
 }

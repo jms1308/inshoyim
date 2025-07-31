@@ -8,21 +8,29 @@ import { ArrowLeft, RefreshCw, AlertCircle, Clock, FileText, Heart, Eye, Calenda
 import Link from "next/link"
 import { countWords, estimateReadingTime } from "@/lib/utils"
 
+
 interface PostPageClientProps {
   postId: string
   initialPost: Post | null
   initialComments: Comment[]
   onBack?: () => void
+  view?: string
+  apple?: string
 }
 
-export default function PostPageClient({ postId, initialPost, initialComments, onBack }: PostPageClientProps) {
+export default function PostPageClient({ postId, initialPost, initialComments, onBack, apple }: PostPageClientProps) {
+  // Show Apple value at the top for demo
+  // Show Apple value at the top of the post page if present
+  // ...existing code...
+  // Log the Google Sheet view string in the browser console
+
   const [post, setPost] = useState<Post | null>(initialPost)
   const [comments, setComments] = useState<Comment[]>(initialComments)
   const [loading, setLoading] = useState(!initialPost)
   const [error, setError] = useState<string | null>(null)
   const [liked, setLiked] = useState(false)
   const [likesCount, setLikesCount] = useState(0)
-  const [viewsCount, setViewsCount] = useState(0)
+  const [viewsCount, setViewsCount] = useState(1)
   const [likeLoading, setLikeLoading] = useState(false)
 
   const fetchPost = async () => {
@@ -44,7 +52,7 @@ export default function PostPageClient({ postId, initialPost, initialComments, o
       }
 
       const postData = await response.json()
-      console.log("Client: Received post data:", postData)
+     
       setPost(postData)
       setLikesCount(postData.likes_count || 0)
       setViewsCount(postData.views_count || 0)
@@ -56,7 +64,7 @@ export default function PostPageClient({ postId, initialPost, initialComments, o
         setComments(commentsData)
       }
     } catch (err) {
-      console.error("Client: Error fetching post:", err)
+      
       setError(err instanceof Error ? err.message : "Failed to load post")
     } finally {
       setLoading(false)
@@ -202,6 +210,13 @@ export default function PostPageClient({ postId, initialPost, initialComments, o
 
   return (
     <div className="max-w-4xl mx-auto px-2 sm:px-6 lg:px-8 py-2 sm:py-6 md:py-8">
+      {apple && (
+        <div className="mb-4">
+          <span className="inline-block bg-green-100 text-green-800 text-base px-3 py-2 rounded font-semibold">
+            Bu inshoning Apple ni: {apple}
+          </span>
+        </div>
+      )}
       <div className="mb-6">
         {onBack ? (
           <Button variant="outline" size="sm" className="flex items-center space-x-2 bg-transparent" onClick={onBack}>

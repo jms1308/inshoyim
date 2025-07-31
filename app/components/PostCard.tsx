@@ -18,14 +18,11 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post, onDelete, showDeleteButton = true, onClick }: PostCardProps) {
+  console.log("PostCard post:", post)
   const timeAgo = formatDistanceToNow(new Date(post.created_at), { addSuffix: true })
   const wordCount = countWords(post.content)
   const readingTime = estimateReadingTime(wordCount)
 
-  // Log browser time, Google Sheet time, and how long ago uploaded
-  console.log(`Browser: ${new Date().toString()} | GoogleSheet: "${post.upload_time_raw || post.upload_time}" | Uploaded: ${post.upload_time}`)
-
-  // Remove handleDelete and all delete button logic
   return (
     <article
       className="relative bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-gray-300 transition-all duration-300 cursor-pointer"
@@ -36,10 +33,16 @@ export default function PostCard({ post, onDelete, showDeleteButton = true, onCl
       onKeyDown={e => { if ((e.key === 'Enter' || e.key === ' ') && onClick) onClick(post) }}
     >
       <div className="p-4 sm:p-5 md:p-6">
-          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3 group-hover:text-blue-600 transition-colors line-clamp-2 leading-tight">
-            {post.title}
-          </h2>
-          <p className="text-gray-600 mb-3 sm:mb-4 leading-relaxed text-sm sm:text-base line-clamp-3">{post.excerpt}</p>
+        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3 group-hover:text-blue-600 transition-colors line-clamp-2 leading-tight">
+          {post.title}
+        </h2>
+        <p className="text-gray-600 mb-3 sm:mb-4 leading-relaxed text-sm sm:text-base line-clamp-3">{post.excerpt}</p>
+        {/* Apple value always visible with label */}
+        <div className="mb-2">
+          <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded font-semibold">
+            Ko'rishlar soni: {post.apple ? post.apple : '—'}
+          </span>
+        </div>
         <div className="flex items-start justify-between gap-3 mt-1">
           <div className="flex items-center text-xs sm:text-sm text-gray-500 gap-2 flex-wrap min-w-0 flex-1">
             <div className="flex items-center gap-1 shrink-0">

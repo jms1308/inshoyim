@@ -14,9 +14,8 @@ function slugify(str: string) {
 }
 
 async function getPost(slug: string) {
-  const posts = await fetchPostsFromSheet()
-  console.log("Total posts loaded from sheet:", posts.length)
-  // Robust getField logic
+  const posts = await fetchPostsFromSheet();
+  // Helper to robustly get a field from a row with possible key variations
   const getField = (row: Record<string, string>, keys: string[], fallback = "") => {
     for (const key of keys) {
       const candidates = [key, key.trim(), key.toLowerCase(), key.toUpperCase()];
@@ -31,30 +30,30 @@ async function getPost(slug: string) {
     }
     return fallback;
   };
-  return posts.map((row, idx) => {
+  return posts.map((row) => {
     const title = getField(row, ["name", "Name", "title", "Title"]);
     const content = getField(row, ["text", "Text", "content", "Content"]);
     const author = getField(row, ["by", "By", "author", "Author"], "Anonymous");
     const postSlug = slugify(title);
+    // Universal view count extraction from any possible key
+    // Read 'Apple' column from Google Sheet
+    const apple = row.Apple || row.apple || "1";
     return {
       id: postSlug,
       title,
       content,
       author,
       excerpt: content.slice(0, 150),
-    created_at: row.created_at || row.Created_at || new Date().toISOString(),
-    updated_at: row.updated_at || row.Updated_at || new Date().toISOString(),
-    likes_count: Number(row.likes_count || row.Likes_count || 0),
-    views_count: Number(row.views_count || row.Views_count || 0),
-    }
-  }).find((p) => p.id === slug) || null
+      created_at: row.created_at || row.Created_at || new Date().toISOString(),
+      updated_at: row.updated_at || row.Updated_at || new Date().toISOString(),
+      apple, // string from Google Sheet Apple column
+    };
+  }).find((p) => p.id === slug) || null;
 }
 
-export default async function PostPage({ params }: { params: { id: string } }) {
   const post = await getPost(params.id)
   if (!post) {
     notFound()
   }
-  // Comments logic can remain if still using DB for comments
-  return <PostPageClient postId={post.id} initialPost={post} initialComments={[]} />
+  return <PostPageClient postId={post.id} initialPost={post} initialComments={[]} apple={post.apple} />
 }

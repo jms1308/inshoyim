@@ -49,9 +49,10 @@ export default function WriteForm() {
 
     try {
       // TODO: Replace with your Google Apps Script Web App URL
-      const webAppUrl = 'https://script.google.com/macros/s/AKfycbxylwiUyIiZ5baAb8RmnBO9EQXnR1FJ7h3ZRROA5rVOXE4URdjelBFKX9FBb5mff_Ow/exec';
+      const webAppUrl = 'https://script.google.com/macros/s/AKfycbx2E7MuP7ZS2wdB0Q5hRgq6VthLgkLS_rM5ExgFk5Q31-DUTgx6Pf1gjzunRnoJELG8/exec';
       // Send to Google Apps Script Web App using form data
       const formData = new URLSearchParams();
+      formData.append("action", "add"); // yoki incrementView
       formData.append('name', title.trim());
       formData.append('by', author.trim() || "Anonim");
       formData.append('text', content.trim());
@@ -159,7 +160,7 @@ export default function WriteForm() {
             id="content"
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="O'z fikrlaringiz, tajribalaringiz va tushunchalaringizni ulashing. Mazmunli insho yaratish uchun kamida 150 so'z yozing..."
+            placeholder="O'z fikrlaringiz, tajribalaringiz va tushunchalaringizni ulashing. Mazmunli insho yaratish uchun kamida 100 ta so'z yozing..."
             required
             rows={18}
             className={`w-full px-4 py-3 text-sm sm:text-base border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none leading-relaxed ${

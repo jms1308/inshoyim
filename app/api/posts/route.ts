@@ -121,10 +121,9 @@ export async function GET(request: NextRequest) {
         "submitted", "Submitted", "SUBMITTED",
         "form_response_timestamp", "Form Response Timestamp"
       ]);
+      const apple = getField(row, ["apple", "Apple", "APPLE"]);
       const slug = slugify(title);
-      
 
-      
       return {
         id: slug,
         title: capitalizeFirst(title),
@@ -135,8 +134,8 @@ export async function GET(request: NextRequest) {
         excerpt: content.slice(0, 150),
         created_at: row.created_at || row.Created_at || new Date().toISOString(),
         updated_at: row.updated_at || row.Updated_at || new Date().toISOString(),
-        likes_count: Number(row.likes_count || row.Likes_count || 0),
-        views_count: Number(row.views_count || row.Views_count || 0),
+        apple,
+        // Remove likes_count and views_count if not needed, or leave for compatibility
       };
     });
 
