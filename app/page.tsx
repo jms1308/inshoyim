@@ -75,26 +75,35 @@ export default function HomePage() {
       {/* Features Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
-          <div className="text-center p-4 sm:p-6 bg-white rounded-lg shadow-sm">
-            <PenTool className="h-10 w-10 sm:h-12 sm:w-12 text-blue-600 mx-auto mb-3 sm:mb-4" />
-            <h3 className="text-lg sm:text-xl font-semibold mb-2">Erkin Yozing</h3>
-            <p className="text-sm sm:text-base text-gray-600">
-              Uzun matnlar uchun mo'ljallangan toza, chalg'ituvchi elementlarsiz yozish interfeysi
-            </p>
+          {/* Erkin Yozing */}
+          <div className="group text-center p-6 bg-white/60 dark:bg-gray-900/60 rounded-2xl shadow-xl border border-blue-100 dark:border-gray-800 backdrop-blur-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-100">
+            <div className="flex justify-center mb-4">
+              <span className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white border-4 border-blue-100 shadow-lg group-hover:scale-110 transition-transform">
+                <PenTool className="h-8 w-8 text-blue-500" />
+              </span>
+            </div>
+            <h3 className="text-xl font-bold mb-2 text-blue-700 group-hover:text-purple-600 transition-colors">Erkin Yozing</h3>
+            <p className="text-base text-gray-600 dark:text-gray-300">Uzun matnlar uchun mo'ljallangan toza, chalg'ituvchi elementlarsiz yozish interfeysi</p>
           </div>
-          <div className="text-center p-4 sm:p-6 bg-white rounded-lg shadow-sm">
-            <Users className="h-10 w-10 sm:h-12 sm:w-12 text-blue-600 mx-auto mb-3 sm:mb-4" />
-            <h3 className="text-lg sm:text-xl font-semibold mb-2">Bog'laning</h3>
-            <p className="text-sm sm:text-base text-gray-600">
-              Izohlar va muhokamalar orqali boshqa yozuvchilar va o'quvchilar bilan muloqot qiling
-            </p>
+          {/* Bog'laning */}
+          <div className="group text-center p-6 bg-white/60 dark:bg-gray-900/60 rounded-2xl shadow-xl border border-blue-100 dark:border-gray-800 backdrop-blur-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-100">
+            <div className="flex justify-center mb-4">
+              <span className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white border-4 border-blue-100 shadow-lg group-hover:scale-110 transition-transform">
+                <Users className="h-8 w-8 text-blue-500" />
+              </span>
+            </div>
+            <h3 className="text-xl font-bold mb-2 text-blue-700 group-hover:text-purple-600 transition-colors">Bog'laning</h3>
+            <p className="text-base text-gray-600 dark:text-gray-300">Izohlar va muhokamalar orqali boshqa yozuvchilar va o'quvchilar bilan muloqot qiling</p>
           </div>
-          <div className="text-center p-4 sm:p-6 bg-white rounded-lg shadow-sm sm:col-span-2 md:col-span-1">
-            <Zap className="h-10 w-10 sm:h-12 sm:w-12 text-blue-600 mx-auto mb-3 sm:mb-4" />
-            <h3 className="text-lg sm:text-xl font-semibold mb-2">Kashf Eting</h3>
-            <p className="text-sm sm:text-base text-gray-600">
-              Dunyo bo'ylab yozuvchilarning ajoyib hikoyalari va insholarini toping
-            </p>
+          {/* Kashf Eting */}
+          <div className="group text-center p-6 bg-white/60 dark:bg-gray-900/60 rounded-2xl shadow-xl border border-blue-100 dark:border-gray-800 backdrop-blur-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-100 sm:col-span-2 md:col-span-1">
+            <div className="flex justify-center mb-4">
+              <span className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white border-4 border-blue-100 shadow-lg group-hover:scale-110 transition-transform">
+                <Zap className="h-8 w-8 text-blue-500" />
+              </span>
+            </div>
+            <h3 className="text-xl font-bold mb-2 text-blue-700 group-hover:text-purple-600 transition-colors">Kashf Eting</h3>
+            <p className="text-base text-gray-600 dark:text-gray-300">Dunyo bo'ylab yozuvchilarning ajoyib hikoyalari va insholarini toping</p>
           </div>
         </div>
       </div>
