@@ -216,21 +216,18 @@ export async function POST(request: NextRequest) {
     let row = result[0] as any | undefined
     if (!row) {
       const now = new Date()
-      row = {
-        id: Date.now(),
-        title,
+      return {
+        id: slug,
+        title: capitalizeFirst(title),
         content,
-        author: author || "Anonymous",
-        excerpt,
-        created_at: now,
-        updated_at: now,
-        likes_count: 0,
-        views_count: 0,
-      }
-    }
-
-    const post = {
-      id: Number(row.id),
+        author,
+        upload_time: uploadTime ? formatRelativeTime(uploadTime) : "",
+        upload_time_raw: uploadTime || "", // Add raw time for debugging
+        excerpt: content.slice(0, 150),
+        created_at: row.created_at || row.Created_at || new Date().toISOString(),
+        updated_at: row.updated_at || row.Updated_at || new Date().toISOString(),
+        apple,
+      };
       title: row.title,
       content: row.content,
       author: row.author,
