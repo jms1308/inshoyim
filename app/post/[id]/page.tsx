@@ -51,6 +51,8 @@ async function getPost(slug: string) {
   }).find((p) => p.id === slug) || null;
 }
 
+
+export default async function Page({ params }) {
   const post = await getPost(params.id)
   if (!post) {
     notFound()

@@ -212,30 +212,40 @@ export async function POST(request: NextRequest) {
       RETURNING id, title, content, author, excerpt, created_at, updated_at, likes_count, views_count
     `
 
-    // Handle both real DB and stub responses
-    let row = result[0] as any | undefined
-    if (!row) {
-      const now = new Date()
-      return {
+
+    // Prepare variables for new post
+    const slug = slugify(title);
+    const now = new Date();
+    const uploadTime = now.toISOString();
+    const apple = "";
+
+
+    let post;
+    if (result && result[0]) {
+      const row = result[0];
+      post = {
+        id: row.id,
+        title: row.title,
+        content: row.content,
+        author: row.author,
+        excerpt: row.excerpt,
+        created_at: row.created_at instanceof Date ? row.created_at.toISOString() : String(row.created_at),
+        updated_at: row.updated_at instanceof Date ? row.updated_at.toISOString() : String(row.updated_at),
+        apple: row.apple || "",
+      };
+    } else {
+      post = {
         id: slug,
         title: capitalizeFirst(title),
         content,
         author,
-        upload_time: uploadTime ? formatRelativeTime(uploadTime) : "",
-        upload_time_raw: uploadTime || "", // Add raw time for debugging
-        excerpt: content.slice(0, 150),
-        created_at: row.created_at || row.Created_at || new Date().toISOString(),
-        updated_at: row.updated_at || row.Updated_at || new Date().toISOString(),
+        upload_time: "",
+        upload_time_raw: "",
+        excerpt,
+        created_at: now.toISOString(),
+        updated_at: now.toISOString(),
         apple,
       };
-      title: row.title,
-      content: row.content,
-      author: row.author,
-      excerpt: row.excerpt,
-      created_at: row.created_at instanceof Date ? row.created_at.toISOString() : String(row.created_at),
-      updated_at: row.updated_at instanceof Date ? row.updated_at.toISOString() : String(row.updated_at),
-      likes_count: Number(row.likes_count || 0),
-      views_count: Number(row.views_count || 0),
     }
 
     console.log("API: Successfully created post with ID:", post.id, "Word count:", wordCount)
