@@ -78,8 +78,8 @@ function CommentSection({ postId, initialComments, onCommentAdded }: { postId: s
     <div className="mt-12 pt-8 border-t">
       <h2 className="font-headline text-2xl font-bold mb-6">Sharhlar ({commentsWithAuthors?.length || 0})</h2>
       <div className="space-y-6">
-        {commentsWithAuthors.map((comment) => (
-          <div key={comment.id} className="flex gap-4">
+        {commentsWithAuthors.map((comment, index) => (
+          <div key={`${comment.id}-${index}`} className="flex gap-4">
              <Avatar>
                 <AvatarImage src={comment.author?.avatar_url} alt={comment.author?.name} data-ai-hint="avatar" />
                 <AvatarFallback>{comment.author?.name.charAt(0) || 'U'}</AvatarFallback>
@@ -113,11 +113,11 @@ function CommentSection({ postId, initialComments, onCommentAdded }: { postId: s
 
 
 export default function PostPage({ params }: { params: { id: string } }) {
-  const postId = params.id;
   const [post, setPost] = useState<Post | null>(null);
   const [author, setAuthor] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const postId = params.id;
 
   useEffect(() => {
     if (!postId) return;
@@ -162,9 +162,11 @@ export default function PostPage({ params }: { params: { id: string } }) {
   const handleCommentAdded = (newComment: Comment & { author: User | null }) => {
     setPost(prevPost => {
       if (!prevPost) return null;
+      // Ensure comments is always an array
+      const existingComments = prevPost.comments || [];
       return { 
         ...prevPost, 
-        comments: [...(prevPost.comments || []), newComment] 
+        comments: [...existingComments, newComment] 
       };
     });
   };
@@ -237,7 +239,7 @@ export default function PostPage({ params }: { params: { id: string } }) {
         dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br />') }}
       />
 
-      <CommentSection postId={post.id} initialComments={post.comments} onCommentAdded={handleCommentAdded} />
+      <CommentSection postId={post.id} initialComments={post.comments || []} onCommentAdded={handleCommentAdded} />
     </article>
   );
 }
