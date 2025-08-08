@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import {
-  BookOpenText,
+  BookMarked,
   LogOut,
   User as UserIcon,
   PlusCircle,
@@ -49,7 +49,7 @@ function MobileNav({ user }: { user: User | null }) {
         <SheetHeader>
           <SheetTitle asChild>
              <Link href="/" className="flex items-center gap-2" onClick={() => setIsOpen(false)}>
-                <BookOpenText className="h-6 w-6 text-primary" />
+                <BookMarked className="h-6 w-6 text-primary" />
                 <span className="font-headline text-xl font-bold">Inshoyim</span>
             </Link>
           </SheetTitle>
@@ -104,13 +104,13 @@ export function Header() {
                 <MobileNav user={user} />
             </div>
             <Link href="/" className="hidden md:flex items-center gap-2">
-            <BookOpenText className="h-6 w-6 text-primary" />
+            <BookMarked className="h-6 w-6 text-primary" />
             <span className="font-headline text-xl font-bold">Inshoyim</span>
             </Link>
         </div>
 
         <Link href="/" className="flex md:hidden items-center gap-2">
-          <BookOpenText className="h-6 w-6 text-primary" />
+          <BookMarked className="h-6 w-6 text-primary" />
           <span className="font-headline text-xl font-bold">Inshoyim</span>
         </Link>
         
