@@ -40,10 +40,11 @@ export default function Home() {
   const typingSpeed = 150;
   const deletingSpeed = 100;
   const delayBetweenPhrases = 2000;
+  const initialDelay = 1000; // 1 second
 
   useEffect(() => {
     if(isInitialDelay) {
-      setTimeout(() => setIsInitialDelay(false), delayBetweenPhrases);
+      setTimeout(() => setIsInitialDelay(false), initialDelay);
       return;
     }
 
