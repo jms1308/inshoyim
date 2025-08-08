@@ -18,6 +18,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { format } from 'date-fns';
 import { DeletePostDialog } from '@/components/DeletePostDialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 function CommentSection({ postId, initialComments, onCommentAdded }: { postId: string, initialComments: Comment[], onCommentAdded: (comment: (Comment & { author: User | null })) => void }) {
   const [newComment, setNewComment] = useState("");
@@ -117,8 +118,8 @@ function CommentSection({ postId, initialComments, onCommentAdded }: { postId: s
 
 
 export default function PostPage() {
-  const params = useParams();
   const router = useRouter();
+  const params = useParams();
   const postId = params.id as string;
   const [post, setPost] = useState<Post | null>(null);
   const [author, setAuthor] = useState<User | null>(null);
@@ -221,18 +222,37 @@ export default function PostPage() {
       </div>
       <header className="mb-8 md:mb-12">
          {isAuthor && (
+          <TooltipProvider>
             <div className="flex justify-end gap-2 mb-4">
-                <Link href={`/posts/${post.id}/edit`}>
-                    <Button variant="outline" size="sm">
-                        <Edit className="mr-2 h-4 w-4" /> Tahrirlash
-                    </Button>
-                </Link>
-                <DeletePostDialog postId={post.id} onPostDeleted={handlePostDeleted}>
-                    <Button variant="destructive" size="sm">
-                        <Trash2 className="mr-2 h-4 w-4" /> O'chirish
-                    </Button>
-                </DeletePostDialog>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link href={`/posts/${post.id}/edit`}>
+                        <Button variant="outline" size="icon">
+                            <Edit className="h-4 w-4" />
+                            <span className="sr-only">Tahrirlash</span>
+                        </Button>
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Tahrirlash</p>
+                  </TooltipContent>
+                </Tooltip>
+                
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <DeletePostDialog postId={post.id} onPostDeleted={handlePostDeleted}>
+                        <Button variant="destructive" size="icon">
+                            <Trash2 className="h-4 w-4" />
+                            <span className="sr-only">O'chirish</span>
+                        </Button>
+                    </DeletePostDialog>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>O'chirish</p>
+                  </TooltipContent>
+                </Tooltip>
             </div>
+          </TooltipProvider>
         )}
         <div className="flex flex-wrap gap-2 mb-4">
           {post.tags.map((tag) => (
