@@ -1,6 +1,7 @@
+
 'use client';
 
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { getPostById, incrementPostView, addCommentToPost } from '@/lib/services/posts';
@@ -114,12 +115,13 @@ function CommentSection({ postId, initialComments, onCommentAdded }: { postId: s
 }
 
 
-export default function PostPage({ params }: { params: { id: string } }) {
+export default function PostPage() {
+  const params = useParams();
+  const postId = params.id as string;
   const [post, setPost] = useState<Post | null>(null);
   const [author, setAuthor] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  const postId = params.id;
 
   useEffect(() => {
     if (!postId) return;
@@ -140,8 +142,8 @@ export default function PostPage({ params }: { params: { id: string } }) {
           const postRef = doc(db, 'posts', postId);
           const postSnap = await getDoc(postRef);
           if (postSnap.exists()) {
-             const postData = postSnap.data();
-             if (!postData.viewed_by || !postData.viewed_by.includes(userId)) {
+             const postDataFromSnap = postSnap.data();
+             if (!postDataFromSnap.viewed_by || !postDataFromSnap.viewed_by.includes(userId)) {
                 await incrementPostView(postId, userId);
              }
           }
