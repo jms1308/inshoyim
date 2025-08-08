@@ -1,3 +1,4 @@
+
 'use server';
 
 import { db } from '@/lib/firebase';
@@ -114,6 +115,23 @@ export async function addCommentToPost(postId: string, userId: string, content: 
     });
 
     return newComment;
+}
+
+export async function deleteCommentFromPost(postId: string, commentId: string): Promise<void> {
+    const postRef = doc(db, 'posts', postId);
+    const postSnap = await getDoc(postRef);
+
+    if (postSnap.exists()) {
+        const postData = postSnap.data();
+        const comments = postData.comments || [];
+        const updatedComments = comments.filter((comment: Comment) => comment.id !== commentId);
+
+        await updateDoc(postRef, {
+            comments: updatedComments
+        });
+    } else {
+        throw new Error("Post not found");
+    }
 }
 
 

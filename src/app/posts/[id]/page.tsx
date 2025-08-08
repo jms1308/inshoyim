@@ -2,9 +2,9 @@
 'use client';
 
 import { useParams, notFound, useRouter } from 'next/navigation';
-import { useEffect, useState, use } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { getPostById, incrementPostView, addCommentToPost } from '@/lib/services/posts';
+import { getPostById, incrementPostView, addCommentToPost, deleteCommentFromPost } from '@/lib/services/posts';
 import { getUserById } from '@/lib/services/users';
 import type { Post, User, Comment } from '@/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -19,8 +19,19 @@ import { db } from '@/lib/firebase';
 import { format } from 'date-fns';
 import { DeletePostDialog } from '@/components/DeletePostDialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
-function CommentSection({ postId, initialComments, onCommentAdded }: { postId: string, initialComments: Comment[], onCommentAdded: (comment: (Comment & { author: User | null })) => void }) {
+function CommentSection({ postId, initialComments, onCommentAdded, onCommentDeleted, loggedInUser }: { postId: string, initialComments: Comment[], onCommentAdded: (comment: (Comment & { author: User | null })) => void, onCommentDeleted: (commentId: string) => void, loggedInUser: User | null }) {
   const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [commentsWithAuthors, setCommentsWithAuthors] = useState<(Comment & { author: User | null })[]>([]);
@@ -34,22 +45,38 @@ function CommentSection({ postId, initialComments, onCommentAdded }: { postId: s
           return { ...comment, author };
         })
       );
-      setCommentsWithAuthors(commentsData);
+      setCommentsWithAuthors(commentsData.sort((a,b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
     }
     if (initialComments) {
       fetchAuthors();
     }
   }, [initialComments]);
 
+  const handleDeleteComment = async (commentId: string) => {
+    try {
+      await deleteCommentFromPost(postId, commentId);
+      onCommentDeleted(commentId);
+      setCommentsWithAuthors(prev => prev.filter(c => c.id !== commentId));
+      toast({
+        title: "Muvaffaqiyatli!",
+        description: "Sharh o'chirildi."
+      });
+    } catch (error) {
+       console.error("Failed to delete comment:", error);
+       toast({
+        title: "Xatolik!",
+        description: "Sharhni o'chirishda xatolik yuz berdi.",
+        variant: "destructive"
+      });
+    }
+  };
 
   const handleSubmitComment = async () => {
-    const storedUser = localStorage.getItem('user');
-    if (!storedUser) {
+    if (!loggedInUser) {
         toast({ title: "Xatolik", description: "Izoh qoldirish uchun tizimga kiring.", variant: "destructive"});
         return;
     }
-    const user = JSON.parse(storedUser);
-    const userId = user.id;
+    const userId = loggedInUser.id;
 
     if (!newComment.trim()) return;
 
@@ -60,7 +87,7 @@ function CommentSection({ postId, initialComments, onCommentAdded }: { postId: s
       const newCommentWithAuthor = { ...addedComment, author };
 
       onCommentAdded(newCommentWithAuthor); // Update parent state
-      setCommentsWithAuthors(prev => [...prev, newCommentWithAuthor]); // Update local state
+      setCommentsWithAuthors(prev => [newCommentWithAuthor, ...prev]); // Update local state
       
       setNewComment("");
        toast({
@@ -84,16 +111,43 @@ function CommentSection({ postId, initialComments, onCommentAdded }: { postId: s
       <h2 className="font-headline text-2xl font-bold mb-6">Sharhlar ({commentsWithAuthors?.length || 0})</h2>
       <div className="space-y-6">
         {commentsWithAuthors.map((comment, index) => (
-          <div key={`${comment.id}-${index}`} className="flex gap-4">
+          <div key={`${comment.id}-${index}`} className="flex gap-4 group">
              <Avatar>
                 <AvatarImage src={comment.author?.avatar_url} alt={comment.author?.name} data-ai-hint="avatar" />
                 <AvatarFallback>{comment.author?.name.charAt(0) || 'U'}</AvatarFallback>
             </Avatar>
-            <div>
-              <p className="font-bold">{comment.author?.name}</p>
-              <p className="text-sm text-muted-foreground mb-1">
-                 {format(new Date(comment.created_at), 'dd.MM.yyyy')}
-              </p>
+            <div className="flex-grow">
+              <div className="flex items-center justify-between">
+                <div>
+                   <p className="font-bold">{comment.author?.name}</p>
+                   <p className="text-sm text-muted-foreground mb-1">
+                      {format(new Date(comment.created_at), 'dd.MM.yyyy')}
+                   </p>
+                </div>
+                {loggedInUser?.id === comment.user_id && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Sharhni o'chirishga ishonchingiz komilmi?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                           Bu amalni qaytarib bo'lmaydi. Bu sizning sharhingizni butunlay o'chirib tashlaydi.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Bekor qilish</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleDeleteComment(comment.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                          Ha, o'chirish
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
+              </div>
               <p>{comment.content}</p>
             </div>
           </div>
@@ -187,10 +241,21 @@ export default function PostPage() {
       const existingComments = prevPost.comments || [];
       return { 
         ...prevPost, 
-        comments: [...existingComments, newComment] 
+        comments: [newComment, ...existingComments]
       };
     });
   };
+
+  const handleCommentDeleted = (commentId: string) => {
+     setPost(prevPost => {
+      if (!prevPost) return null;
+      const updatedComments = (prevPost.comments || []).filter(c => c.id !== commentId);
+      return { 
+        ...prevPost, 
+        comments: updatedComments
+      };
+    });
+  }
 
   const handlePostDeleted = () => {
     toast({
@@ -303,7 +368,13 @@ export default function PostPage() {
         dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br />') }}
       />
 
-      <CommentSection postId={post.id} initialComments={post.comments || []} onCommentAdded={handleCommentAdded} />
+      <CommentSection 
+        postId={post.id} 
+        initialComments={post.comments || []} 
+        onCommentAdded={handleCommentAdded}
+        onCommentDeleted={handleCommentDeleted}
+        loggedInUser={loggedInUser}
+      />
     </article>
   );
 }
