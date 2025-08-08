@@ -33,7 +33,7 @@ export async function createUser(name: string, email: string, password_DO_NOT_ST
         name,
         email,
         password: password_DO_NOT_STORE_IN_PLAIN_TEXT, // WARNING: Storing plain text passwords is a security risk.
-        avatar_url: `https://placehold.co/100x100.png?text=${name.charAt(0)}`,
+        avatar_url: `https://api.dicebear.com/8.x/lorelei/svg?seed=${encodeURIComponent(name)}`,
         created_at: new Date(),
         bio: 'Yangi foydalanuvchi',
     };
