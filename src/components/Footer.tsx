@@ -1,5 +1,7 @@
+import { format } from 'date-fns';
+
 export function Footer() {
-  const currentYear = new Date().getFullYear();
+  const currentYear = format(new Date(), 'yyyy');
 
   return (
     <footer className="border-t">

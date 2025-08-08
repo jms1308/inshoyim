@@ -15,6 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { format } from 'date-fns';
 
 function CommentSection({ postId, initialComments, onCommentAdded }: { postId: string, initialComments: Comment[], onCommentAdded: (comment: (Comment & { author: User | null })) => void }) {
   const [newComment, setNewComment] = useState("");
@@ -88,7 +89,7 @@ function CommentSection({ postId, initialComments, onCommentAdded }: { postId: s
             <div>
               <p className="font-bold">{comment.author?.name}</p>
               <p className="text-sm text-muted-foreground mb-1">
-                 {new Date(comment.created_at).toLocaleDateString('uz-UZ', { year: 'numeric', month: 'long', day: 'numeric' })}
+                 {format(new Date(comment.created_at), 'dd.MM.yyyy')}
               </p>
               <p>{comment.content}</p>
             </div>
@@ -190,11 +191,7 @@ export default function PostPage({ params }: { params: { id: string } }) {
   
   const authorInitials = author?.name.split(' ').map(n => n[0]).join('') || 'U';
 
-  const formattedDate = new Date(post.created_at).toLocaleDateString('uz-UZ', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+  const formattedDate = format(new Date(post.created_at), 'dd.MM.yyyy');
 
   return (
     <article className="container mx-auto max-w-3xl px-4 py-8 md:py-16">
