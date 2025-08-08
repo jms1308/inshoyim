@@ -83,20 +83,12 @@ export async function getPostById(id: string): Promise<Post | null> {
     }
 }
 
-export async function incrementPostView(postId: string, userId: string): Promise<void> {
-    if (!postId || !userId) return;
+export async function incrementPostView(postId: string): Promise<void> {
+    if (!postId) return;
     const postRef = doc(db, 'posts', postId);
-    const postSnap = await getDoc(postRef);
-    if (!postSnap.exists()) return;
-
-    const postData = postSnap.data();
-    // Only increment if the user hasn't viewed it before
-    if (!postData.viewed_by || !postData.viewed_by.includes(userId)) {
-        await updateDoc(postRef, {
-            views: increment(1),
-            viewed_by: arrayUnion(userId)
-        });
-    }
+    await updateDoc(postRef, {
+        views: increment(1)
+    });
 }
 
 export async function addCommentToPost(postId: string, userId: string, content: string): Promise<Comment> {

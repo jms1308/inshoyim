@@ -14,8 +14,6 @@ import { ShareButton } from '@/components/ShareButton';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 import { format } from 'date-fns';
 import { DeletePostDialog } from '@/components/DeletePostDialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -193,36 +191,33 @@ export default function PostPage() {
 
     async function fetchData() {
       try {
-        const postData = await getPostById(postId);
+        let postData = await getPostById(postId);
         if (!postData) {
           notFound();
           return;
         }
 
-        const userId = loggedInUser?.id;
-        
-        if (userId) {
-          // Check if this post was viewed by this user before.
-          const postRef = doc(db, 'posts', postId);
-          const postSnap = await getDoc(postRef);
-          if (postSnap.exists()) {
-             const postDataFromSnap = postSnap.data();
-             if (!postDataFromSnap.viewed_by || !postDataFromSnap.viewed_by.includes(userId)) {
-                await incrementPostView(postId, userId);
-             }
-          }
-        }
-        
-        // We refetch the post to get the updated view count
-        const finalPostData = await getPostById(postId);
-         if (!finalPostData) {
-          notFound();
-          return;
-        }
-        setPost(finalPostData);
+        // --- View Count Logic ---
+        const viewedPostsKey = 'viewed_posts';
+        const viewedPosts = JSON.parse(localStorage.getItem(viewedPostsKey) || '[]');
 
-        if (finalPostData.author_id) {
-          const authorData = await getUserById(finalPostData.author_id);
+        if (!viewedPosts.includes(postId)) {
+            await incrementPostView(postId);
+            viewedPosts.push(postId);
+            localStorage.setItem(viewedPostsKey, JSON.stringify(viewedPosts));
+            // Refetch post data to get updated view count
+            postData = await getPostById(postId);
+            if (!postData) {
+              notFound();
+              return;
+            }
+        }
+        // --- End View Count Logic ---
+
+        setPost(postData);
+
+        if (postData.author_id) {
+          const authorData = await getUserById(postData.author_id);
           setAuthor(authorData);
         }
       } catch (error) {
@@ -233,7 +228,7 @@ export default function PostPage() {
       }
     }
     fetchData();
-  }, [postId, toast, loggedInUser]);
+  }, [postId, toast]);
   
   const handleCommentAdded = (newComment: Comment & { author: User | null }) => {
     setPost(prevPost => {
