@@ -14,7 +14,9 @@ import {
     Timestamp,
     addDoc,
     orderBy,
-    limit
+    limit,
+    deleteDoc,
+    writeBatch
 } from 'firebase/firestore';
 import type { Post, Comment } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
@@ -144,4 +146,29 @@ export async function createPost(data: CreatePostData): Promise<Post> {
         created_at: newPost.created_at.toISOString(),
         updated_at: newPost.updated_at.toISOString(),
     };
+}
+
+
+interface UpdatePostData {
+    title: string;
+    content: string;
+    tags: string[];
+}
+
+export async function updatePost(postId: string, data: UpdatePostData): Promise<void> {
+    const postRef = doc(db, 'posts', postId);
+    const readTime = Math.ceil(data.content.split(' ').length / 200);
+
+    const updateData = {
+        ...data,
+        read_time: readTime,
+        updated_at: new Date(),
+    };
+
+    await updateDoc(postRef, updateData);
+}
+
+export async function deletePost(postId: string): Promise<void> {
+    const postRef = doc(db, 'posts', postId);
+    await deleteDoc(postRef);
 }

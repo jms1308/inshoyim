@@ -1,15 +1,15 @@
 
 'use client';
 
-import { notFound, useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useParams, notFound, useRouter } from 'next/navigation';
+import { useEffect, useState, use } from 'react';
 import Link from 'next/link';
 import { getPostById, incrementPostView, addCommentToPost } from '@/lib/services/posts';
 import { getUserById } from '@/lib/services/users';
 import type { Post, User, Comment } from '@/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Calendar, Eye, MessageSquare } from 'lucide-react';
+import { Clock, Calendar, Eye, MessageSquare, Edit, Trash2 } from 'lucide-react';
 import { ShareButton } from '@/components/ShareButton';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -17,6 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { format } from 'date-fns';
+import { DeletePostDialog } from '@/components/DeletePostDialog';
 
 function CommentSection({ postId, initialComments, onCommentAdded }: { postId: string, initialComments: Comment[], onCommentAdded: (comment: (Comment & { author: User | null })) => void }) {
   const [newComment, setNewComment] = useState("");
@@ -117,11 +118,20 @@ function CommentSection({ postId, initialComments, onCommentAdded }: { postId: s
 
 export default function PostPage() {
   const params = useParams();
+  const router = useRouter();
   const postId = params.id as string;
   const [post, setPost] = useState<Post | null>(null);
   const [author, setAuthor] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setLoggedInUser(JSON.parse(storedUser));
+    }
+  }, []);
 
   useEffect(() => {
     if (!postId) return;
@@ -134,8 +144,7 @@ export default function PostPage() {
           return;
         }
 
-        const storedUser = localStorage.getItem('user');
-        const userId = storedUser ? JSON.parse(storedUser).id : null;
+        const userId = loggedInUser?.id;
         
         if (userId) {
           // Check if this post was viewed by this user before.
@@ -169,12 +178,11 @@ export default function PostPage() {
       }
     }
     fetchData();
-  }, [postId, toast]);
+  }, [postId, toast, loggedInUser]);
   
   const handleCommentAdded = (newComment: Comment & { author: User | null }) => {
     setPost(prevPost => {
       if (!prevPost) return null;
-      // Ensure comments is always an array
       const existingComments = prevPost.comments || [];
       return { 
         ...prevPost, 
@@ -182,6 +190,14 @@ export default function PostPage() {
       };
     });
   };
+
+  const handlePostDeleted = () => {
+    toast({
+        title: "Muvaffaqiyatli!",
+        description: "Insho o'chirildi."
+    });
+    router.push('/');
+  }
 
   if (loading) {
     return <div className="container mx-auto max-w-3xl px-4 py-8 md:py-16 text-center">Yuklanmoqda...</div>;
@@ -191,13 +207,27 @@ export default function PostPage() {
     return notFound();
   }
   
+  const isAuthor = loggedInUser?.id === post.author_id;
   const authorInitials = author?.name.split(' ').map(n => n[0]).join('') || 'U';
-
   const formattedDate = format(new Date(post.created_at), 'dd.MM.yyyy');
 
   return (
     <article className="container mx-auto max-w-3xl px-4 py-8 md:py-16">
       <header className="mb-8 md:mb-12">
+         {isAuthor && (
+            <div className="flex justify-end gap-2 mb-4">
+                <Link href={`/posts/${post.id}/edit`}>
+                    <Button variant="outline" size="sm">
+                        <Edit className="mr-2 h-4 w-4" /> Tahrirlash
+                    </Button>
+                </Link>
+                <DeletePostDialog postId={post.id} onPostDeleted={handlePostDeleted}>
+                    <Button variant="destructive" size="sm">
+                        <Trash2 className="mr-2 h-4 w-4" /> O'chirish
+                    </Button>
+                </DeletePostDialog>
+            </div>
+        )}
         <div className="flex flex-wrap gap-2 mb-4">
           {post.tags.map((tag) => (
             <Badge key={tag} variant="secondary" className="text-sm">{tag}</Badge>
