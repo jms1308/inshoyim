@@ -13,6 +13,8 @@ import { ShareButton } from '@/components/ShareButton';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 function CommentSection({ postId, initialComments, onCommentAdded }: { postId: string, initialComments: Comment[], onCommentAdded: (comment: (Comment & { author: User | null })) => void }) {
   const [newComment, setNewComment] = useState("");
