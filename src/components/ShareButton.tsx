@@ -41,9 +41,9 @@ export function ShareButton({ title, content }: { title: string, content: string
     setUrl(currentUrl);
 
     const plainTextContent = content.replace(/<[^>]*>?/gm, '');
-    const excerpt = plainTextContent.split('. ').slice(0, 3).join('. ') + (plainTextContent.split('. ').length > 3 ? '...' : '');
+    const excerpt = plainTextContent.split(' ').slice(0, 30).join(' ') + (plainTextContent.split(' ').length > 30 ? '...' : '');
     
-    setShareText(`"${title}"\n${currentUrl}\n\n${excerpt}`);
+    setShareText(`"${title}"\n\n${excerpt}\n\n${currentUrl}`);
 
     if (navigator.share) {
       setIsWebShareSupported(true)
@@ -80,7 +80,8 @@ export function ShareButton({ title, content }: { title: string, content: string
   }
   
   const encodedUrl = encodeURIComponent(url);
-  const encodedShareText = encodeURIComponent(shareText);
+  const encodedTitle = encodeURIComponent(`"${title}"`);
+  const encodedShareText = encodeURIComponent(`${title}\n\n${content.substring(0, 100)}...`);
   
   const PopoverContentMenu = (
     <div className="flex flex-col gap-2">
@@ -89,7 +90,7 @@ export function ShareButton({ title, content }: { title: string, content: string
             <a href={`https://t.me/share/url?url=${encodedUrl}&text=${encodedShareText}`} target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" size="icon"><TelegramIcon /></Button>
             </a>
-            <a href={`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedShareText}`} target="_blank" rel="noopener noreferrer">
+            <a href={`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`} target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" size="icon"><TwitterXIcon /></Button>
             </a>
             <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`} target="_blank" rel="noopener noreferrer">
