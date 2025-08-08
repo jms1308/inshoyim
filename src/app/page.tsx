@@ -12,8 +12,8 @@ export default function Home() {
   useEffect(() => {
     async function fetchPosts() {
       try {
-        const publishedPosts = await getPublishedPosts();
-        setPosts(publishedPosts.slice(0, 6));
+        const publishedPosts = await getPublishedPosts(6);
+        setPosts(publishedPosts);
       } catch (error) {
         console.error("Error fetching posts:", error);
       } finally {

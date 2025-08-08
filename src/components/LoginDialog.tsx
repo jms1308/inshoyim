@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -87,10 +88,16 @@ export function LoginDialog() {
           </div>
           {error && <p className="text-red-500 text-sm col-span-4 text-center">{error}</p>}
         </div>
-        <DialogFooter>
-          <Button onClick={handleLogin} disabled={loading}>
-            {loading ? 'Kirilmoqda...' : 'Kirish'}
-          </Button>
+        <DialogFooter className="flex-col !space-y-2 sm:flex-col sm:!space-y-2 sm:!justify-end">
+            <Button onClick={handleLogin} disabled={loading} className="w-full">
+                {loading ? 'Kirilmoqda...' : 'Kirish'}
+            </Button>
+            <p className="text-sm text-center text-muted-foreground">
+                Hisobingiz yo'qmi?{' '}
+                <Link href="/register" onClick={() => setOpen(false)} className="underline hover:text-primary">
+                Roʻyxatdan oʻtish
+                </Link>
+            </p>
         </DialogFooter>
       </DialogContent>
     </Dialog>

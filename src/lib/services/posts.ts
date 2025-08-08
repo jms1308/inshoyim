@@ -13,6 +13,8 @@ import {
     increment,
     Timestamp,
     addDoc,
+    orderBy,
+    limit
 } from 'firebase/firestore';
 import type { Post, Comment } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
@@ -32,8 +34,11 @@ const postFromDoc = (doc: any): Post => {
     } as Post;
 }
 
-export async function getPublishedPosts(): Promise<Post[]> {
-  const q = query(postsCollection, where('status', '==', 'published'));
+export async function getPublishedPosts(postLimit?: number): Promise<Post[]> {
+  const q = postLimit 
+    ? query(postsCollection, where('status', '==', 'published'), orderBy('created_at', 'desc'), limit(postLimit))
+    : query(postsCollection, where('status', '==', 'published'), orderBy('created_at', 'desc'));
+  
   const snapshot = await getDocs(q);
   return snapshot.docs.map(postFromDoc);
 }
@@ -41,7 +46,8 @@ export async function getPublishedPosts(): Promise<Post[]> {
 export async function getPostsByAuthor(authorId: string): Promise<Post[]> {
   const q = query(postsCollection, 
     where('author_id', '==', authorId), 
-    where('status', '==', 'published')
+    where('status', '==', 'published'),
+    orderBy('created_at', 'desc')
   );
   const snapshot = await getDocs(q);
   return snapshot.docs.map(postFromDoc);
@@ -83,4 +89,36 @@ export async function addCommentToPost(postId: string, userId: string, content: 
     });
 
     return newComment;
+}
+
+
+interface CreatePostData {
+    title: string;
+    content: string;
+    author_id: string;
+    tags: string[];
+}
+
+export async function createPost(data: CreatePostData): Promise<Post> {
+    const readTime = Math.ceil(data.content.split(' ').length / 200);
+
+    const newPost = {
+        ...data,
+        created_at: new Date(),
+        updated_at: new Date(),
+        views: 0,
+        status: 'published' as const,
+        read_time: readTime,
+        comments: [],
+        viewed_by: [],
+    };
+
+    const docRef = await addDoc(postsCollection, newPost);
+    
+    return {
+        id: docRef.id,
+        ...newPost,
+        created_at: newPost.created_at.toISOString(),
+        updated_at: newPost.updated_at.toISOString(),
+    };
 }
