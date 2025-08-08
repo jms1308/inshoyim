@@ -46,14 +46,14 @@ export function EssayCard({ post }: EssayCardProps) {
               <Badge key={tag} variant="secondary">{tag}</Badge>
             ))}
           </div>
-          <div className="w-full flex items-center justify-between text-sm text-muted-foreground">
+          <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-3">
               <Avatar className="h-8 w-8">
                 <AvatarImage src={author?.avatar_url} alt={author?.name} data-ai-hint="avatar" />
                 <AvatarFallback>{authorInitials}</AvatarFallback>
               </Avatar>
               {author ? (
-                <span className="font-medium">{author.name}</span>
+                <span className="font-medium whitespace-nowrap">{author.name}</span>
               ) : (
                 <span className="font-medium">Noma'lum</span>
               )}
