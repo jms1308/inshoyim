@@ -31,6 +31,7 @@ export function ShareButton({ title }: { title: string }) {
   const [url, setUrl] = useState("")
   const [isCopied, setIsCopied] = useState(false)
   const [isWebShareSupported, setIsWebShareSupported] = useState(false)
+  const [openPopover, setOpenPopover] = useState(false);
   const { toast } = useToast()
 
   useEffect(() => {
@@ -41,16 +42,22 @@ export function ShareButton({ title }: { title: string }) {
   }, [])
 
   const handleShare = async () => {
-    if (navigator.share) {
+    if (isWebShareSupported) {
       try {
         await navigator.share({
           title: title,
           text: `Check out this essay: ${title}`,
           url: url,
         })
-      } catch (error) {
-        console.error("Error sharing:", error)
+      } catch (error: any) {
+        // If sharing fails (e.g., permission denied or cancelled), open the popover as a fallback.
+        if (error.name !== 'AbortError') { // Don't open popover if user just cancelled the share sheet
+            console.error("Error sharing, falling back to popover:", error)
+            setOpenPopover(true);
+        }
       }
+    } else {
+        setOpenPopover(true);
     }
   }
 
@@ -63,18 +70,49 @@ export function ShareButton({ title }: { title: string }) {
     })
     setTimeout(() => setIsCopied(false), 2000)
   }
-
-  if (isWebShareSupported) {
-    return (
-      <Button onClick={handleShare} variant="outline" size="icon">
-        <Share2 className="h-5 w-5" />
-        <span className="sr-only">Share</span>
-      </Button>
-    )
-  }
   
   const encodedUrl = encodeURIComponent(url);
   const encodedTitle = encodeURIComponent(title);
+  
+  const PopoverContentMenu = (
+    <div className="flex flex-col gap-2">
+        <p className="text-sm font-medium text-center mb-2">Share this essay</p>
+        <div className="flex items-center gap-2">
+            <a href={`https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`} target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" size="icon"><TelegramIcon /></Button>
+            </a>
+            <a href={`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`} target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" size="icon"><TwitterXIcon /></Button>
+            </a>
+            <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`} target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" size="icon"><Facebook /></Button>
+            </a>
+            <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`} target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" size="icon"><Linkedin /></Button>
+            </a>
+        </div>
+        <Button variant="outline" onClick={copyToClipboard} className="mt-2">
+            {isCopied ? <Check className="h-4 w-4 mr-2" /> : <LinkIcon className="h-4 w-4 mr-2" />}
+            {isCopied ? "Copied!" : "Copy Link"}
+        </Button>
+    </div>
+  )
+
+  if (isWebShareSupported) {
+    return (
+        <Popover open={openPopover} onOpenChange={setOpenPopover}>
+            <PopoverTrigger asChild>
+                 <Button onClick={handleShare} variant="outline" size="icon">
+                    <Share2 className="h-5 w-5" />
+                    <span className="sr-only">Share</span>
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto">
+                {PopoverContentMenu}
+            </PopoverContent>
+        </Popover>
+    )
+  }
 
   return (
     <Popover>
@@ -84,27 +122,7 @@ export function ShareButton({ title }: { title: string }) {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto">
-        <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium text-center mb-2">Share this essay</p>
-            <div className="flex items-center gap-2">
-                <a href={`https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`} target="_blank" rel="noopener noreferrer">
-                    <Button variant="outline" size="icon"><TelegramIcon /></Button>
-                </a>
-                <a href={`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`} target="_blank" rel="noopener noreferrer">
-                    <Button variant="outline" size="icon"><TwitterXIcon /></Button>
-                </a>
-                <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`} target="_blank" rel="noopener noreferrer">
-                    <Button variant="outline" size="icon"><Facebook /></Button>
-                </a>
-                <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`} target="_blank" rel="noopener noreferrer">
-                    <Button variant="outline" size="icon"><Linkedin /></Button>
-                </a>
-            </div>
-            <Button variant="outline" onClick={copyToClipboard} className="mt-2">
-                {isCopied ? <Check className="h-4 w-4 mr-2" /> : <LinkIcon className="h-4 w-4 mr-2" />}
-                {isCopied ? "Copied!" : "Copy Link"}
-            </Button>
-        </div>
+        {PopoverContentMenu}
       </PopoverContent>
     </Popover>
   )
