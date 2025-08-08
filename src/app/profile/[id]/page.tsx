@@ -14,16 +14,19 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const userId = params.id;
+    if (!userId) return;
+
     async function fetchData() {
       try {
-        const userData = await getUserById(params.id);
+        const userData = await getUserById(userId);
         if (!userData) {
           notFound();
           return;
         }
         setUser(userData);
 
-        const postsData = await getPostsByAuthor(params.id);
+        const postsData = await getPostsByAuthor(userId);
         setUserPosts(postsData);
       } catch (error) {
         console.error("Failed to fetch profile data:", error);

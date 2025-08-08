@@ -108,9 +108,12 @@ export default function PostPage({ params }: { params: { id: string } }) {
   const { toast } = useToast();
 
   useEffect(() => {
+    const postId = params.id;
+    if (!postId) return;
+
     async function fetchData() {
       try {
-        const postData = await getPostById(params.id);
+        const postData = await getPostById(postId);
         if (!postData) {
           notFound();
           return;
@@ -120,7 +123,7 @@ export default function PostPage({ params }: { params: { id: string } }) {
         const mockUserId = "1";
         // This check prevents incrementing the view count on every refresh by the same user.
         if (!postData.viewed_by?.includes(mockUserId)) {
-          await incrementPostView(params.id, mockUserId);
+          await incrementPostView(postId, mockUserId);
           postData.views += 1;
           postData.viewed_by = [...(postData.viewed_by || []), mockUserId];
         }
