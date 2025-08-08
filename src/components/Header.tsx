@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import type { User } from '@/types';
+import { RegisterDialog } from './RegisterDialog';
 
 export function Header() {
   const [user, setUser] = useState<User | null>(null);
@@ -95,9 +96,10 @@ export function Header() {
               </DropdownMenu>
             </>
           ) : (
-            <>
+            <div className='flex items-center gap-2'>
               <LoginDialog />
-            </>
+              <RegisterDialog />
+            </div>
           )}
         </div>
       </div>

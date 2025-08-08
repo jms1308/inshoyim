@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -16,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { getUserByEmailOrName } from '@/lib/services/users';
 import { useToast } from '@/hooks/use-toast';
+import { RegisterDialog } from './RegisterDialog';
 
 export function LoginDialog() {
   const [open, setOpen] = useState(false);
@@ -49,6 +49,14 @@ export function LoginDialog() {
       setLoading(false);
     }
   };
+  
+  const handleOpenRegister = () => {
+    setOpen(false);
+    // We need a slight delay to ensure the register dialog can open
+    setTimeout(() => {
+      document.getElementById('register-trigger')?.click();
+    }, 100);
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -94,9 +102,9 @@ export function LoginDialog() {
             </Button>
             <p className="text-sm text-center text-muted-foreground">
                 Hisobingiz yo'qmi?{' '}
-                <Link href="/register" onClick={() => setOpen(false)} className="underline hover:text-primary">
-                Roʻyxatdan oʻtish
-                </Link>
+                <Button variant="link" size="sm" onClick={handleOpenRegister} className="p-0 h-auto">
+                    Roʻyxatdan oʻtish
+                </Button>
             </p>
         </DialogFooter>
       </DialogContent>
