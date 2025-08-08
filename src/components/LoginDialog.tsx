@@ -16,8 +16,14 @@ import { Label } from '@/components/ui/label';
 import { getUserByEmailOrName } from '@/lib/services/users';
 import { useToast } from '@/hooks/use-toast';
 import { RegisterDialog } from './RegisterDialog';
+import { DropdownMenuItem } from './ui/dropdown-menu';
+import { LogIn } from 'lucide-react';
 
-export function LoginDialog() {
+interface LoginDialogProps {
+  isDropdownItem?: boolean;
+}
+
+export function LoginDialog({ isDropdownItem = false }: LoginDialogProps) {
   const [open, setOpen] = useState(false);
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
@@ -58,10 +64,18 @@ export function LoginDialog() {
     }, 100);
   }
 
+  const TriggerComponent = isDropdownItem ? DropdownMenuItem : Button;
+  const triggerProps = isDropdownItem 
+    ? {} 
+    : { variant: 'ghost' as const };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost">Kirish</Button>
+        <TriggerComponent {...triggerProps}>
+          {isDropdownItem && <LogIn className="mr-2 h-4 w-4" />}
+          Kirish
+        </TriggerComponent>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>

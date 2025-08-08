@@ -15,8 +15,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { createUser } from '@/lib/services/users';
 import { useToast } from '@/hooks/use-toast';
+import { DropdownMenuItem } from './ui/dropdown-menu';
+import { UserPlus } from 'lucide-react';
 
-export function RegisterDialog() {
+interface RegisterDialogProps {
+  isDropdownItem?: boolean;
+}
+
+export function RegisterDialog({ isDropdownItem = false }: RegisterDialogProps) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -51,21 +57,27 @@ export function RegisterDialog() {
 
   const handleOpenLogin = () => {
     setOpen(false);
-    // We need a slight delay to ensure the login dialog can open
     setTimeout(() => {
-        // We assume the LoginDialog trigger is a direct child of its parent
-        // or has a simple structure to be found.
-        const loginButton = document.querySelector('header button:not([id="register-trigger"])');
-        if (loginButton instanceof HTMLElement) {
-            loginButton.click();
+        const loginTrigger = document.querySelector('[aria-haspopup="dialog"]:not(#register-trigger)');
+        if (loginTrigger instanceof HTMLElement) {
+            loginTrigger.click();
         }
-    }, 100);
+    }, 150);
   }
+
+  const TriggerComponent = isDropdownItem ? DropdownMenuItem : Button;
+  const triggerProps = isDropdownItem 
+    ? { id: 'register-trigger' } 
+    : { variant: 'outline' as const, id: 'register-trigger' };
+
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" id="register-trigger">Ro'yxatdan o'tish</Button>
+        <TriggerComponent {...triggerProps}>
+          {isDropdownItem && <UserPlus className="mr-2 h-4 w-4" />}
+          Ro'yxatdan o'tish
+        </TriggerComponent>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
