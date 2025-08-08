@@ -117,14 +117,14 @@ export default function ProfilePage() {
                 </div>
               </div>
             ) : (
-              <div className="relative group">
-                <p>{user.bio || "Bu foydalanuvchi hali bio qo'shmagan."}</p>
+              <div className="flex items-start gap-2">
+                <p className="flex-grow pt-1">{user.bio || "Bu foydalanuvchi hali bio qo'shmagan."}</p>
                 {isOwnProfile && (
                   <Button 
                     variant="ghost" 
                     size="icon" 
                     onClick={() => setIsEditingBio(true)}
-                    className="absolute -top-2 -right-10 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="shrink-0"
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
