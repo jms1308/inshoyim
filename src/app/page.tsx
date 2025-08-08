@@ -1,5 +1,4 @@
 import { EssayCard } from '@/components/EssayCard';
-import { TagGenerator } from '@/components/TagGenerator';
 import { mockPosts } from '@/lib/mock-data';
 
 export default function Home() {
@@ -20,16 +19,6 @@ export default function Home() {
           {mockPosts.filter(p => p.status === 'published').slice(0, 6).map((post) => (
             <EssayCard key={post.id} post={post} />
           ))}
-        </div>
-      </section>
-
-      <section className="mt-16 md:mt-24">
-         <div className="max-w-3xl mx-auto">
-            <h2 className="font-headline text-3xl font-bold mb-4 text-center">AI-Powered Tagging</h2>
-            <p className="text-muted-foreground text-center mb-8">
-              Paste your essay content below and let our AI suggest relevant tags to improve discoverability.
-            </p>
-            <TagGenerator />
         </div>
       </section>
     </div>
