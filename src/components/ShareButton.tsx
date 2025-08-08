@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -70,8 +71,8 @@ export function ShareButton({ title, content }: { title: string, content: string
     navigator.clipboard.writeText(url)
     setIsCopied(true)
     toast({
-      title: "Copied to clipboard!",
-      description: "You can now share the link.",
+      title: "Nusxa olindi!",
+      description: "Havolani endi ulashishingiz mumkin.",
     })
     setTimeout(() => setIsCopied(false), 2000)
   }
@@ -81,7 +82,7 @@ export function ShareButton({ title, content }: { title: string, content: string
   
   const PopoverContentMenu = (
     <div className="flex flex-col gap-2">
-        <p className="text-sm font-medium text-center mb-2">Share this essay</p>
+        <p className="text-sm font-medium text-center mb-2">Inshoni ulashish</p>
         <div className="flex items-center gap-2">
             <a href={`https://t.me/share/url?url=${encodedUrl}&text=${encodedShareText}`} target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" size="icon"><TelegramIcon /></Button>
@@ -98,7 +99,7 @@ export function ShareButton({ title, content }: { title: string, content: string
         </div>
         <Button variant="outline" onClick={copyToClipboard} className="mt-2">
             {isCopied ? <Check className="h-4 w-4 mr-2" /> : <LinkIcon className="h-4 w-4 mr-2" />}
-            {isCopied ? "Copied!" : "Copy Link"}
+            {isCopied ? "Nusxalandi!" : "Havoladan nusxa olish"}
         </Button>
     </div>
   )
@@ -109,7 +110,7 @@ export function ShareButton({ title, content }: { title: string, content: string
             <PopoverTrigger asChild>
                  <Button onClick={handleShare} variant="outline" size="icon">
                     <Share2 className="h-5 w-5" />
-                    <span className="sr-only">Share</span>
+                    <span className="sr-only">Ulashish</span>
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto">
@@ -124,6 +125,7 @@ export function ShareButton({ title, content }: { title: string, content: string
       <PopoverTrigger asChild>
         <Button variant="outline" size="icon">
           <Share2 className="h-5 w-5" />
+           <span className="sr-only">Ulashish</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto">
