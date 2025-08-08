@@ -48,6 +48,7 @@ export async function createUser(name: string, email: string, password_DO_NOT_ST
 
 
 export async function getUserByEmailOrName(identifier: string): Promise<User | null> {
+    if (!identifier) return null;
     let q;
     if (identifier.includes('@')) {
         q = query(usersCollection, where('email', '==', identifier));
@@ -64,6 +65,7 @@ export async function getUserByEmailOrName(identifier: string): Promise<User | n
 }
 
 export async function getUserById(id: string): Promise<User | null> {
+    if (!id) return null;
     const userDoc = doc(db, 'users', id);
     const snapshot = await getDoc(userDoc);
 

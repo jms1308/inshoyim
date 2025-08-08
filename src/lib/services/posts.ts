@@ -44,6 +44,7 @@ export async function getPublishedPosts(postLimit?: number): Promise<Post[]> {
 }
 
 export async function getPostsByAuthor(authorId: string): Promise<Post[]> {
+  if (!authorId) return [];
   const q = query(postsCollection, 
     where('author_id', '==', authorId), 
     where('status', '==', 'published'),
@@ -55,6 +56,7 @@ export async function getPostsByAuthor(authorId: string): Promise<Post[]> {
 
 
 export async function getPostById(id: string): Promise<Post | null> {
+    if (!id) return null;
     const postDoc = doc(db, 'posts', id);
     const snapshot = await getDoc(postDoc);
 
@@ -66,6 +68,7 @@ export async function getPostById(id: string): Promise<Post | null> {
 }
 
 export async function incrementPostView(postId: string, userId: string): Promise<void> {
+    if (!postId || !userId) return;
     const postRef = doc(db, 'posts', postId);
     await updateDoc(postRef, {
         views: increment(1),
