@@ -38,7 +38,7 @@ export default function Home() {
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/explore">
                 <Button size="lg" variant="outline">
-                    Insholarni o'rganish
+                    Barcha insholar
                     <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
             </Link>

@@ -61,7 +61,7 @@ function MobileNav({ user }: { user: User | null }) {
             </Link>
              <Link href="/explore" onClick={() => setIsOpen(false)} className="flex items-center gap-3 rounded-md p-2 text-lg font-medium hover:bg-muted">
                 <Compass className='h-5 w-5' />
-                O'rganish
+                Insholar
             </Link>
             <Link href="/yozish" onClick={() => setIsOpen(false)} className="flex items-center gap-3 rounded-md p-2 text-lg font-medium hover:bg-muted">
                 <Edit className='h-5 w-5' />
@@ -125,7 +125,7 @@ export function Header() {
             href="/explore"
             className="transition-colors hover:text-foreground/80 text-foreground/60"
           >
-            O'rganish
+            Insholar
           </Link>
            <Link
             href="/yozish"

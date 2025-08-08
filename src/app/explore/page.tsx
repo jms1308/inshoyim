@@ -39,7 +39,7 @@ export default function ExplorePage() {
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
       <section className="mb-12">
-        <h1 className="font-headline text-4xl md:text-5xl font-bold text-center">Insholarni o'rganish</h1>
+        <h1 className="font-headline text-4xl md:text-5xl font-bold text-center">Insholar</h1>
         <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto text-center">
           To'plamimizga sho'ng'ing. Keyingi ajoyib o'qishingizni topish uchun sarlavha, muallif yoki teg bo'yicha qidiring.
         </p>
