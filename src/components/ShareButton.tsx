@@ -27,12 +27,17 @@ const TelegramIcon = () => (
     </svg>
 )
 
-export function ShareButton({ title }: { title: string }) {
+export function ShareButton({ title, content }: { title: string, content: string }) {
   const [url, setUrl] = useState("")
   const [isCopied, setIsCopied] = useState(false)
   const [isWebShareSupported, setIsWebShareSupported] = useState(false)
   const [openPopover, setOpenPopover] = useState(false);
   const { toast } = useToast()
+
+  const plainTextContent = content.replace(/<[^>]*>?/gm, '');
+  const excerpt = plainTextContent.split('. ').slice(0, 5).join('. ') + (plainTextContent.split('. ').length > 5 ? '...' : '');
+
+  const shareText = `Inshoni o'qing: "${title}"\n\n${excerpt}`;
 
   useEffect(() => {
     setUrl(window.location.href)
@@ -46,7 +51,7 @@ export function ShareButton({ title }: { title: string }) {
       try {
         await navigator.share({
           title: title,
-          text: `Check out this essay: ${title}`,
+          text: shareText,
           url: url,
         })
       } catch (error: any) {
@@ -72,16 +77,16 @@ export function ShareButton({ title }: { title: string }) {
   }
   
   const encodedUrl = encodeURIComponent(url);
-  const encodedTitle = encodeURIComponent(title);
+  const encodedShareText = encodeURIComponent(shareText);
   
   const PopoverContentMenu = (
     <div className="flex flex-col gap-2">
         <p className="text-sm font-medium text-center mb-2">Share this essay</p>
         <div className="flex items-center gap-2">
-            <a href={`https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`} target="_blank" rel="noopener noreferrer">
+            <a href={`https://t.me/share/url?url=${encodedUrl}&text=${encodedShareText}`} target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" size="icon"><TelegramIcon /></Button>
             </a>
-            <a href={`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`} target="_blank" rel="noopener noreferrer">
+            <a href={`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedShareText}`} target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" size="icon"><TwitterXIcon /></Button>
             </a>
             <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`} target="_blank" rel="noopener noreferrer">

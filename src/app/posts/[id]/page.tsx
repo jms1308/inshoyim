@@ -1,8 +1,7 @@
-
 'use client';
 
 import { notFound } from 'next/navigation';
-import { useEffect, useState, use } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { getPostById, incrementPostView, addCommentToPost } from '@/lib/services/posts';
 import { getUserById } from '@/lib/services/users';
@@ -134,7 +133,15 @@ export default function PostPage({ params }: { params: { id: string } }) {
         const userId = storedUser ? JSON.parse(storedUser).id : null;
         
         if (userId) {
-          await incrementPostView(postId, userId);
+          // Check if this post was viewed by this user before.
+          const postRef = doc(db, 'posts', postId);
+          const postSnap = await getDoc(postRef);
+          if (postSnap.exists()) {
+             const postData = postSnap.data();
+             if (!postData.viewed_by || !postData.viewed_by.includes(userId)) {
+                await incrementPostView(postId, userId);
+             }
+          }
         }
         
         // We refetch the post to get the updated view count
@@ -231,7 +238,7 @@ export default function PostPage({ params }: { params: { id: string } }) {
                 </div>
             </Link>
         )}
-        <ShareButton title={post.title} />
+        <ShareButton title={post.title} content={post.content} />
       </div>
 
       <div
