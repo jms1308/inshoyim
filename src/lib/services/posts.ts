@@ -56,9 +56,11 @@ export async function getPostsByAuthor(authorId: string): Promise<Post[]> {
     where('author_id', '==', authorId), 
     where('status', '==', 'published')
   );
+  
   const snapshot = await getDocs(q);
   
   let posts = snapshot.docs.map(postFromDoc);
+
   // Sort posts by creation date in descending order
   posts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
