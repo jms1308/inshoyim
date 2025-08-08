@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -12,6 +13,41 @@ export default function ExplorePage() {
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+
+  const phrases = ['Insholar', 'Xulosalar', 'Tahlillar'];
+  const [dynamicText, setDynamicText] = useState(phrases[0]);
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [charIndex, setCharIndex] = useState(phrases[0].length);
+  const [isDeleting, setIsDeleting] = useState(true);
+
+  const typingSpeed = 150;
+  const deletingSpeed = 100;
+  const delayBetweenPhrases = 2000;
+
+  useEffect(() => {
+    const handleTyping = () => {
+      const currentPhrase = phrases[phraseIndex];
+      if (isDeleting) {
+        if (charIndex > 0) {
+          setDynamicText(currentPhrase.substring(0, charIndex - 1));
+          setCharIndex(charIndex - 1);
+        } else {
+          setIsDeleting(false);
+          setPhraseIndex((prev) => (prev + 1) % phrases.length);
+        }
+      } else {
+        if (charIndex < currentPhrase.length) {
+          setDynamicText(currentPhrase.substring(0, charIndex + 1));
+          setCharIndex(charIndex + 1);
+        } else {
+          setTimeout(() => setIsDeleting(true), delayBetweenPhrases);
+        }
+      }
+    };
+
+    const timer = setTimeout(handleTyping, isDeleting ? deletingSpeed : typingSpeed);
+    return () => clearTimeout(timer);
+  }, [charIndex, isDeleting, phraseIndex, phrases]);
 
   useEffect(() => {
     async function fetchPosts() {
@@ -39,7 +75,10 @@ export default function ExplorePage() {
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
       <section className="mb-12">
-        <h1 className="font-headline text-4xl md:text-5xl font-bold text-center">Insholar</h1>
+        <h1 className="font-headline text-4xl md:text-5xl font-bold text-center h-14">
+          {dynamicText}
+          <span className="animate-ping">|</span>
+        </h1>
         <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto text-center">
           To'plamimizga sho'ng'ing. Keyingi ajoyib o'qishingizni topish uchun sarlavha, muallif yoki teg bo'yicha qidiring.
         </p>
