@@ -28,6 +28,42 @@ const FeatureCard = ({ icon, title, subtitle, children }: { icon: React.ReactNod
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dynamicText, setDynamicText] = useState('');
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [charIndex, setCharIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const phrases = ['Inshoyim 1.0', 'O‘qing. Yozing. Ulashing.'];
+  const typingSpeed = 150;
+  const deletingSpeed = 100;
+  const delayBetweenPhrases = 2000;
+
+  useEffect(() => {
+    const handleTyping = () => {
+      const currentPhrase = phrases[phraseIndex];
+      if (isDeleting) {
+        if (charIndex > 0) {
+          setDynamicText(currentPhrase.substring(0, charIndex - 1));
+          setCharIndex(charIndex - 1);
+        } else {
+          setIsDeleting(false);
+          setPhraseIndex((prev) => (prev + 1) % phrases.length);
+        }
+      } else {
+        if (charIndex < currentPhrase.length) {
+          setDynamicText(currentPhrase.substring(0, charIndex + 1));
+          setCharIndex(charIndex + 1);
+        } else {
+          setTimeout(() => setIsDeleting(true), delayBetweenPhrases);
+        }
+      }
+    };
+
+    const timer = setTimeout(handleTyping, isDeleting ? deletingSpeed : typingSpeed);
+
+    return () => clearTimeout(timer);
+  }, [charIndex, isDeleting, phraseIndex, phrases]);
+
 
   useEffect(() => {
     async function fetchPosts() {
@@ -46,8 +82,9 @@ export default function Home() {
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
       <section className="text-center py-12 md:py-20">
-        <h1 className="font-headline text-4xl md:text-6xl font-bold tracking-tighter leading-tight">
-          Inshoyim
+        <h1 className="font-headline text-4xl md:text-6xl font-bold tracking-tighter leading-tight h-20 md:h-24">
+          {dynamicText}
+          <span className="animate-ping">|</span>
         </h1>
         <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
           O‘z g‘oyalaringizni barcha bilan bo‘lishishga tayyormisiz? Bizning platformamizda har kim o‘z fikrini erkin ifoda eta oladi.
