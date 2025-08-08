@@ -2,7 +2,7 @@
 'use client';
 
 import { notFound } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 import Link from 'next/link';
 import { getPostById, incrementPostView, addCommentToPost } from '@/lib/services/posts';
 import { getUserById } from '@/lib/services/users';
@@ -15,26 +15,26 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 
-function CommentSection({ post, onCommentAdded }: { post: Post, onCommentAdded: (comment: Comment) => void }) {
+function CommentSection({ postId, initialComments, onCommentAdded }: { postId: string, initialComments: Comment[], onCommentAdded: (comment: (Comment & { author: User | null })) => void }) {
   const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [commentsWithAuthors, setCommentsWithAuthors] = useState<({ author: User | null } & Comment)[]>([]);
+  const [commentsWithAuthors, setCommentsWithAuthors] = useState<(Comment & { author: User | null })[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
     async function fetchAuthors() {
       const commentsData = await Promise.all(
-        post.comments.map(async (comment) => {
+        initialComments.map(async (comment) => {
           const author = await getUserById(comment.user_id);
           return { ...comment, author };
         })
       );
       setCommentsWithAuthors(commentsData);
     }
-    if (post.comments) {
+    if (initialComments) {
       fetchAuthors();
     }
-  }, [post.comments]);
+  }, [initialComments]);
 
 
   const handleSubmitComment = async () => {
@@ -50,9 +50,13 @@ function CommentSection({ post, onCommentAdded }: { post: Post, onCommentAdded: 
 
     setIsSubmitting(true);
     try {
-      const addedComment = await addCommentToPost(post.id, userId, newComment);
+      const addedComment = await addCommentToPost(postId, userId, newComment);
       const author = await getUserById(userId);
-      onCommentAdded({ ...addedComment, author });
+      const newCommentWithAuthor = { ...addedComment, author };
+
+      onCommentAdded(newCommentWithAuthor); // Update parent state
+      setCommentsWithAuthors(prev => [...prev, newCommentWithAuthor]); // Update local state
+      
       setNewComment("");
        toast({
         title: "Izohingiz qo'shildi!",
@@ -109,11 +113,11 @@ function CommentSection({ post, onCommentAdded }: { post: Post, onCommentAdded: 
 
 
 export default function PostPage({ params }: { params: { id: string } }) {
+  const postId = params.id;
   const [post, setPost] = useState<Post | null>(null);
   const [author, setAuthor] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  const postId = params.id;
 
   useEffect(() => {
     if (!postId) return;
@@ -129,16 +133,20 @@ export default function PostPage({ params }: { params: { id: string } }) {
         const storedUser = localStorage.getItem('user');
         const userId = storedUser ? JSON.parse(storedUser).id : null;
         
-        if (userId && !postData.viewed_by?.includes(userId)) {
+        if (userId) {
           await incrementPostView(postId, userId);
-          postData.views += 1;
-          postData.viewed_by = [...(postData.viewed_by || []), userId];
         }
+        
+        // We refetch the post to get the updated view count
+        const finalPostData = await getPostById(postId);
+         if (!finalPostData) {
+          notFound();
+          return;
+        }
+        setPost(finalPostData);
 
-        setPost(postData);
-
-        if (postData.author_id) {
-          const authorData = await getUserById(postData.author_id);
+        if (finalPostData.author_id) {
+          const authorData = await getUserById(finalPostData.author_id);
           setAuthor(authorData);
         }
       } catch (error) {
@@ -150,6 +158,16 @@ export default function PostPage({ params }: { params: { id: string } }) {
     }
     fetchData();
   }, [postId, toast]);
+  
+  const handleCommentAdded = (newComment: Comment & { author: User | null }) => {
+    setPost(prevPost => {
+      if (!prevPost) return null;
+      return { 
+        ...prevPost, 
+        comments: [...(prevPost.comments || []), newComment] 
+      };
+    });
+  };
 
   if (loading) {
     return <div className="container mx-auto max-w-3xl px-4 py-8 md:py-16 text-center">Yuklanmoqda...</div>;
@@ -166,15 +184,6 @@ export default function PostPage({ params }: { params: { id: string } }) {
     month: 'long',
     day: 'numeric',
   });
-  
-  const handleCommentAdded = (newComment: Comment & { author: User | null }) => {
-    setPost(prevPost => {
-      if (!prevPost) return null;
-      const updatedComments = [...(prevPost.comments || []), newComment];
-      setCommentsWithAuthors(prev => [...prev, newComment]);
-      return { ...prevPost, comments: updatedComments };
-    });
-  };
 
   return (
     <article className="container mx-auto max-w-3xl px-4 py-8 md:py-16">
@@ -228,8 +237,7 @@ export default function PostPage({ params }: { params: { id: string } }) {
         dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br />') }}
       />
 
-      <CommentSection post={post} onCommentAdded={handleCommentAdded} />
+      <CommentSection postId={post.id} initialComments={post.comments} onCommentAdded={handleCommentAdded} />
     </article>
   );
-
-    
+}

@@ -35,23 +35,34 @@ const postFromDoc = (doc: any): Post => {
 }
 
 export async function getPublishedPosts(postLimit?: number): Promise<Post[]> {
-  const q = postLimit 
-    ? query(postsCollection, where('status', '==', 'published'), orderBy('created_at', 'desc'), limit(postLimit))
-    : query(postsCollection, where('status', '==', 'published'), orderBy('created_at', 'desc'));
-  
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map(postFromDoc);
+    const q = query(postsCollection, where('status', '==', 'published'));
+    const snapshot = await getDocs(q);
+    
+    let posts = snapshot.docs.map(postFromDoc);
+
+    // Sort posts by creation date in descending order (newest first)
+    posts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+    if (postLimit) {
+        return posts.slice(0, postLimit);
+    }
+    
+    return posts;
 }
 
 export async function getPostsByAuthor(authorId: string): Promise<Post[]> {
   if (!authorId) return [];
   const q = query(postsCollection, 
     where('author_id', '==', authorId), 
-    where('status', '==', 'published'),
-    orderBy('created_at', 'desc')
+    where('status', '==', 'published')
   );
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(postFromDoc);
+  
+  let posts = snapshot.docs.map(postFromDoc);
+  // Sort posts by creation date in descending order
+  posts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+  return posts;
 }
 
 
@@ -70,10 +81,17 @@ export async function getPostById(id: string): Promise<Post | null> {
 export async function incrementPostView(postId: string, userId: string): Promise<void> {
     if (!postId || !userId) return;
     const postRef = doc(db, 'posts', postId);
-    await updateDoc(postRef, {
-        views: increment(1),
-        viewed_by: arrayUnion(userId)
-    });
+    const postSnap = await getDoc(postRef);
+    if (!postSnap.exists()) return;
+
+    const postData = postSnap.data();
+    // Only increment if the user hasn't viewed it before
+    if (!postData.viewed_by || !postData.viewed_by.includes(userId)) {
+        await updateDoc(postRef, {
+            views: increment(1),
+            viewed_by: arrayUnion(userId)
+        });
+    }
 }
 
 export async function addCommentToPost(postId: string, userId: string, content: string): Promise<Comment> {
