@@ -30,22 +30,25 @@ const TelegramIcon = () => (
 
 export function ShareButton({ title, content }: { title: string, content: string }) {
   const [url, setUrl] = useState("")
+  const [shareText, setShareText] = useState("");
   const [isCopied, setIsCopied] = useState(false)
   const [isWebShareSupported, setIsWebShareSupported] = useState(false)
   const [openPopover, setOpenPopover] = useState(false);
   const { toast } = useToast()
 
-  const plainTextContent = content.replace(/<[^>]*>?/gm, '');
-  const excerpt = plainTextContent.split('. ').slice(0, 3).join('. ') + (plainTextContent.split('. ').length > 3 ? '...' : '');
-
-  const shareText = `Inshoni o'qing: "${title}"\n\n${excerpt}`;
-
   useEffect(() => {
-    setUrl(window.location.href)
+    const currentUrl = window.location.href;
+    setUrl(currentUrl);
+
+    const plainTextContent = content.replace(/<[^>]*>?/gm, '');
+    const excerpt = plainTextContent.split('. ').slice(0, 3).join('. ') + (plainTextContent.split('. ').length > 3 ? '...' : '');
+    
+    setShareText(`"${title}"\n${currentUrl}\n\n${excerpt}`);
+
     if (navigator.share) {
       setIsWebShareSupported(true)
     }
-  }, [])
+  }, [title, content])
 
   const handleShare = async () => {
     if (isWebShareSupported) {
@@ -56,8 +59,7 @@ export function ShareButton({ title, content }: { title: string, content: string
           url: url,
         })
       } catch (error: any) {
-        // If sharing fails (e.g., permission denied or cancelled), open the popover as a fallback.
-        if (error.name !== 'AbortError') { // Don't open popover if user just cancelled the share sheet
+        if (error.name !== 'AbortError') {
             console.error("Error sharing, falling back to popover:", error)
             setOpenPopover(true);
         }
