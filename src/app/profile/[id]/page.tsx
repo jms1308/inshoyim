@@ -1,3 +1,4 @@
+
 'use client';
 
 import { notFound } from "next/navigation";
@@ -12,9 +13,9 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
   const [user, setUser] = useState<User | null>(null);
   const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const userId = params.id;
 
   useEffect(() => {
-    const userId = params.id;
     if (!userId) return;
 
     async function fetchData() {
@@ -36,7 +37,7 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
       }
     }
     fetchData();
-  }, [params.id]);
+  }, [userId]);
 
   if (loading) {
     return <div className="text-center py-10">Yuklanmoqda...</div>;
@@ -81,3 +82,5 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
     </div>
   )
 }
+
+    

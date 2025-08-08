@@ -1,3 +1,4 @@
+
 'use client';
 
 import { notFound } from 'next/navigation';
@@ -37,14 +38,20 @@ function CommentSection({ post, onCommentAdded }: { post: Post, onCommentAdded: 
 
 
   const handleSubmitComment = async () => {
-    // For now, we'll use a mock user ID. Later, this will come from the logged-in user.
-    const mockUserId = "1";
+    const storedUser = localStorage.getItem('user');
+    if (!storedUser) {
+        toast({ title: "Xatolik", description: "Izoh qoldirish uchun tizimga kiring.", variant: "destructive"});
+        return;
+    }
+    const user = JSON.parse(storedUser);
+    const userId = user.id;
+
     if (!newComment.trim()) return;
 
     setIsSubmitting(true);
     try {
-      const addedComment = await addCommentToPost(post.id, mockUserId, newComment);
-      const author = await getUserById(mockUserId);
+      const addedComment = await addCommentToPost(post.id, userId, newComment);
+      const author = await getUserById(userId);
       onCommentAdded({ ...addedComment, author });
       setNewComment("");
        toast({
@@ -65,7 +72,7 @@ function CommentSection({ post, onCommentAdded }: { post: Post, onCommentAdded: 
 
   return (
     <div className="mt-12 pt-8 border-t">
-      <h2 className="font-headline text-2xl font-bold mb-6">Sharhlar ({post.comments?.length || 0})</h2>
+      <h2 className="font-headline text-2xl font-bold mb-6">Sharhlar ({commentsWithAuthors?.length || 0})</h2>
       <div className="space-y-6">
         {commentsWithAuthors.map((comment) => (
           <div key={comment.id} className="flex gap-4">
@@ -106,9 +113,9 @@ export default function PostPage({ params }: { params: { id: string } }) {
   const [author, setAuthor] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const postId = params.id;
 
   useEffect(() => {
-    const postId = params.id;
     if (!postId) return;
 
     async function fetchData() {
@@ -119,13 +126,13 @@ export default function PostPage({ params }: { params: { id: string } }) {
           return;
         }
 
-        // We will use a mock user ID for now
-        const mockUserId = "1";
-        // This check prevents incrementing the view count on every refresh by the same user.
-        if (!postData.viewed_by?.includes(mockUserId)) {
-          await incrementPostView(postId, mockUserId);
+        const storedUser = localStorage.getItem('user');
+        const userId = storedUser ? JSON.parse(storedUser).id : null;
+        
+        if (userId && !postData.viewed_by?.includes(userId)) {
+          await incrementPostView(postId, userId);
           postData.views += 1;
-          postData.viewed_by = [...(postData.viewed_by || []), mockUserId];
+          postData.viewed_by = [...(postData.viewed_by || []), userId];
         }
 
         setPost(postData);
@@ -137,13 +144,12 @@ export default function PostPage({ params }: { params: { id: string } }) {
       } catch (error) {
         console.error("Failed to fetch post:", error);
         toast({ title: "Postni yuklashda xatolik", variant: "destructive" });
-        // notFound();
       } finally {
         setLoading(false);
       }
     }
     fetchData();
-  }, [params.id, toast]);
+  }, [postId, toast]);
 
   if (loading) {
     return <div className="container mx-auto max-w-3xl px-4 py-8 md:py-16 text-center">Yuklanmoqda...</div>;
@@ -164,8 +170,8 @@ export default function PostPage({ params }: { params: { id: string } }) {
   const handleCommentAdded = (newComment: Comment & { author: User | null }) => {
     setPost(prevPost => {
       if (!prevPost) return null;
-      // Ensure comments array exists
       const updatedComments = [...(prevPost.comments || []), newComment];
+      setCommentsWithAuthors(prev => [...prev, newComment]);
       return { ...prevPost, comments: updatedComments };
     });
   };
@@ -225,4 +231,5 @@ export default function PostPage({ params }: { params: { id: string } }) {
       <CommentSection post={post} onCommentAdded={handleCommentAdded} />
     </article>
   );
-}
+
+    
