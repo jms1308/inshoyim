@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -28,17 +29,24 @@ const FeatureCard = ({ icon, title, subtitle, children }: { icon: React.ReactNod
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
-  const [dynamicText, setDynamicText] = useState('');
-  const [phraseIndex, setPhraseIndex] = useState(0);
-  const [charIndex, setCharIndex] = useState(0);
-  const [isDeleting, setIsDeleting] = useState(false);
-
+  
   const phrases = ['Inshoyim 1.0', 'O‘qing. Yozing. Ulashing.'];
+  const [dynamicText, setDynamicText] = useState(phrases[0]);
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [charIndex, setCharIndex] = useState(phrases[0].length);
+  const [isDeleting, setIsDeleting] = useState(true);
+  const [isInitialDelay, setIsInitialDelay] = useState(true);
+
   const typingSpeed = 150;
   const deletingSpeed = 100;
   const delayBetweenPhrases = 2000;
 
   useEffect(() => {
+    if(isInitialDelay) {
+      setTimeout(() => setIsInitialDelay(false), delayBetweenPhrases);
+      return;
+    }
+
     const handleTyping = () => {
       const currentPhrase = phrases[phraseIndex];
       if (isDeleting) {
@@ -62,7 +70,7 @@ export default function Home() {
     const timer = setTimeout(handleTyping, isDeleting ? deletingSpeed : typingSpeed);
 
     return () => clearTimeout(timer);
-  }, [charIndex, isDeleting, phraseIndex, phrases]);
+  }, [charIndex, isDeleting, phraseIndex, phrases, isInitialDelay]);
 
 
   useEffect(() => {
