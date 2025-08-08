@@ -80,7 +80,7 @@ export default function ExplorePage() {
           <span className="animate-ping">|</span>
         </h1>
         <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto text-center">
-          To'plamimizga sho'ng'ing. Keyingi ajoyib o'qishingizni topish uchun sarlavha, muallif yoki teg bo'yicha qidiring.
+          Sarlavha, muallif yoki teg bo‘yicha qidirib, sizni qiziqtirgan insholarni toping.
         </p>
         <div className="relative mt-8 max-w-xl mx-auto">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
