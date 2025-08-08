@@ -1,7 +1,7 @@
 
 'use client';
 
-import { notFound } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getUserById, updateUserBio } from "@/lib/services/users";
 import { getPostsByAuthor } from "@/lib/services/posts";
@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Edit } from "lucide-react";
 
-export default function ProfilePage({ params }: { params: { id: string } }) {
+export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
   const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
   const [userPosts, setUserPosts] = useState<Post[]>([]);
@@ -22,7 +22,8 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
   const [bioContent, setBioContent] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
-  const userId = params.id;
+  const params = useParams();
+  const userId = params.id as string;
   const { toast } = useToast();
 
   useEffect(() => {
