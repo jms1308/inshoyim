@@ -5,7 +5,6 @@ import { BookOpenText, LogOut, User as UserIcon } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { LoginDialog } from '@/components/LoginDialog';
-import { RegisterDialog } from '@/components/RegisterDialog';
 import { useEffect, useState } from 'react';
 import {
   DropdownMenu,
@@ -90,7 +89,6 @@ export function Header() {
           ) : (
             <>
               <LoginDialog />
-              <RegisterDialog />
             </>
           )}
         </div>
