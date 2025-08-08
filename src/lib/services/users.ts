@@ -1,7 +1,8 @@
+
 'use server';
 
 import { db } from '@/lib/firebase';
-import { collection, addDoc, getDocs, query, where, doc, getDoc, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, where, doc, getDoc, Timestamp, updateDoc } from 'firebase/firestore';
 import type { User } from '@/types';
 
 const usersCollection = collection(db, 'users');
@@ -66,12 +67,21 @@ export async function getUserByEmailOrName(identifier: string): Promise<User | n
 
 export async function getUserById(id: string): Promise<User | null> {
     if (!id) return null;
-    const userDoc = doc(db, 'users', id);
-    const snapshot = await getDoc(userDoc);
+    const userDocRef = doc(db, 'users', id);
+    const snapshot = await getDoc(userDocRef);
 
     if (snapshot.exists()) {
         return userFromDoc(snapshot);
     } else {
         return null;
     }
+}
+
+
+export async function updateUserBio(userId: string, newBio: string): Promise<void> {
+    if (!userId) return;
+    const userDocRef = doc(db, 'users', userId);
+    await updateDoc(userDocRef, {
+        bio: newBio
+    });
 }
