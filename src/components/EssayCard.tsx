@@ -1,0 +1,59 @@
+import Link from 'next/link';
+import Image from 'next/image';
+import type { Post } from '@/types';
+import { mockUsers } from '@/lib/mock-data';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Book, Clock, Eye } from 'lucide-react';
+
+interface EssayCardProps {
+  post: Post;
+}
+
+export function EssayCard({ post }: EssayCardProps) {
+  const author = mockUsers.find((user) => user.id === post.author_id);
+  const excerpt = post.content.split(' ').slice(0, 25).join(' ') + '...';
+  const authorInitials = author?.name.split(' ').map(n => n[0]).join('') || 'U';
+
+  return (
+    <Link href={`/posts/${post.id}`} className="group block">
+      <Card className="flex flex-col h-full overflow-hidden transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-1">
+        <CardHeader>
+          <CardTitle className="font-headline text-2xl leading-tight group-hover:text-primary transition-colors">
+            {post.title}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex-grow">
+          <p className="text-muted-foreground line-clamp-3">{excerpt}</p>
+        </CardContent>
+        <CardFooter className="flex flex-col items-start gap-4">
+          <div className="flex flex-wrap gap-2">
+            {post.tags.slice(0, 3).map((tag) => (
+              <Badge key={tag} variant="secondary">{tag}</Badge>
+            ))}
+          </div>
+          <div className="w-full flex items-center justify-between text-sm text-muted-foreground">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={author?.avatar_url} alt={author?.name} data-ai-hint="avatar" />
+                <AvatarFallback>{authorInitials}</AvatarFallback>
+              </Avatar>
+              <span className="font-medium">{author?.name}</span>
+            </div>
+            <div className="flex items-center gap-4">
+               <div className="flex items-center gap-1.5" title="Views">
+                 <Eye className="h-4 w-4" />
+                 <span>{post.views}</span>
+               </div>
+               <div className="flex items-center gap-1.5" title="Read time">
+                 <Clock className="h-4 w-4" />
+                 <span>{post.read_time} min</span>
+               </div>
+            </div>
+          </div>
+        </CardFooter>
+      </Card>
+    </Link>
+  );
+}
