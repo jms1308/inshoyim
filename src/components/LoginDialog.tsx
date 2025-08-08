@@ -66,8 +66,8 @@ export function LoginDialog({ isDropdownItem = false }: LoginDialogProps) {
 
   const TriggerComponent = isDropdownItem ? DropdownMenuItem : Button;
   const triggerProps = isDropdownItem 
-    ? {} 
-    : { variant: 'ghost' as const };
+    ? { onSelect: (e) => e.preventDefault() } 
+    : { variant: 'outline' as const };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -110,7 +110,7 @@ export function LoginDialog({ isDropdownItem = false }: LoginDialogProps) {
           </div>
           {error && <p className="text-red-500 text-sm col-span-4 text-center">{error}</p>}
         </div>
-        <DialogFooter className="flex-col !space-y-2 sm:flex-col sm:!space-y-2 sm:!justify-end">
+        <DialogFooter className="flex-col !space-y-2 sm:flex-col sm:!space-y-2 sm:!justify-start">
             <Button onClick={handleLogin} disabled={loading} className="w-full">
                 {loading ? 'Kirilmoqda...' : 'Kirish'}
             </Button>

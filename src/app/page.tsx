@@ -1,9 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { EssayCard } from '@/components/EssayCard';
 import { getPublishedPosts } from '@/lib/services/posts';
 import type { Post } from '@/types';
+import { Button } from '@/components/ui/button';
+import { ArrowRight, Edit } from 'lucide-react';
 
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -32,6 +35,20 @@ export default function Home() {
         <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
           Yozma so'z uchun boshpana. Fikrli insholarni, chuqur sharhlarni o'rganing va o'z ovozingizni baham ko'ring.
         </p>
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link href="/explore">
+                <Button size="lg" variant="outline">
+                    Insholarni o'rganish
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+            </Link>
+            <Link href="/yozish">
+                 <Button size="lg">
+                    Yozishni boshlash
+                    <Edit className="ml-2 h-5 w-5" />
+                </Button>
+            </Link>
+        </div>
       </section>
 
       <section>

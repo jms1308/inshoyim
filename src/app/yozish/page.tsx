@@ -10,6 +10,26 @@ import { useToast } from '@/hooks/use-toast';
 import type { User } from '@/types';
 import { createPost } from '@/lib/services/posts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { LoginDialog } from '@/components/LoginDialog';
+import { RegisterDialog } from '@/components/RegisterDialog';
+
+function AuthPrompt() {
+  return (
+    <div className="container mx-auto max-w-xl py-12 text-center">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-3xl font-headline">Yozishni boshlang</CardTitle>
+          <CardDescription>Insho yozish yoki tahrirlash uchun tizimga kiring yoki roʻyxatdan oʻting.</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <LoginDialog />
+          <RegisterDialog />
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 
 export default function WritePage() {
   const [title, setTitle] = useState('');
@@ -17,6 +37,7 @@ export default function WritePage() {
   const [tags, setTags] = useState('');
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [isCheckingUser, setIsCheckingUser] = useState(true);
   
   const router = useRouter();
   const { toast } = useToast();
@@ -25,11 +46,9 @@ export default function WritePage() {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
-    } else {
-      // If no user is logged in, redirect to login page
-      router.push('/');
     }
-  }, [router]);
+    setIsCheckingUser(false);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,8 +82,12 @@ export default function WritePage() {
     }
   };
   
-  if (!user) {
+  if (isCheckingUser) {
     return <div className="container mx-auto py-12 text-center">Yuklanmoqda...</div>;
+  }
+  
+  if (!user) {
+    return <AuthPrompt />;
   }
 
   return (

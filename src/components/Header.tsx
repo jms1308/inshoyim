@@ -9,6 +9,7 @@ import {
   Menu,
   Home,
   Compass,
+  Edit,
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
@@ -62,12 +63,10 @@ function MobileNav({ user }: { user: User | null }) {
                 <Compass className='h-5 w-5' />
                 O'rganish
             </Link>
-             {user && (
-                 <Link href="/yozish" onClick={() => setIsOpen(false)} className="flex items-center gap-3 rounded-md p-2 text-lg font-medium hover:bg-muted">
-                    <PlusCircle className='h-5 w-5' />
-                    Yozish
-                </Link>
-             )}
+            <Link href="/yozish" onClick={() => setIsOpen(false)} className="flex items-center gap-3 rounded-md p-2 text-lg font-medium hover:bg-muted">
+                <Edit className='h-5 w-5' />
+                Yozish
+            </Link>
         </div>
       </SheetContent>
     </Sheet>
@@ -128,58 +127,56 @@ export function Header() {
           >
             O'rganish
           </Link>
+           <Link
+            href="/yozish"
+            className="transition-colors hover:text-foreground/80 text-foreground/60"
+          >
+            Yozish
+          </Link>
         </nav>
         <div className="flex items-center gap-2 md:gap-4">
           <ThemeToggle />
           {user ? (
-            <>
-              <Link href="/yozish" className='hidden md:inline-flex'>
-                <Button variant="default">
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Yozish
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="relative h-8 w-8 rounded-full"
+                >
+                  <Avatar className="h-9 w-9">
+                    <AvatarImage
+                      src={user.avatar_url}
+                      alt={user.name}
+                      data-ai-hint="avatar"
+                    />
+                    <AvatarFallback>{authorInitials}</AvatarFallback>
+                  </Avatar>
                 </Button>
-              </Link>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="relative h-8 w-8 rounded-full"
-                  >
-                    <Avatar className="h-9 w-9">
-                      <AvatarImage
-                        src={user.avatar_url}
-                        alt={user.name}
-                        data-ai-hint="avatar"
-                      />
-                      <AvatarFallback>{authorInitials}</AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        {user.name}
-                      </p>
-                      <p className="text-xs leading-none text-muted-foreground">
-                        {user.email}
-                      </p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href={`/profile/${user.id}`}>
-                      <UserIcon className="mr-2 h-4 w-4" />
-                      <span>Profil</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleLogout}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Chiqish</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">
+                      {user.name}
+                    </p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {user.email}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href={`/profile/${user.id}`}>
+                    <UserIcon className="mr-2 h-4 w-4" />
+                    <span>Profil</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Chiqish</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <>
               <div className="hidden md:flex items-center gap-2">
