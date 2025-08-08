@@ -9,22 +9,15 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { getUserByEmailOrName } from '@/lib/services/users';
 import { useToast } from '@/hooks/use-toast';
-import { RegisterDialog } from './RegisterDialog';
-import { DropdownMenuItem } from './ui/dropdown-menu';
-import { LogIn } from 'lucide-react';
+import { useAuthDialog } from '@/context/AuthDialogContext';
 
-interface LoginDialogProps {
-  isDropdownItem?: boolean;
-}
-
-export function LoginDialog({ isDropdownItem = false }: LoginDialogProps) {
-  const [open, setOpen] = useState(false);
+export function LoginDialog() {
+  const { isLoginOpen, setLoginOpen, setRegisterOpen } = useAuthDialog();
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -42,9 +35,11 @@ export function LoginDialog({ isDropdownItem = false }: LoginDialogProps) {
           description: "Siz tizimga kirdingiz.",
         });
         localStorage.setItem('user', JSON.stringify(user));
-        // This will reload the page and header will show the user avatar
-        window.location.reload(); 
-        setOpen(false);
+        window.dispatchEvent(new Event('storage'));
+        setLoginOpen(false);
+        // Reset fields
+        setIdentifier('');
+        setPassword('');
       } else {
         setError("Ism yoki parol noto'g'ri.");
       }
@@ -57,26 +52,12 @@ export function LoginDialog({ isDropdownItem = false }: LoginDialogProps) {
   };
   
   const handleOpenRegister = () => {
-    setOpen(false);
-    // We need a slight delay to ensure the register dialog can open
-    setTimeout(() => {
-      document.getElementById('register-trigger')?.click();
-    }, 100);
+    setLoginOpen(false);
+    setRegisterOpen(true);
   }
 
-  const TriggerComponent = isDropdownItem ? DropdownMenuItem : Button;
-  const triggerProps = isDropdownItem 
-    ? { onSelect: (e) => e.preventDefault() } 
-    : { variant: 'outline' as const };
-
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <TriggerComponent {...triggerProps}>
-          {isDropdownItem && <LogIn className="mr-2 h-4 w-4" />}
-          Kirish
-        </TriggerComponent>
-      </DialogTrigger>
+    <Dialog open={isLoginOpen} onOpenChange={setLoginOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Kirish</DialogTitle>

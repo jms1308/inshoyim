@@ -10,10 +10,12 @@ import { useToast } from '@/hooks/use-toast';
 import type { User } from '@/types';
 import { createPost } from '@/lib/services/posts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { LoginDialog } from '@/components/LoginDialog';
-import { RegisterDialog } from '@/components/RegisterDialog';
+import { useAuthDialog } from '@/context/AuthDialogContext';
+
 
 function AuthPrompt() {
+  const { setLoginOpen, setRegisterOpen } = useAuthDialog();
+
   return (
     <div className="container mx-auto max-w-xl py-12 text-center">
       <Card>
@@ -22,8 +24,8 @@ function AuthPrompt() {
           <CardDescription>Insho yozish yoki tahrirlash uchun tizimga kiring yoki roʻyxatdan oʻting.</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <LoginDialog />
-          <RegisterDialog />
+          <Button onClick={() => setLoginOpen(true)}>Kirish</Button>
+          <Button variant="outline" onClick={() => setRegisterOpen(true)}>Roʻyxatdan oʻtish</Button>
         </CardContent>
       </Card>
     </div>
@@ -43,11 +45,19 @@ export default function WritePage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    const checkUser = () => {
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      } else {
+        setUser(null);
+      }
+      setIsCheckingUser(false);
     }
-    setIsCheckingUser(false);
+    
+    checkUser();
+    window.addEventListener('storage', checkUser);
+    return () => window.removeEventListener('storage', checkUser);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {

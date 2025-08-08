@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Toaster } from '@/components/ui/toaster';
+import { AuthDialogProvider } from '@/context/AuthDialogContext';
 
 export const metadata: Metadata = {
   title: 'Inshoyim',
@@ -25,10 +26,12 @@ export default function RootLayout({
       </head>
       <body className={cn('font-body antialiased min-h-screen flex flex-col')}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <Header />
-          <main className="flex-grow">{children}</main>
-          <Footer />
-          <Toaster />
+          <AuthDialogProvider>
+            <Header />
+            <main className="flex-grow">{children}</main>
+            <Footer />
+            <Toaster />
+          </AuthDialogProvider>
         </ThemeProvider>
       </body>
     </html>

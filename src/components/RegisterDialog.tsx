@@ -9,21 +9,16 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { createUser } from '@/lib/services/users';
 import { useToast } from '@/hooks/use-toast';
-import { DropdownMenuItem } from './ui/dropdown-menu';
-import { UserPlus } from 'lucide-react';
+import { useAuthDialog } from '@/context/AuthDialogContext';
 
-interface RegisterDialogProps {
-  isDropdownItem?: boolean;
-}
 
-export function RegisterDialog({ isDropdownItem = false }: RegisterDialogProps) {
-  const [open, setOpen] = useState(false);
+export function RegisterDialog() {
+  const { isRegisterOpen, setRegisterOpen, setLoginOpen } = useAuthDialog();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -39,14 +34,19 @@ export function RegisterDialog({ isDropdownItem = false }: RegisterDialogProps) 
     setLoading(true);
     setError('');
     try {
-      await createUser(name, email, password);
+      const newUser = await createUser(name, email, password);
        toast({
         title: 'Muvaffaqiyatli!',
         description: "Siz ro'yxatdan o'tdingiz. Endi tizimga kirishingiz mumkin.",
       });
-      // This will reload the page and header will show the user avatar
-      window.location.reload(); 
-      setOpen(false);
+      localStorage.setItem('user', JSON.stringify(newUser));
+      window.dispatchEvent(new Event('storage'));
+      setRegisterOpen(false);
+      // Reset fields
+      setName('');
+      setEmail('');
+      setPassword('');
+
     } catch (e: any) {
         setError(e.message || "Ro'yxatdan o'tishda xatolik yuz berdi.");
         console.error(e);
@@ -56,29 +56,12 @@ export function RegisterDialog({ isDropdownItem = false }: RegisterDialogProps) 
   };
 
   const handleOpenLogin = () => {
-    setOpen(false);
-    setTimeout(() => {
-        const loginTrigger = document.querySelector('[aria-haspopup="dialog"]:not(#register-trigger)');
-        if (loginTrigger instanceof HTMLElement) {
-            loginTrigger.click();
-        }
-    }, 150);
+    setRegisterOpen(false);
+    setLoginOpen(true);
   }
 
-  const TriggerComponent = isDropdownItem ? DropdownMenuItem : Button;
-  const triggerProps = isDropdownItem 
-    ? { id: 'register-trigger' } 
-    : { variant: 'outline' as const, id: 'register-trigger' };
-
-
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <TriggerComponent {...triggerProps}>
-          {isDropdownItem && <UserPlus className="mr-2 h-4 w-4" />}
-          Ro'yxatdan o'tish
-        </TriggerComponent>
-      </DialogTrigger>
+    <Dialog open={isRegisterOpen} onOpenChange={setRegisterOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Ro'yxatdan o'tish</DialogTitle>

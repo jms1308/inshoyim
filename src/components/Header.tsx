@@ -5,7 +5,6 @@ import {
   Feather,
   LogOut,
   User as UserIcon,
-  PlusCircle,
   Menu,
   Home,
   Compass,
@@ -33,6 +32,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import type { User } from '@/types';
 import { RegisterDialog } from './RegisterDialog';
+import { useAuthDialog } from '@/context/AuthDialogContext';
 
 function MobileNav({ user }: { user: User | null }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -73,6 +73,36 @@ function MobileNav({ user }: { user: User | null }) {
   );
 }
 
+function AuthButtons({ isDropdown = false }: { isDropdown?: boolean }) {
+  const { setLoginOpen, setRegisterOpen } = useAuthDialog();
+
+  if (isDropdown) {
+    return (
+      <>
+        <DropdownMenuItem onSelect={() => setLoginOpen(true)}>
+          <UserIcon className="mr-2 h-4 w-4" />
+          <span>Kirish</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => setRegisterOpen(true)}>
+          <Feather className="mr-2 h-4 w-4" />
+          <span>Ro'yxatdan o'tish</span>
+        </DropdownMenuItem>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Button variant="outline" onClick={() => setLoginOpen(true)}>
+        Kirish
+      </Button>
+      <Button onClick={() => setRegisterOpen(true)}>
+        Ro'yxatdan o'tish
+      </Button>
+    </>
+  );
+}
+
 export function Header() {
   const [user, setUser] = useState<User | null>(null);
 
@@ -82,12 +112,23 @@ export function Header() {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
+
+    const handleStorageChange = () => {
+       const storedUser = localStorage.getItem('user');
+       if (storedUser) {
+         setUser(JSON.parse(storedUser));
+       } else {
+         setUser(null);
+       }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('user');
     setUser(null);
-    // Optionally redirect to home page
+    window.dispatchEvent(new Event('storage'));
     window.location.href = '/';
   };
 
@@ -97,116 +138,118 @@ export function Header() {
     .join('') || 'U';
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
-        <div className="flex items-center gap-2">
-            <div className='md:hidden'>
-                <MobileNav user={user} />
-            </div>
-            <Link href="/" className="hidden md:flex items-center gap-2">
+    <>
+      <LoginDialog />
+      <RegisterDialog />
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
+          <div className="flex items-center gap-2">
+              <div className='md:hidden'>
+                  <MobileNav user={user} />
+              </div>
+              <Link href="/" className="hidden md:flex items-center gap-2">
+              <Feather className="h-6 w-6 text-primary" />
+              <span className="font-headline text-xl font-bold">Inshoyim</span>
+              </Link>
+          </div>
+
+          <Link href="/" className="flex md:hidden items-center gap-2">
             <Feather className="h-6 w-6 text-primary" />
             <span className="font-headline text-xl font-bold">Inshoyim</span>
+          </Link>
+          
+          <nav className="hidden items-center gap-6 text-sm md:flex">
+            <Link
+              href="/"
+              className="transition-colors hover:text-foreground/80 text-foreground/60"
+            >
+              Asosiy
             </Link>
+            <Link
+              href="/explore"
+              className="transition-colors hover:text-foreground/80 text-foreground/60"
+            >
+              Insholar
+            </Link>
+            <Link
+              href="/yozish"
+              className="transition-colors hover:text-foreground/80 text-foreground/60"
+            >
+              Yozish
+            </Link>
+          </nav>
+          <div className="flex items-center gap-2 md:gap-4">
+            <ThemeToggle />
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="relative h-8 w-8 rounded-full"
+                  >
+                    <Avatar className="h-9 w-9">
+                      <AvatarImage
+                        src={user.avatar_url}
+                        alt={user.name}
+                        data-ai-hint="avatar"
+                      />
+                      <AvatarFallback>{authorInitials}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">
+                        {user.name}
+                      </p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {user.email}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href={`/profile/${user.id}`}>
+                      <UserIcon className="mr-2 h-4 w-4" />
+                      <span>Profil</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Chiqish</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <div className="hidden md:flex items-center gap-2">
+                   <AuthButtons />
+                </div>
+                <div className="md:hidden">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                          variant="ghost"
+                          className="relative h-8 w-8 rounded-full"
+                      >
+                          <Avatar className="h-9 w-9">
+                              <AvatarFallback>
+                                  <UserIcon />
+                              </AvatarFallback>
+                          </Avatar>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-48" align="end" forceMount>
+                       <AuthButtons isDropdown={true} />
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </>
+            )}
+          </div>
         </div>
-
-        <Link href="/" className="flex md:hidden items-center gap-2">
-          <Feather className="h-6 w-6 text-primary" />
-          <span className="font-headline text-xl font-bold">Inshoyim</span>
-        </Link>
-        
-        <nav className="hidden items-center gap-6 text-sm md:flex">
-          <Link
-            href="/"
-            className="transition-colors hover:text-foreground/80 text-foreground/60"
-          >
-            Asosiy
-          </Link>
-          <Link
-            href="/explore"
-            className="transition-colors hover:text-foreground/80 text-foreground/60"
-          >
-            Insholar
-          </Link>
-           <Link
-            href="/yozish"
-            className="transition-colors hover:text-foreground/80 text-foreground/60"
-          >
-            Yozish
-          </Link>
-        </nav>
-        <div className="flex items-center gap-2 md:gap-4">
-          <ThemeToggle />
-          {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="relative h-8 w-8 rounded-full"
-                >
-                  <Avatar className="h-9 w-9">
-                    <AvatarImage
-                      src={user.avatar_url}
-                      alt={user.name}
-                      data-ai-hint="avatar"
-                    />
-                    <AvatarFallback>{authorInitials}</AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      {user.name}
-                    </p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      {user.email}
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href={`/profile/${user.id}`}>
-                    <UserIcon className="mr-2 h-4 w-4" />
-                    <span>Profil</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleLogout}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Chiqish</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <>
-              <div className="hidden md:flex items-center gap-2">
-                <LoginDialog />
-                <RegisterDialog />
-              </div>
-              <div className="md:hidden">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                     <Button
-                        variant="ghost"
-                        className="relative h-8 w-8 rounded-full"
-                    >
-                        <Avatar className="h-9 w-9">
-                            <AvatarFallback>
-                                <UserIcon />
-                            </AvatarFallback>
-                        </Avatar>
-                     </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-40" align="end" forceMount>
-                    <LoginDialog isDropdownItem={true} />
-                    <RegisterDialog isDropdownItem={true} />
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-    </header>
+      </header>
+    </>
   );
 }
