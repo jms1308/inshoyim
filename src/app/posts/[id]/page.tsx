@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { mockPosts, mockUsers } from '@/lib/mock-data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Calendar, Eye } from 'lucide-react';
+import { Clock, Calendar, Eye, MessageSquare } from 'lucide-react';
 import { ShareButton } from '@/components/ShareButton';
 
 export default function PostPage({ params }: { params: { id: string } }) {
@@ -17,7 +17,7 @@ export default function PostPage({ params }: { params: { id: string } }) {
   const author = mockUsers.find((u) => u.id === post.author_id);
   const authorInitials = author?.name.split(' ').map(n => n[0]).join('') || 'U';
 
-  const formattedDate = new Date(post.created_at).toLocaleDateString('en-US', {
+  const formattedDate = new Date(post.created_at).toLocaleDateString('uz-UZ', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -41,11 +41,15 @@ export default function PostPage({ params }: { params: { id: string } }) {
           </div>
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4" />
-            <span>{post.read_time} min read</span>
+            <span>{post.read_time} daqiqa o'qish</span>
           </div>
           <div className="flex items-center gap-2">
             <Eye className="h-4 w-4" />
-            <span>{post.views.toLocaleString()} views</span>
+            <span>{post.views.toLocaleString()} marta ko'rilgan</span>
+          </div>
+           <div className="flex items-center gap-2">
+            <MessageSquare className="h-4 w-4" />
+            <span>{post.comments?.length || 0} sharh</span>
           </div>
         </div>
       </header>

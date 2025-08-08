@@ -33,7 +33,7 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
 
       <section>
         <h2 className="font-headline text-3xl font-bold mb-8 border-b pb-4">
-          Publications
+          Nashrlar
         </h2>
         {userPosts.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -43,7 +43,7 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
           </div>
         ) : (
           <p className="text-muted-foreground text-center py-10">
-            This author has not published any essays yet.
+            Bu muallif hali hech qanday insho nashr etmagan.
           </p>
         )}
       </section>

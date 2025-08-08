@@ -9,20 +9,20 @@ export function Header() {
       <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2">
           <BookOpenText className="h-6 w-6 text-primary" />
-          <span className="font-headline text-xl font-bold">Eloquent Essays</span>
+          <span className="font-headline text-xl font-bold">Notiq Insholar</span>
         </Link>
         <nav className="hidden items-center gap-6 text-sm md:flex">
           <Link href="/" className="transition-colors hover:text-foreground/80 text-foreground/60">
-            Home
+            Bosh Sahifa
           </Link>
           <Link href="/explore" className="transition-colors hover:text-foreground/80 text-foreground/60">
-            Explore
+            O'rganish
           </Link>
         </nav>
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          <Button variant="ghost" className="hidden md:inline-flex">Login</Button>
-          <Button>Write</Button>
+          <Button variant="ghost" className="hidden md:inline-flex">Kirish</Button>
+          <Button>Yozish</Button>
         </div>
       </div>
     </header>

@@ -5,113 +5,120 @@ export const mockUsers: User[] = [
     id: '1',
     name: 'Alisher Navoiy',
     email: 'alisher@navoiy.com',
+    password: 'password123',
     avatar_url: 'https://placehold.co/100x100.png',
     created_at: new Date().toISOString(),
-    bio: 'Great poet of the Timurid era, philosopher, and statesman.',
+    bio: 'Temuriylar davrining buyuk shoiri, mutafakkiri va davlat arbobi.',
   },
   {
     id: '2',
-    name: 'Zahiriddin Muhammad Babur',
+    name: 'Zahiriddin Muhammad Bobur',
     email: 'babur@mughal.com',
+    password: 'password123',
     avatar_url: 'https://placehold.co/100x100.png',
     created_at: new Date().toISOString(),
-    bio: 'Founder of the Mughal Empire and an accomplished writer.',
+    bio: 'Boburiylar imperiyasi asoschisi va mohir yozuvchi.',
   },
    {
     id: '3',
     name: 'Sophia Blackwell',
     email: 'sophia@example.com',
+    password: 'password123',
     avatar_url: 'https://placehold.co/100x100.png',
     created_at: new Date().toISOString(),
-    bio: 'Modern philosopher and technology ethicist exploring the digital age.',
+    bio: 'Raqamli asrni o\'rganayotgan zamonaviy faylasuf va texnologiya etikasi mutaxassisi.',
   },
 ];
 
 export const mockPosts: Post[] = [
   {
     id: '1',
-    title: 'The Art of Ghazal in the 15th Century',
+    title: '15-asrdagi G\'azal San\'ati',
     author_id: '1',
     content: `
-## The Flourishing of a Poetic Form
+## She'riy shaklning yuksalishi
 
-The ghazal, a poetic form consisting of rhyming couplets and a refrain, reached its zenith in the 15th century. This period saw poets masterfully blend themes of love, longing, and metaphysics into intricate lyrical structures. The form, which had traveled from Arabia through Persia, found a unique and profound expression in the Chagatai language.
+Qofiyali baytlar va radifdan iborat she'riy shakl bo'lgan g'azal 15-asrda o'zining yuksak cho'qqisiga chiqdi. Bu davrda shoirlar sevgi, sog'inch va metafizika mavzularini murakkab lirik tuzilmalarga mahorat bilan uyg'unlashtirdilar. Arabistondan Fors orqali kelgan bu shakl chig'atoy tilida o'ziga xos va chuqur ifodasini topdi.
 
-### Key Characteristics
+### Asosiy xususiyatlari
 
-- **Thematic Unity:** While each couplet (sher) can stand on its own as a complete thought, a successful ghazal maintains a consistent thematic and emotional thread.
-- **The Maqta:** The final couplet of the ghazal, known as the maqta, traditionally includes the poet's pen name, or "takhallus." This serves as a personal signature, directly connecting the creator to their work.
-- **Symbolism:** The imagery of the beloved, the wine-bearer (saqi), the nightingale, and the rose are not merely decorative. They are deep symbols representing divine beauty, spiritual guidance, the yearning soul, and the ephemeral nature of life.
+- **Mavzu birligi:** Har bir bayt (sher) o'z-o'zicha to'liq fikr sifatida tura olsa-da, muvaffaqiyatli g'azal izchil mavzu va hissiy ipni saqlaydi.
+- **Maqta:** G'azalning so'nggi bayti bo'lgan maqta an'anaviy ravishda shoirning taxallusini o'z ichiga oladi. Bu ijodkorni o'z asariga bevosita bog'laydigan shaxsiy imzo bo'lib xizmat qiladi.
+- **Ramziylik:** Ma'shuqa, soqiy, bulbul va gul tasvirlari shunchaki bezak emas. Ular ilohiy go'zallik, ma'naviy hidoyat, sog'ingan qalb va hayotning o'tkinchi tabiatini ifodalovchi chuqur ramzlardir.
 
-This era's contribution was not just in perfecting the form, but in elevating its philosophical depth, making the ghazal a timeless vessel for expressing the human condition.
+Bu davrning hissasi nafaqat shaklni mukammallashtirishda, balki uning falsafiy chuqurligini oshirishda ham bo'ldi, bu esa g'azalni insoniyat ahvolini ifodalash uchun abadiy vositaga aylantirdi.
 `,
     created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
     updated_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
     views: 1450,
-    tags: ['poetry', 'history', 'ghazal', 'literature'],
+    tags: ['she\'riyat', 'tarix', 'g\'azal', 'adabiyot'],
     status: 'published',
     read_time: 3,
+    comments: [],
   },
   {
     id: '2',
-    title: 'Reflections from the Baburnama',
+    title: 'Boburnomadan mulohazalar',
     author_id: '2',
     content: `
-## A Memoir of Conquest and Nature
+## Fath va tabiat xotirasi
 
-The Baburnama stands as a monumental work of autobiography, offering an unfiltered glimpse into the life of a conqueror, a ruler, and a keen observer of the natural world. It is more than a historical chronicle; it is a personal diary filled with candid reflections on victory, defeat, and the profound beauty of the lands I traversed.
+"Boburnoma" avtobiografiyaning monumental asari bo'lib, bosqinchi, hukmdor va tabiatning zukko kuzatuvchisi hayotiga filtrlanmagan nigoh tashlaydi. Bu tarixiy yilnomadan ko'ra ko'proq; bu g'alaba, mag'lubiyat va men kezgan o'lkalarning chuqur go'zalligi haqidagi samimiy mulohazalar bilan to'ldirilgan shaxsiy kundalikdir.
 
-### On Leadership and Exile
+### Yetakchilik va surgun haqida
 
-From the early struggles for Samarkand to the eventual establishment of an empire in Hindustan, the path was fraught with peril. These entries detail not just military strategies, but the emotional toll of exile and the resilience required to build a dynasty from nothing.
+Samarqand uchun dastlabki kurashlardan Hindistonda imperiya barpo etilishigacha bo'lgan yo'l xavf-xatarlarga to'la edi. Bu yozuvlar nafaqat harbiy strategiyalarni, balki surgunlikning hissiy yukini va yo'qdan sulola qurish uchun talab qilinadigan matonatni ham batafsil bayon qiladi.
 
-> "I have not written all this to complain: I have simply written the truth. I do not intend by what I have written to compliment myself: I have simply set down exactly what happened."
+> "Men bularning hammasini shikoyat qilish uchun yozmadim: men shunchaki haqiqatni yozdim. Yozganlarim bilan o'zimni maqtamoqchi emasman: men shunchaki nima bo'lganini aniq yozdim."
 
-### A Naturalist's Eye
+### Tabiatshunosning nigohi
 
-Beyond the battlefield, I found solace in documenting the flora and fauna of new territories. The description of Hindustan's gardens, fruits, and animals was a way to connect with a foreign land, to understand its essence. This appreciation for nature provided a balance to the turbulent life of a king and warrior.
+Jang maydonidan tashqarida men yangi hududlarning o'simlik va hayvonot dunyosini hujjatlashtirishdan taskin topdim. Hindistonning bog'lari, mevalari va hayvonlari tavsifi begona yurt bilan aloqa o'rnatish, uning mohiyatini tushunish usuli edi. Tabiatga bo'lgan bu qadrlash shoh va jangchining notinch hayotiga muvozanat baxsh etdi.
 `,
     created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(),
     updated_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(),
     views: 2890,
-    tags: ['memoir', 'history', 'mughal', 'babur'],
+    tags: ['xotira', 'tarix', 'boburiy', 'bobur'],
     status: 'published',
     read_time: 4,
+    comments: [],
   },
   {
     id: '3',
-    title: 'The Digital Self: Identity in the Age of the Internet',
+    title: 'Raqamli Men: Internet asrida shaxsiyat',
     author_id: '3',
     content: `
-## Crafting Personas in a Virtual World
+## Virtual dunyoda shaxslarni yaratish
 
-The advent of the internet has fundamentally altered our conception of self. We now curate digital identities across multiple platforms, each a carefully constructed facet of who we are—or who we wish to be. This essay explores the philosophical implications of the "digital self."
+Internetning paydo bo'lishi bizning o'zlik konsepsiyamizni tubdan o'zgartirdi. Biz endi bir nechta platformalarda raqamli shaxsiyatlarni yaratamiz, ularning har biri biz kim ekanligimizning yoki kim bo'lishni xohlashimizning ehtiyotkorlik bilan qurilgan qirrasidir. Ushbu insho "raqamli o'zlik" ning falsafiy oqibatlarini o'rganadi.
 
-### Authenticity vs. Curation
+### Haqiqiylik va Kuratsiya
 
-Is the online persona an authentic extension of our being, or is it an inauthentic performance? The line blurs. Social media encourages us to present an idealized version of our lives, highlighting successes while hiding vulnerabilities. Yet, these digital spaces are also where we find communities, express niche interests, and explore aspects of our identity that may be suppressed in our physical lives.
+Onlayn shaxs bizning borligimizning haqiqiy kengaytmasimi yoki bu nohaqiqiy ijromi? Chiziq xiralashadi. Ijtimoiy media bizni hayotimizning ideallashtirilgan versiyasini taqdim etishga undaydi, muvaffaqiyatlarni ta'kidlab, zaifliklarni yashiradi. Shunga qaramay, bu raqamli makonlar biz jamoalarni topadigan, o'ziga xos qiziqishlarni ifoda etadigan va jismoniy hayotimizda bostirilishi mumkin bo'lgan shaxsiyatimizning jihatlarini o'rganadigan joylardir.
 
-### The Algorithm's Gaze
+### Algoritm nigohi
 
-Our digital selves are not created in a vacuum. They are shaped and reflected back at us by algorithms that determine what we see, who we connect with, and how our content is perceived. This creates a feedback loop where the platform's logic begins to influence our self-perception. Are we becoming who the algorithm thinks we are? This question is central to understanding modern identity.
+Bizning raqamli o'zligimiz vakuumda yaratilmagan. Ular biz nimani ko'rishimizni, kim bilan bog'lanishimizni va kontentimiz qanday qabul qilinishini belgilaydigan algoritmlar tomonidan shakllantiriladi va bizga aks ettiriladi. Bu platformaning mantig'i bizning o'z-o'zini anglashimizga ta'sir qila boshlaydigan teskari aloqa aylanishini yaratadi. Biz algoritm bizni kim deb o'ylayotganiga aylanayapmizmi? Bu savol zamonaviy shaxsiyatni tushunishning markazida turadi.
 `,
     created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 1).toISOString(),
     updated_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 1).toISOString(),
     views: 980,
-    tags: ['technology', 'philosophy', 'identity', 'internet'],
+    tags: ['texnologiya', 'falsafa', 'shaxsiyat', 'internet'],
     status: 'published',
     read_time: 3,
+    comments: [],
   },
   {
     id: '4',
-    title: 'Unpublished Draft on Celestial Mechanics',
+    title: 'Samoviy mexanika bo\'yicha nashr etilmagan qoralama',
     author_id: '3',
-    content: 'This is a draft about the complex motions of planets and stars. It needs more work and is currently over 70 words long to satisfy the validation requirement for creating a post, but it is not ready for public viewing yet. I am still researching the primary sources.',
+    content: 'Bu sayyoralar va yulduzlarning murakkab harakatlari haqidagi qoralama. U ko\'proq ish talab qiladi va hozirda post yaratish uchun tasdiqlash talabini qondirish uchun 70 so\'zdan oshadi, lekin u hali ommaviy ko\'rishga tayyor emas. Men hali ham asosiy manbalarni o\'rganmoqdaman.',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     views: 0,
     tags: [],
     status: 'draft',
     read_time: 1,
+    comments: [],
   },
 ];

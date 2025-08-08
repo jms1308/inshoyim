@@ -10,12 +10,14 @@ export interface Post {
   status: 'published' | 'draft';
   read_time: number;
   source?: 'user' | 'imported_from_medium';
+  comments: Comment[];
 }
 
 export interface User {
   id: string;
   name: string;
   email: string;
+  password?: string;
   avatar_url: string;
   created_at: string;
   bio?: string;

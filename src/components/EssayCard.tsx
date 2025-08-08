@@ -5,7 +5,7 @@ import { mockUsers } from '@/lib/mock-data';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Book, Clock, Eye } from 'lucide-react';
+import { Book, Clock, Eye, MessageSquare } from 'lucide-react';
 
 interface EssayCardProps {
   post: Post;
@@ -42,14 +42,18 @@ export function EssayCard({ post }: EssayCardProps) {
               <span className="font-medium">{author?.name}</span>
             </div>
             <div className="flex items-center gap-4">
-               <div className="flex items-center gap-1.5" title="Views">
+               <div className="flex items-center gap-1.5" title="Ko'rishlar">
                  <Eye className="h-4 w-4" />
                  <span>{post.views}</span>
                </div>
-               <div className="flex items-center gap-1.5" title="Read time">
+               <div className="flex items-center gap-1.5" title="O'qish vaqti">
                  <Clock className="h-4 w-4" />
-                 <span>{post.read_time} min</span>
+                 <span>{post.read_time} daq</span>
                </div>
+               <div className="flex items-center gap-1.5" title="Sharhlar">
+                 <MessageSquare className="h-4 w-4" />
+                 <span>{post.comments?.length || 0}</span>
+                </div>
             </div>
           </div>
         </CardFooter>
