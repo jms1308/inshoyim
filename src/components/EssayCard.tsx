@@ -62,15 +62,15 @@ export function EssayCard({ post }: EssayCardProps) {
             <div className="flex items-center gap-x-2 sm:gap-x-3">
                <div className="flex items-center gap-1" title="Ko'rishlar">
                  <Eye className="h-4 w-4" />
-                 <span className="text-xs">{post.views}</span>
+                 <span className="text-xs sm:text-sm">{post.views}</span>
                </div>
-               <div className="flex items-center gap-1" title="O'qish vaqti">
+               <div className="hidden sm:flex items-center gap-1" title="O'qish vaqti">
                  <Clock className="h-4 w-4" />
-                 <span className="text-xs">{post.read_time} daq</span>
+                 <span className="text-xs sm:text-sm">{post.read_time} daq</span>
                </div>
                <div className="flex items-center gap-1" title="Sharhlar">
                  <MessageSquare className="h-4 w-4" />
-                 <span className="text-xs">{post.comments?.length || 0}</span>
+                 <span className="text-xs sm:text-sm">{post.comments?.length || 0}</span>
                 </div>
             </div>
           </div>
