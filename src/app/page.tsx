@@ -30,10 +30,10 @@ export default function Home() {
     <div className="container mx-auto px-4 py-8 md:py-12">
       <section className="text-center py-12 md:py-20">
         <h1 className="font-headline text-4xl md:text-6xl font-bold tracking-tighter leading-tight">
-          Notiq Insholar
+          Inshoyim
         </h1>
         <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-          Yozma so'z uchun boshpana. Fikrli insholarni, chuqur sharhlarni o'rganing va o'z ovozingizni baham ko'ring.
+          O‘z g‘oyalaringizni barcha bilan bo‘lishishga tayyormisiz? Bizning platformamizda har kim o‘z fikrini erkin ifoda eta oladi.
         </p>
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/explore">

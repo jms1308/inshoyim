@@ -50,14 +50,14 @@ function MobileNav({ user }: { user: User | null }) {
           <SheetTitle asChild>
              <Link href="/" className="flex items-center gap-2" onClick={() => setIsOpen(false)}>
                 <BookOpenText className="h-6 w-6 text-primary" />
-                <span className="font-headline text-xl font-bold">Notiq Insholar</span>
+                <span className="font-headline text-xl font-bold">Inshoyim</span>
             </Link>
           </SheetTitle>
         </SheetHeader>
         <div className="flex flex-col space-y-4 py-8">
             <Link href="/" onClick={() => setIsOpen(false)} className="flex items-center gap-3 rounded-md p-2 text-lg font-medium hover:bg-muted">
                 <Home className='h-5 w-5' />
-                Bosh Sahifa
+                Asosiy
             </Link>
              <Link href="/explore" onClick={() => setIsOpen(false)} className="flex items-center gap-3 rounded-md p-2 text-lg font-medium hover:bg-muted">
                 <Compass className='h-5 w-5' />
@@ -105,13 +105,13 @@ export function Header() {
             </div>
             <Link href="/" className="hidden md:flex items-center gap-2">
             <BookOpenText className="h-6 w-6 text-primary" />
-            <span className="font-headline text-xl font-bold">Notiq Insholar</span>
+            <span className="font-headline text-xl font-bold">Inshoyim</span>
             </Link>
         </div>
 
         <Link href="/" className="flex md:hidden items-center gap-2">
           <BookOpenText className="h-6 w-6 text-primary" />
-          <span className="font-headline text-xl font-bold">Notiq</span>
+          <span className="font-headline text-xl font-bold">Inshoyim</span>
         </Link>
         
         <nav className="hidden items-center gap-6 text-sm md:flex">
@@ -119,7 +119,7 @@ export function Header() {
             href="/"
             className="transition-colors hover:text-foreground/80 text-foreground/60"
           >
-            Bosh Sahifa
+            Asosiy
           </Link>
           <Link
             href="/explore"

@@ -7,7 +7,7 @@ import { Footer } from '@/components/Footer';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'Notiq Insholar',
+  title: 'Inshoyim',
   description: 'Uzoq formalı insholar va kitob sharhlari uchun zamonaviy, sezgir va koʻp funksiyali veb-sayt.',
 };
 
