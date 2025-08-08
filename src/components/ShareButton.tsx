@@ -36,7 +36,7 @@ export function ShareButton({ title, content }: { title: string, content: string
   const { toast } = useToast()
 
   const plainTextContent = content.replace(/<[^>]*>?/gm, '');
-  const excerpt = plainTextContent.split('. ').slice(0, 5).join('. ') + (plainTextContent.split('. ').length > 5 ? '...' : '');
+  const excerpt = plainTextContent.split('. ').slice(0, 3).join('. ') + (plainTextContent.split('. ').length > 3 ? '...' : '');
 
   const shareText = `Inshoni o'qing: "${title}"\n\n${excerpt}`;
 
