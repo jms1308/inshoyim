@@ -9,7 +9,7 @@ import { getUserById } from '@/lib/services/users';
 import type { Post, User, Comment } from '@/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Calendar, Eye, MessageSquare, Edit, Trash2 } from 'lucide-react';
+import { Clock, Calendar, Eye, MessageSquare, Edit, Trash2, ArrowLeft } from 'lucide-react';
 import { ShareButton } from '@/components/ShareButton';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -213,6 +213,12 @@ export default function PostPage() {
 
   return (
     <article className="container mx-auto max-w-3xl px-4 py-8 md:py-16">
+       <div className="mb-4">
+        <Button variant="ghost" onClick={() => router.back()} className="pl-0">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Orqaga
+        </Button>
+      </div>
       <header className="mb-8 md:mb-12">
          {isAuthor && (
             <div className="flex justify-end gap-2 mb-4">
