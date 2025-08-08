@@ -1,18 +1,31 @@
+'use client';
+
 import Link from 'next/link';
-import Image from 'next/image';
-import type { Post } from '@/types';
-import { mockUsers } from '@/lib/mock-data';
+import { useEffect, useState } from 'react';
+import type { Post, User } from '@/types';
+import { getUserById } from '@/lib/services/users';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Book, Clock, Eye, MessageSquare } from 'lucide-react';
+import { Eye, Clock, MessageSquare } from 'lucide-react';
 
 interface EssayCardProps {
   post: Post;
 }
 
 export function EssayCard({ post }: EssayCardProps) {
-  const author = mockUsers.find((user) => user.id === post.author_id);
+  const [author, setAuthor] = useState<User | null>(null);
+
+  useEffect(() => {
+    async function fetchAuthor() {
+      if (post.author_id) {
+        const authorData = await getUserById(post.author_id);
+        setAuthor(authorData);
+      }
+    }
+    fetchAuthor();
+  }, [post.author_id]);
+
   const excerpt = post.content.split(' ').slice(0, 25).join(' ') + '...';
   const authorInitials = author?.name.split(' ').map(n => n[0]).join('') || 'U';
 
@@ -39,7 +52,11 @@ export function EssayCard({ post }: EssayCardProps) {
                 <AvatarImage src={author?.avatar_url} alt={author?.name} data-ai-hint="avatar" />
                 <AvatarFallback>{authorInitials}</AvatarFallback>
               </Avatar>
-              <span className="font-medium">{author?.name}</span>
+              {author ? (
+                <span className="font-medium">{author.name}</span>
+              ) : (
+                <span className="font-medium">Noma'lum</span>
+              )}
             </div>
             <div className="flex items-center gap-4">
                <div className="flex items-center gap-1.5" title="Ko'rishlar">

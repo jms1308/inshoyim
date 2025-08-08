@@ -1,20 +1,155 @@
+'use client';
+
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { mockPosts, mockUsers } from '@/lib/mock-data';
+import { getPostById, incrementPostView, addCommentToPost } from '@/lib/services/posts';
+import { getUserById } from '@/lib/services/users';
+import type { Post, User, Comment } from '@/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Clock, Calendar, Eye, MessageSquare } from 'lucide-react';
 import { ShareButton } from '@/components/ShareButton';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
+
+function CommentSection({ post, onCommentAdded }: { post: Post, onCommentAdded: (comment: Comment) => void }) {
+  const [newComment, setNewComment] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [commentsWithAuthors, setCommentsWithAuthors] = useState<({ author: User | null } & Comment)[]>([]);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    async function fetchAuthors() {
+      const commentsData = await Promise.all(
+        post.comments.map(async (comment) => {
+          const author = await getUserById(comment.user_id);
+          return { ...comment, author };
+        })
+      );
+      setCommentsWithAuthors(commentsData);
+    }
+    if (post.comments) {
+      fetchAuthors();
+    }
+  }, [post.comments]);
+
+
+  const handleSubmitComment = async () => {
+    // For now, we'll use a mock user ID. Later, this will come from the logged-in user.
+    const mockUserId = "1";
+    if (!newComment.trim()) return;
+
+    setIsSubmitting(true);
+    try {
+      const addedComment = await addCommentToPost(post.id, mockUserId, newComment);
+      const author = await getUserById(mockUserId);
+      onCommentAdded({ ...addedComment, author });
+      setNewComment("");
+       toast({
+        title: "Izohingiz qo'shildi!",
+        description: "Fikringiz uchun rahmat.",
+      });
+    } catch (error) {
+      console.error("Failed to add comment:", error);
+      toast({
+        title: "Xatolik!",
+        description: "Izoh qo'shishda xatolik yuz berdi.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="mt-12 pt-8 border-t">
+      <h2 className="font-headline text-2xl font-bold mb-6">Sharhlar ({post.comments?.length || 0})</h2>
+      <div className="space-y-6">
+        {commentsWithAuthors.map((comment) => (
+          <div key={comment.id} className="flex gap-4">
+             <Avatar>
+                <AvatarImage src={comment.author?.avatar_url} alt={comment.author?.name} data-ai-hint="avatar" />
+                <AvatarFallback>{comment.author?.name.charAt(0) || 'U'}</AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="font-bold">{comment.author?.name}</p>
+              <p className="text-sm text-muted-foreground mb-1">
+                 {new Date(comment.created_at).toLocaleDateString('uz-UZ', { year: 'numeric', month: 'long', day: 'numeric' })}
+              </p>
+              <p>{comment.content}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+       <div className="mt-8">
+        <h3 className="text-lg font-semibold mb-2">Fikr qoldirish</h3>
+        <Textarea
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+          placeholder="Sharhingizni shu yerga yozing..."
+          rows={4}
+          className="mb-2"
+        />
+        <Button onClick={handleSubmitComment} disabled={isSubmitting}>
+          {isSubmitting ? "Yuborilmoqda..." : "Sharhni yuborish"}
+        </Button>
+      </div>
+    </div>
+  )
+}
+
 
 export default function PostPage({ params }: { params: { id: string } }) {
-  const post = mockPosts.find((p) => p.id === params.id);
-  
-  if (!post) {
-    notFound();
+  const [post, setPost] = useState<Post | null>(null);
+  const [author, setAuthor] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const postData = await getPostById(params.id);
+        if (!postData) {
+          notFound();
+          return;
+        }
+
+        // We will use a mock user ID for now
+        const mockUserId = "1";
+        // This check prevents incrementing the view count on every refresh by the same user.
+        if (!postData.viewed_by?.includes(mockUserId)) {
+          await incrementPostView(params.id, mockUserId);
+          postData.views += 1;
+          postData.viewed_by = [...(postData.viewed_by || []), mockUserId];
+        }
+
+        setPost(postData);
+
+        if (postData.author_id) {
+          const authorData = await getUserById(postData.author_id);
+          setAuthor(authorData);
+        }
+      } catch (error) {
+        console.error("Failed to fetch post:", error);
+        toast({ title: "Postni yuklashda xatolik", variant: "destructive" });
+        // notFound();
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, [params.id, toast]);
+
+  if (loading) {
+    return <div className="container mx-auto max-w-3xl px-4 py-8 md:py-16 text-center">Yuklanmoqda...</div>;
   }
 
-  const author = mockUsers.find((u) => u.id === post.author_id);
+  if (!post) {
+    return notFound();
+  }
+  
   const authorInitials = author?.name.split(' ').map(n => n[0]).join('') || 'U';
 
   const formattedDate = new Date(post.created_at).toLocaleDateString('uz-UZ', {
@@ -22,6 +157,15 @@ export default function PostPage({ params }: { params: { id: string } }) {
     month: 'long',
     day: 'numeric',
   });
+  
+  const handleCommentAdded = (newComment: Comment & { author: User | null }) => {
+    setPost(prevPost => {
+      if (!prevPost) return null;
+      // Ensure comments array exists
+      const updatedComments = [...(prevPost.comments || []), newComment];
+      return { ...prevPost, comments: updatedComments };
+    });
+  };
 
   return (
     <article className="container mx-auto max-w-3xl px-4 py-8 md:py-16">
@@ -74,6 +218,8 @@ export default function PostPage({ params }: { params: { id: string } }) {
         className="prose dark:prose-invert max-w-none"
         dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br />') }}
       />
+
+      <CommentSection post={post} onCommentAdded={handleCommentAdded} />
     </article>
   );
 }

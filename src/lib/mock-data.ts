@@ -1,5 +1,8 @@
 import type { Post, User } from '@/types';
 
+// This file is now deprecated and will be removed in a future step.
+// Data is now fetched from Firebase.
+
 export const mockUsers: User[] = [
   {
     id: '1',

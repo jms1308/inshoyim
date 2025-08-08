@@ -1,7 +1,28 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import { EssayCard } from '@/components/EssayCard';
-import { mockPosts } from '@/lib/mock-data';
+import { getPublishedPosts } from '@/lib/services/posts';
+import type { Post } from '@/types';
 
 export default function Home() {
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchPosts() {
+      try {
+        const publishedPosts = await getPublishedPosts();
+        setPosts(publishedPosts.slice(0, 6));
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchPosts();
+  }, []);
+
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
       <section className="text-center py-12 md:py-20">
@@ -15,11 +36,15 @@ export default function Home() {
 
       <section>
         <h2 className="font-headline text-3xl font-bold mb-8 text-center md:text-left">So'nggi nashrlar</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {mockPosts.filter(p => p.status === 'published').slice(0, 6).map((post) => (
-            <EssayCard key={post.id} post={post} />
-          ))}
-        </div>
+        {loading ? (
+          <p>Yuklanmoqda...</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {posts.map((post) => (
+              <EssayCard key={post.id} post={post} />
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );

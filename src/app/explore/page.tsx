@@ -1,10 +1,40 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import { EssayCard } from "@/components/EssayCard";
 import { Input } from "@/components/ui/input";
-import { mockPosts } from "@/lib/mock-data";
+import { getPublishedPosts } from '@/lib/services/posts';
+import type { Post } from '@/types';
 import { Search } from "lucide-react";
 
 export default function ExplorePage() {
-  const allPosts = mockPosts.filter(p => p.status === 'published');
+  const [allPosts, setAllPosts] = useState<Post[]>([]);
+  const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    async function fetchPosts() {
+      try {
+        const posts = await getPublishedPosts();
+        setAllPosts(posts);
+        setFilteredPosts(posts);
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchPosts();
+  }, []);
+
+  useEffect(() => {
+    const results = allPosts.filter(post =>
+      post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+    setFilteredPosts(results);
+  }, [searchTerm, allPosts]);
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -18,16 +48,22 @@ export default function ExplorePage() {
           <Input 
             placeholder="Insholarni qidirish..."
             className="pl-10 text-lg py-6 rounded-full"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
       </section>
 
       <section>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {allPosts.map((post) => (
-            <EssayCard key={post.id} post={post} />
-          ))}
-        </div>
+        {loading ? (
+          <p className="text-center">Yuklanmoqda...</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredPosts.map((post) => (
+              <EssayCard key={post.id} post={post} />
+            ))}
+          </div>
+        )}
       </section>
     </div>
   )

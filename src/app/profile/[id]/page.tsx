@@ -1,21 +1,49 @@
-import { notFound } from "next/navigation"
-import Image from "next/image"
-import { mockUsers, mockPosts } from "@/lib/mock-data"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { EssayCard } from "@/components/EssayCard"
+'use client';
+
+import { notFound } from "next/navigation";
+import { useEffect, useState } from "react";
+import { getUserById } from "@/lib/services/users";
+import { getPostsByAuthor } from "@/lib/services/posts";
+import type { User, Post } from "@/types";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { EssayCard } from "@/components/EssayCard";
 
 export default function ProfilePage({ params }: { params: { id: string } }) {
-  const user = mockUsers.find((u) => u.id === params.id)
+  const [user, setUser] = useState<User | null>(null);
+  const [userPosts, setUserPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const userData = await getUserById(params.id);
+        if (!userData) {
+          notFound();
+          return;
+        }
+        setUser(userData);
+
+        const postsData = await getPostsByAuthor(params.id);
+        setUserPosts(postsData);
+      } catch (error) {
+        console.error("Failed to fetch profile data:", error);
+        // Optionally show a toast or error message
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, [params.id]);
+
+  if (loading) {
+    return <div className="text-center py-10">Yuklanmoqda...</div>;
+  }
   
   if (!user) {
-    notFound()
+    return notFound();
   }
 
-  const userPosts = mockPosts.filter(
-    (p) => p.author_id === user.id && p.status === "published"
-  )
   const authorInitials = user.name.split(' ').map(n => n[0]).join('') || 'U';
-
 
   return (
     <div className="container mx-auto max-w-5xl px-4 py-8 md:py-16">

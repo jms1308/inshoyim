@@ -7,12 +7,12 @@ import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "TODO",
-  authDomain: "TODO",
-  projectId: "TODO",
-  storageBucket: "TODO",
-  messagingSenderId: "TODO",
-  appId: "TODO"
+  "projectId": "eloquent-essays",
+  "appId": "1:522620755725:web:1eff8043c96d9c2d2d5a44",
+  "storageBucket": "eloquent-essays.firebasestorage.app",
+  "apiKey": "AIzaSyCrIa07E89Oo2vqmQv3HYeFzM2-auK-mOM",
+  "authDomain": "eloquent-essays.firebaseapp.com",
+  "messagingSenderId": "522620755725"
 };
 
 // Initialize Firebase
