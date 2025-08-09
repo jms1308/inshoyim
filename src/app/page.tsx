@@ -10,14 +10,13 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, Edit, BookOpen, Globe } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 
-const FeatureCard = ({ icon, title, subtitle, children }: { icon: React.ReactNode, title: string, subtitle: string, children: React.ReactNode }) => (
+const FeatureCard = ({ icon, title, children }: { icon: React.ReactNode, title: string, children: React.ReactNode }) => (
     <Card className="text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
         <CardHeader className="items-center">
             <div className="p-3 bg-primary/10 rounded-full mb-2">
                 {icon}
             </div>
             <CardTitle className="font-headline">{title}</CardTitle>
-            <CardDescription className="font-headline">{subtitle}</CardDescription>
         </CardHeader>
         <CardContent>
             <p className="text-muted-foreground font-headline">{children}</p>
@@ -119,21 +118,18 @@ export default function Home() {
               <FeatureCard 
                 icon={<Edit className="h-8 w-8 text-primary" />}
                 title="Insho yozing"
-                subtitle="O‘zingiz yozgan insholarni ulashing"
               >
                 Inshoyim platformasida o‘z insholaringizni chop eting. Har bir fikr qadrlanadi, har bir yozuv esda qoladi.
               </FeatureCard>
                <FeatureCard 
                 icon={<BookOpen className="h-8 w-8 text-primary" />}
                 title="Boshqalarning insholarini o‘qing"
-                subtitle="Ilhomlaning va yangi g‘oyalarni o‘rganing"
               >
                 Minglab foydalanuvchilarning insholari sizni kutmoqda. Yangi mavzular, turli yondashuvlar, real hayotiy fikrlar — barchasi shu yerda.
               </FeatureCard>
                <FeatureCard 
                 icon={<Globe className="h-8 w-8 text-primary" />}
                 title="O‘zbek tilida bilim manbai"
-                subtitle="Ona tilimizda sifatli kontent"
               >
                 Inshoyim — o‘zbek tilidagi insholar uchun maxsus platforma. Yozing, o‘qing, baham ko‘ring — barchasi ona tilingizda.
               </FeatureCard>
