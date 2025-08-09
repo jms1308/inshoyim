@@ -18,8 +18,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        body: ['Space Grotesk', 'sans-serif'],
-        headline: ['Literata', 'serif'],
+        body: ['Literata', 'serif'],
+        headline: ['Space Grotesk', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {
