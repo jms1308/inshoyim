@@ -17,10 +17,10 @@ const FeatureCard = ({ icon, title, children }: { icon: React.ReactNode, title: 
             <div className="p-3 bg-primary/10 rounded-full mb-2">
                 {icon}
             </div>
-            <CardTitle className="font-body">{title}</CardTitle>
+            <CardTitle className="font-headline">{title}</CardTitle>
         </CardHeader>
         <CardContent>
-            <p className="text-muted-foreground font-body">{children}</p>
+            <p className="font-body">{children}</p>
         </CardContent>
     </Card>
 );
@@ -92,22 +92,22 @@ export default function Home() {
     <div className="container mx-auto px-4 py-8 md:py-12">
        <section className="grid md:grid-cols-2 gap-8 items-center py-12 md:py-20">
         <div className="text-center md:text-left">
-            <h1 className="font-headline text-4xl md:text-6xl font-bold tracking-tighter leading-tight h-20 md:h-24">
+            <h1 className="font-body text-4xl md:text-6xl font-bold tracking-tighter leading-tight h-20 md:h-24">
             {dynamicText}
             <span className="animate-ping">|</span>
             </h1>
-            <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto md:mx-0 font-body">
+            <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto md:mx-0 font-headline">
             O‘z g‘oyalaringizni barcha bilan bo‘lishishga tayyormisiz? Bizning platformamizda har kim o‘z fikrini erkin ifoda eta oladi.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
                 <Link href="/explore">
-                    <Button size="lg" variant="outline" className="font-body">
+                    <Button size="lg" variant="outline" className="font-headline">
                         Barcha insholar
                         <ArrowRight className="ml-2 h-5 w-5" />
                     </Button>
                 </Link>
                 <Link href="/yozish">
-                    <Button size="lg" className="font-body">
+                    <Button size="lg" className="font-headline">
                         Yozishni boshlash
                         <Edit className="ml-2 h-5 w-5" />
                     </Button>
@@ -115,7 +115,7 @@ export default function Home() {
             </div>
         </div>
         <div className="h-[300px] md:h-[450px] rounded-xl overflow-hidden">
-            <SplineScene url="https://my.spline.design/miniroommusiccopy-b5c6d35d79901b46a953935418b33538/" />
+            <SplineScene url="https://my.spline.design/miniroommusiccopy-XhiMZAQrMxbthDIJK8aMd7Wo/" />
         </div>
       </section>
 
