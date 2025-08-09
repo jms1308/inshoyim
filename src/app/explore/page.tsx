@@ -79,7 +79,7 @@ export default function ExplorePage() {
           {dynamicText}
           <span className="animate-ping">|</span>
         </h1>
-        <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto text-center">
+        <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto text-center font-headline">
           Sarlavha, muallif yoki teg bo‘yicha qidirib, sizni qiziqtirgan insholarni toping.
         </p>
         <div className="relative mt-8 max-w-xl mx-auto">
