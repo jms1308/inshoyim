@@ -20,6 +20,7 @@ export default {
       fontFamily: {
         body: ['Literata', 'serif'],
         headline: ['Space Grotesk', 'sans-serif'],
+        sans: ['Space Grotesk', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {

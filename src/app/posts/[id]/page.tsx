@@ -26,8 +26,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { PostSettings, type FontSettings } from '@/components/PostSettings';
 
 function CommentSection({ postId, initialComments, onCommentAdded, onCommentDeleted, loggedInUser }: { postId: string, initialComments: Comment[], onCommentAdded: (comment: (Comment & { author: User | null })) => void, onCommentDeleted: (commentId: string) => void, loggedInUser: User | null }) {
   const [newComment, setNewComment] = useState("");
@@ -178,6 +178,10 @@ export default function PostPage() {
   const [loading, setLoading] = useState(true);
   const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
   const { toast } = useToast();
+  const [fontSettings, setFontSettings] = useState<FontSettings>({
+    size: 16,
+    family: 'font-body'
+  });
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -355,11 +359,15 @@ export default function PostPage() {
                 </div>
             </Link>
         )}
-        <ShareButton title={post.title} content={post.content} />
+        <div className="flex items-center gap-2">
+            <PostSettings settings={fontSettings} onSettingsChange={setFontSettings} />
+            <ShareButton title={post.title} content={post.content} />
+        </div>
       </div>
 
       <div
-        className="prose dark:prose-invert max-w-none"
+        className={`prose dark:prose-invert max-w-none ${fontSettings.family}`}
+        style={{ fontSize: `${fontSettings.size}px` }}
         dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br />') }}
       />
 
