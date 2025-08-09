@@ -14,7 +14,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 export interface FontSettings {
   size: number;
-  family: 'font-body' | 'font-sans';
+  family: 'font-body' | 'font-headline';
 }
 
 interface PostSettingsProps {
@@ -58,18 +58,18 @@ export function PostSettings({ settings, onSettingsChange }: PostSettingsProps) 
               <Label>Shrift turi</Label>
               <RadioGroup
                 value={settings.family}
-                onValueChange={(value: 'font-body' | 'font-sans') =>
+                onValueChange={(value: 'font-body' | 'font-headline') =>
                   onSettingsChange({ ...settings, family: value })
                 }
                 className="col-span-2 flex items-center space-x-2"
               >
                 <div className="flex items-center space-x-1">
-                  <RadioGroupItem value="font-body" id="font-serif" />
-                  <Label htmlFor="font-serif" className="font-body">Serif</Label>
+                  <RadioGroupItem value="font-body" id="font-sans" />
+                  <Label htmlFor="font-sans" className="font-sans">Standart</Label>
                 </div>
                 <div className="flex items-center space-x-1">
-                  <RadioGroupItem value="font-sans" id="font-sans" />
-                  <Label htmlFor="font-sans" className="font-sans">Sans</Label>
+                  <RadioGroupItem value="font-headline" id="font-serif" />
+                  <Label htmlFor="font-serif" className="font-body">Serif</Label>
                 </div>
               </RadioGroup>
             </div>
