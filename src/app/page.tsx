@@ -9,7 +9,6 @@ import type { Post } from '@/types';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Edit, BookOpen, Globe } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { SplineScene } from '@/components/SplineScene';
 
 const FeatureCard = ({ icon, title, children }: { icon: React.ReactNode, title: string, children: React.ReactNode }) => (
     <Card className="text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
@@ -90,16 +89,16 @@ export default function Home() {
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
-       <section className="grid md:grid-cols-2 gap-8 items-center py-12 md:py-20">
-        <div className="text-center md:text-left">
+       <section className="text-center py-12 md:py-20">
+        <div>
             <h1 className="font-body text-4xl md:text-6xl font-bold tracking-tighter leading-tight h-20 md:h-24">
             {dynamicText}
             <span className="animate-ping">|</span>
             </h1>
-            <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto md:mx-0 font-headline">
-            O‘z g‘oyalaringizni barcha bilan bo‘lishishga tayyormisiz? Bizning platformamizda har kim o‘z fikrini erkin ifoda eta oladi.
+            <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto font-headline">
+              O‘z g‘oyalaringizni barcha bilan bo‘lishishga tayyormisiz? Bizning platformamizda har kim o‘z fikrini erkin ifoda eta oladi.
             </p>
-            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link href="/explore">
                     <Button size="lg" variant="outline" className="font-headline">
                         Barcha insholar
@@ -113,9 +112,6 @@ export default function Home() {
                     </Button>
                 </Link>
             </div>
-        </div>
-        <div className="h-[300px] md:h-[450px] rounded-xl overflow-hidden">
-            <SplineScene url="https://my.spline.design/miniroommusiccopy-XhiMZAQrMxbthDIJK8aMd7Wo/" />
         </div>
       </section>
 
