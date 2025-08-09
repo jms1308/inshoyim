@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -55,15 +56,15 @@ function MobileNav({ user }: { user: User | null }) {
           </SheetTitle>
         </SheetHeader>
         <div className="flex flex-col space-y-4 py-8">
-            <Link href="/" onClick={() => setIsOpen(false)} className="flex items-center gap-3 rounded-md p-2 text-lg font-medium hover:bg-muted">
+            <Link href="/" onClick={() => setIsOpen(false)} className="flex items-center gap-3 rounded-md p-2 text-lg font-medium hover:bg-muted font-headline">
                 <Home className='h-5 w-5' />
                 Asosiy
             </Link>
-             <Link href="/explore" onClick={() => setIsOpen(false)} className="flex items-center gap-3 rounded-md p-2 text-lg font-medium hover:bg-muted">
+             <Link href="/explore" onClick={() => setIsOpen(false)} className="flex items-center gap-3 rounded-md p-2 text-lg font-medium hover:bg-muted font-headline">
                 <Compass className='h-5 w-5' />
                 Insholar
             </Link>
-            <Link href="/yozish" onClick={() => setIsOpen(false)} className="flex items-center gap-3 rounded-md p-2 text-lg font-medium hover:bg-muted">
+            <Link href="/yozish" onClick={() => setIsOpen(false)} className="flex items-center gap-3 rounded-md p-2 text-lg font-medium hover:bg-muted font-headline">
                 <Edit className='h-5 w-5' />
                 Yozish
             </Link>
@@ -161,19 +162,19 @@ export function Header() {
           <nav className="hidden items-center gap-6 text-sm md:flex">
             <Link
               href="/"
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
+              className="transition-colors hover:text-foreground/80 text-foreground/60 font-headline"
             >
               Asosiy
             </Link>
             <Link
               href="/explore"
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
+              className="transition-colors hover:text-foreground/80 text-foreground/60 font-headline"
             >
               Insholar
             </Link>
             <Link
               href="/yozish"
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
+              className="transition-colors hover:text-foreground/80 text-foreground/60 font-headline"
             >
               Yozish
             </Link>

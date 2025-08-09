@@ -17,10 +17,10 @@ const FeatureCard = ({ icon, title, subtitle, children }: { icon: React.ReactNod
                 {icon}
             </div>
             <CardTitle className="font-headline">{title}</CardTitle>
-            <CardDescription>{subtitle}</CardDescription>
+            <CardDescription className="font-headline">{subtitle}</CardDescription>
         </CardHeader>
         <CardContent>
-            <p className="text-muted-foreground">{children}</p>
+            <p className="text-muted-foreground font-headline">{children}</p>
         </CardContent>
     </Card>
 );
@@ -95,18 +95,18 @@ export default function Home() {
           {dynamicText}
           <span className="animate-ping">|</span>
         </h1>
-        <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
+        <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto font-headline">
           O‘z g‘oyalaringizni barcha bilan bo‘lishishga tayyormisiz? Bizning platformamizda har kim o‘z fikrini erkin ifoda eta oladi.
         </p>
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/explore">
-                <Button size="lg" variant="outline">
+                <Button size="lg" variant="outline" className="font-headline">
                     Barcha insholar
                     <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
             </Link>
             <Link href="/yozish">
-                 <Button size="lg">
+                 <Button size="lg" className="font-headline">
                     Yozishni boshlash
                     <Edit className="ml-2 h-5 w-5" />
                 </Button>
