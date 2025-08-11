@@ -113,7 +113,7 @@ export default function WritePage() {
   }
 
   return (
-    <div className="container mx-auto max-w-4xl py-12">
+    <div className="container mx-auto max-w-4xl py-12 px-4 md:px-6">
         <Card>
             <CardHeader>
                 <CardTitle className="text-3xl font-headline">Yangi insho yaratish</CardTitle>

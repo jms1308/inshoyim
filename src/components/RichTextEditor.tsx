@@ -79,7 +79,7 @@ const RichTextEditor = ({ id = "editorjs", data, onChange, placeholder }: RichTe
     }, []);
 
     return (
-        <div id={id} className="prose dark:prose-invert max-w-none border rounded-md p-4 min-h-[400px] bg-background" />
+        <div id={id} className="prose dark:prose-invert max-w-none border rounded-md p-2 sm:p-4 min-h-[400px] bg-background" />
     );
 };
 
