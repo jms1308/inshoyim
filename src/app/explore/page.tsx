@@ -59,6 +59,12 @@ export default function ExplorePage() {
 
   useEffect(() => {
     async function fetchInitialPosts() {
+      // Only fetch if posts are not already loaded
+      if (allPosts.length > 0) {
+        setLoading(false);
+        return;
+      }
+      
       try {
         setLoading(true);
         const { posts, lastVisible: newLastVisible } = await getPublishedPosts(INITIAL_LOAD_COUNT);
@@ -72,10 +78,7 @@ export default function ExplorePage() {
         setLoading(false);
       }
     }
-    // Only fetch if posts are not already loaded
-    if (allPosts.length === 0) {
-       fetchInitialPosts();
-    }
+    fetchInitialPosts();
   }, []); // Empty dependency array ensures this runs only once on initial mount
 
   const fetchMorePosts = async () => {
