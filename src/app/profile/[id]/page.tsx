@@ -130,14 +130,14 @@ export default function ProfilePage() {
     <div className="container mx-auto max-w-5xl px-4 py-8 md:py-16">
       <section className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12">
           <div className="relative group">
-            <Avatar className="h-32 w-32 md:h-40 md:w-40 border-4 border-primary/20">
+            <Avatar className="h-28 w-28 md:h-40 md:w-40 border-4 border-primary/20">
               <AvatarImage src={user.avatar_url} alt={user.name} data-ai-hint="avatar" />
               <AvatarFallback className="text-4xl">{authorInitials}</AvatarFallback>
             </Avatar>
             {isOwnProfile && (
               <Popover open={isAvatarPopoverOpen} onOpenChange={setIsAvatarPopoverOpen}>
                 <PopoverTrigger asChild>
-                   <button className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                   <button className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                       <Edit className="h-8 w-8 text-white" />
                     </button>
                 </PopoverTrigger>
