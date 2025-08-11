@@ -17,7 +17,10 @@ import {
     orderBy,
     limit,
     deleteDoc,
-    writeBatch
+    writeBatch,
+    startAfter,
+    QueryDocumentSnapshot,
+    DocumentData
 } from 'firebase/firestore';
 import type { Post, Comment } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
@@ -26,7 +29,7 @@ import { v4 as uuidv4 } from 'uuid';
 const postsCollection = collection(db, 'posts');
 
 // Function to convert Firestore timestamp to our Post type
-const postFromDoc = (doc: any): Post => {
+const postFromDoc = (doc: QueryDocumentSnapshot<DocumentData>): Post => {
     const data = doc.data();
     return {
         id: doc.id,
@@ -37,20 +40,35 @@ const postFromDoc = (doc: any): Post => {
     } as Post;
 }
 
-export async function getPublishedPosts(postLimit?: number): Promise<Post[]> {
-    const q = query(postsCollection, where('status', '==', 'published'));
+export async function getPublishedPosts(
+    postLimit: number, 
+    lastVisible: QueryDocumentSnapshot<DocumentData> | null = null
+): Promise<{ posts: Post[], lastVisible: QueryDocumentSnapshot<DocumentData> | null }> {
+    
+    let q;
+    if (lastVisible) {
+        q = query(
+            postsCollection, 
+            where('status', '==', 'published'),
+            orderBy('created_at', 'desc'),
+            startAfter(lastVisible),
+            limit(postLimit)
+        );
+    } else {
+        q = query(
+            postsCollection, 
+            where('status', '==', 'published'),
+            orderBy('created_at', 'desc'),
+            limit(postLimit)
+        );
+    }
+
     const snapshot = await getDocs(q);
     
-    let posts = snapshot.docs.map(postFromDoc);
-
-    // Sort posts by creation date in descending order (newest first)
-    posts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-
-    if (postLimit) {
-        return posts.slice(0, postLimit);
-    }
+    const posts = snapshot.docs.map(postFromDoc);
+    const newLastVisible = snapshot.docs[snapshot.docs.length - 1] || null;
     
-    return posts;
+    return { posts, lastVisible: newLastVisible };
 }
 
 export async function getPostsByAuthor(authorId: string): Promise<Post[]> {
@@ -77,7 +95,14 @@ export async function getPostById(id: string): Promise<Post | null> {
     const snapshot = await getDoc(postDoc);
 
     if (snapshot.exists()) {
-        return postFromDoc(snapshot);
+        const data = snapshot.data();
+        return {
+            id: snapshot.id,
+            ...data,
+            created_at: (data.created_at as Timestamp).toDate().toISOString(),
+            updated_at: (data.updated_at as Timestamp).toDate().toISOString(),
+            comments: data.comments || [],
+        } as Post;
     } else {
         return null;
     }
