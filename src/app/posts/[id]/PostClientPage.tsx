@@ -50,14 +50,14 @@ function CommentCard({ comment, onReply, onDelete, loggedInUser }: { comment: Co
 
     return (
         <div id={`comment-${comment.id}`} className="flex gap-3 sm:gap-4 group scroll-mt-20">
-            <Avatar className="w-8 h-8 sm:w-10 sm:h-10">
+            <Avatar className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0">
                 <AvatarImage src={comment.author?.avatar_url} alt={comment.author?.name} />
                 <AvatarFallback>{comment.author?.name.charAt(0) || 'U'}</AvatarFallback>
             </Avatar>
-            <div className="flex-grow">
+            <div className="flex-grow min-w-0">
                 <div className="flex items-center justify-between">
                     <div>
-                        <p className="font-bold">{comment.author?.name}</p>
+                        <p className="font-bold break-words">{comment.author?.name}</p>
                         <p className="text-sm text-muted-foreground mb-1">
                             {format(new Date(comment.created_at), 'dd.MM.yyyy')}
                         </p>
@@ -65,7 +65,7 @@ function CommentCard({ comment, onReply, onDelete, loggedInUser }: { comment: Co
                     {loggedInUser?.id === comment.user_id && (
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
                                     <Trash2 className="h-4 w-4 text-destructive" />
                                 </Button>
                             </AlertDialogTrigger>
@@ -112,7 +112,7 @@ function CommentCard({ comment, onReply, onDelete, loggedInUser }: { comment: Co
                 )}
 
                 {comment.replies && comment.replies.length > 0 && (
-                    <div className="mt-4 pl-4 md:pl-6 border-l-2">
+                    <div className="mt-4 pl-2 sm:pl-4 border-l-2 space-y-4">
                          {comment.replies.map((reply) => (
                             <CommentCard key={reply.id} comment={reply} onReply={onReply} onDelete={onDelete} loggedInUser={loggedInUser} />
                         ))}
@@ -197,7 +197,7 @@ function CommentSection({ postId, allComments, onCommentChange, loggedInUser }: 
 
     try {
       await addCommentToPost(postId, loggedInUser.id, content, parentId);
-      onCommentChange(); // Triggers refetch in parent
+      onCommentChange();
       if (!parentId) {
         setNewComment(""); // Clear main text area only for root comments
       }
@@ -350,6 +350,17 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
     if (storedUser) {
       setLoggedInUser(JSON.parse(storedUser));
     }
+    
+    const handleStorageChange = () => {
+       const storedUser = localStorage.getItem('user');
+       if (storedUser) {
+         setLoggedInUser(JSON.parse(storedUser));
+       } else {
+         setLoggedInUser(null);
+       }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   useEffect(() => {
@@ -376,7 +387,6 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
   const handleCommentChange = () => {
     // This function will be called after adding or deleting a comment.
     // It triggers a refetch of the post data to ensure the UI is in sync.
-    // No need to update user here, it will be updated on next page load/refresh.
     fetchPostData();
   }
 
