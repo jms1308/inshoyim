@@ -116,7 +116,7 @@ export async function updateUserProfile(userId: string, data: UpdateProfileData)
     if (!userSnap.exists()) {
         throw new Error("Foydalanuvchi topilmadi.");
     }
-    const currentUser = userSnap.data() as User;
+    const currentUser = userFromDoc(userSnap);
 
     // Check if new name or email is already taken by another user
     if (data.name !== currentUser.name) {
@@ -150,7 +150,7 @@ export async function markNotificationsAsRead(userId: string): Promise<void> {
     const userRef = doc(db, 'users', userId);
     const userSnap = await getDoc(userRef);
     if (userSnap.exists()) {
-        const userData = userSnap.data();
+        const userData = userFromDoc(userSnap);
         const notifications = (userData.notifications || []).map((n: Notification) => ({
             ...n,
             read: true,

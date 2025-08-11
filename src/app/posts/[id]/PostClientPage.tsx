@@ -49,7 +49,7 @@ function CommentCard({ comment, onReply, onDelete, loggedInUser }: { comment: Co
     };
 
     return (
-        <div className="flex gap-4 group">
+        <div id={`comment-${comment.id}`} className="flex gap-4 group scroll-mt-20">
             <Avatar>
                 <AvatarImage src={comment.author?.avatar_url} alt={comment.author?.name} />
                 <AvatarFallback>{comment.author?.name.charAt(0) || 'U'}</AvatarFallback>
@@ -323,15 +323,23 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
     family: 'font-body'
   });
 
-  const fetchPostData = async () => {
+  const fetchPostData = async (shouldRefetchUser = false) => {
     try {
       setLoading(true);
       const postData = await getPostById(postId);
       if (postData) {
         setPost(postData);
-        if (postData.author_id && !author) {
+        if (postData.author_id && (!author || shouldRefetchUser)) {
           const authorData = await getUserById(postData.author_id);
           setAuthor(authorData);
+        }
+        if (loggedInUser && shouldRefetchUser) {
+            const updatedUser = await getUserById(loggedInUser.id);
+            if (updatedUser) {
+                setLoggedInUser(updatedUser);
+                localStorage.setItem('user', JSON.stringify(updatedUser));
+                window.dispatchEvent(new Event('storage'));
+            }
         }
       } else {
         notFound();
@@ -375,8 +383,8 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
 
   const handleCommentChange = () => {
     // This function will be called after adding or deleting a comment.
-    // It triggers a full refetch of the post data to ensure the UI is in sync.
-    fetchPostData();
+    // It triggers a full refetch of the post and user data to ensure the UI is in sync.
+    fetchPostData(true);
   }
 
   const handlePostDeleted = () => {
