@@ -150,7 +150,7 @@ export default function ProfilePage() {
 
       <section>
           <Tabs defaultValue="published" className="w-full">
-            <TabsList className="grid w-full grid-cols-1 sm:w-auto sm:grid-cols-2 mb-8">
+            <TabsList className={`grid w-full mb-8 ${isOwnProfile ? 'grid-cols-2' : 'grid-cols-1'}`}>
                 <TabsTrigger value="published">Nashrlar ({publishedPosts.length})</TabsTrigger>
                 {isOwnProfile && <TabsTrigger value="drafts">Qoralamalar ({draftPosts.length})</TabsTrigger>}
             </TabsList>
