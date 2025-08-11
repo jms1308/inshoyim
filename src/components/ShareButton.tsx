@@ -29,10 +29,14 @@ const TelegramIcon = () => (
 )
 
 function getTextFromEditorJs(content: any): string {
+    if (typeof content === 'string') {
+        // Handle old plain text content for backward compatibility
+        return content;
+    }
     if (!content || !content.blocks) return '';
     return content.blocks
         .filter((block: any) => block.type === 'paragraph' || block.type === 'header')
-        .map((block: any) => block.data.text)
+        .map((block: any) => block.data.text.replace(/<[^>]*>?/gm, '')) // Strip HTML tags
         .join(' ');
 }
 
@@ -49,7 +53,8 @@ export function ShareButton({ title, content }: { title: string, content: string
     const currentUrl = window.location.href;
     setUrl(currentUrl);
     
-    const plainTextContent = getTextFromEditorJs(JSON.parse(content || '{}'));
+    // Pass the raw content which could be a string or an object
+    const plainTextContent = getTextFromEditorJs(content);
     const excerpt = plainTextContent.split(' ').slice(0, 30).join(' ') + (plainTextContent.split(' ').length > 30 ? '...' : '');
     
     setShareText(`"${title}"\n\n${excerpt}\n\n${currentUrl}`);

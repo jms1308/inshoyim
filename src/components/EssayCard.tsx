@@ -14,6 +14,22 @@ interface EssayCardProps {
   post: Post;
 }
 
+const getExcerptFromContent = (content: any): string => {
+    if (typeof content === 'string') {
+        return content.split(' ').slice(0, 25).join(' ') + '...';
+    }
+    if (!content || !content.blocks || content.blocks.length === 0) {
+        return '';
+    }
+    const firstParagraph = content.blocks.find((block: any) => block.type === 'paragraph');
+    if (firstParagraph && firstParagraph.data && firstParagraph.data.text) {
+        const cleanText = firstParagraph.data.text.replace(/<[^>]*>?/gm, '');
+        return cleanText.split(' ').slice(0, 25).join(' ') + '...';
+    }
+    return '';
+};
+
+
 export function EssayCard({ post }: EssayCardProps) {
   const [author, setAuthor] = useState<User | null>(null);
 
@@ -27,7 +43,7 @@ export function EssayCard({ post }: EssayCardProps) {
     fetchAuthor();
   }, [post.author_id]);
 
-  const excerpt = post.content.split(' ').slice(0, 25).join(' ') + '...';
+  const excerpt = getExcerptFromContent(post.content);
   const authorInitials = author?.name.split(' ').map(n => n[0]).join('') || 'U';
 
   return (

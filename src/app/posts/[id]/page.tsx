@@ -196,18 +196,20 @@ function renderContent(content: any) {
           </ListTag>
         );
       case 'image':
-        return (
-            <div key={index} className="relative my-6">
-                <Image 
-                    src={block.data.file.url} 
-                    alt={block.data.caption || 'Insho rasmi'} 
-                    width={block.data.file.width || 800}
-                    height={block.data.file.height || 600}
-                    className="rounded-md"
-                />
-                {block.data.caption && <p className="text-center text-sm text-muted-foreground mt-2">{block.data.caption}</p>}
-            </div>
-        );
+        // Check for file.url as Editor.js stores the image URL there
+        if (block.data && block.data.file && block.data.file.url) {
+            return (
+                <div key={index} className="relative my-6">
+                    <img 
+                        src={block.data.file.url} 
+                        alt={block.data.caption || 'Insho rasmi'} 
+                        className="rounded-md max-w-full h-auto mx-auto"
+                    />
+                    {block.data.caption && <p className="text-center text-sm text-muted-foreground mt-2">{block.data.caption}</p>}
+                </div>
+            );
+        }
+        return null;
       default:
         return null;
     }
@@ -407,7 +409,7 @@ export default function PostPage() {
         )}
         <div className="flex items-center gap-2">
             <PostSettings settings={fontSettings} onSettingsChange={setFontSettings} />
-            <ShareButton title={post.title} content={JSON.stringify(post.content)} />
+            <ShareButton title={post.title} content={post.content} />
         </div>
       </div>
 
