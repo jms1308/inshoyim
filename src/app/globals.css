@@ -91,43 +91,32 @@
     @apply rounded-md my-6;
   }
   
-  /* Quill Editor Styles */
-  .ql-toolbar {
-    @apply rounded-t-md border-input;
+  /* Editor.js Dark Theme Overrides */
+  .dark .codex-editor__redactor {
+      color: hsl(var(--foreground));
   }
-  .ql-container {
-    @apply rounded-b-md border-input text-base md:text-sm;
-    min-height: 400px;
+  .dark .ce-toolbar__plus,
+  .dark .ce-toolbar__settings-btn {
+      color: hsl(var(--muted-foreground));
   }
-  .ql-editor {
-    @apply text-foreground;
-    font-family: inherit;
+  .dark .ce-toolbar__plus:hover,
+  .dark .ce-toolbar__settings-btn:hover {
+      color: hsl(var(--foreground));
+      background-color: hsl(var(--muted));
   }
-  .ql-editor.ql-blank::before {
-    @apply text-muted-foreground not-italic;
+  .dark .ce-conversion-tool--focused,
+  .dark .ce-conversion-tool:hover,
+  .dark .ce-popover-item:hover {
+      background-color: hsl(var(--muted)) !important;
   }
-   /* Dark theme adjustments */
-  .dark .ql-toolbar {
-    @apply border-input;
+  .dark .ce-popover {
+      background-color: hsl(var(--background));
+      border: 1px solid hsl(var(--border));
+      color: hsl(var(--foreground));
   }
-  .dark .ql-container {
-      @apply border-input;
-  }
-  .dark .ql-editor {
-    @apply text-foreground;
-  }
-  .dark .ql-picker-label,
-  .dark .ql-stroke {
-      @apply text-foreground/80;
-      stroke: hsl(var(--foreground) / 0.8);
-  }
-  .dark .ql-picker-options {
-      @apply bg-background border-border;
-  }
-  .dark .ql-picker-item {
-      @apply text-foreground;
-  }
-  .dark .ql-picker-item:hover, .dark .ql-picker-item.ql-selected {
-      @apply text-primary;
+  .dark .ce-popover__item-icon,
+  .dark .ce-conversion-tool__icon {
+      background-color: hsl(var(--muted));
+      box-shadow: none;
   }
 }

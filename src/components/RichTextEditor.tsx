@@ -8,6 +8,9 @@ import Header from '@editorjs/header';
 import List from '@editorjs/list';
 // @ts-ignore
 import ImageTool from '@editorjs/image';
+// @ts-ignore
+import Quote from '@editorjs/quote';
+
 
 interface RichTextEditorProps {
     id?: string;
@@ -26,6 +29,14 @@ const RichTextEditor = ({ id = "editorjs", data, onChange, placeholder }: RichTe
                 tools: { 
                     header: Header, 
                     list: List,
+                    quote: {
+                        class: Quote,
+                        inlineToolbar: true,
+                        config: {
+                          quotePlaceholder: 'Iqtibos matnini kiriting',
+                          captionPlaceholder: 'Muallif (ixtiyoriy)',
+                        },
+                    },
                     image: {
                         class: ImageTool,
                         config: {

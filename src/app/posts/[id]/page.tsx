@@ -196,7 +196,6 @@ function renderContent(content: any) {
           </ListTag>
         );
       case 'image':
-        // Check for file.url as Editor.js stores the image URL there
         if (block.data && block.data.file && block.data.file.url) {
             return (
                 <div key={index} className="relative my-6">
@@ -210,6 +209,13 @@ function renderContent(content: any) {
             );
         }
         return null;
+      case 'quote':
+        return (
+            <blockquote key={index} className="border-l-4 border-primary pl-4 italic text-muted-foreground my-6">
+                <p className="mb-0" dangerouslySetInnerHTML={{ __html: block.data.text }} />
+                {block.data.caption && <footer className="text-sm not-italic text-right mt-2" dangerouslySetInnerHTML={{ __html: block.data.caption }} />}
+            </blockquote>
+        );
       default:
         return null;
     }
