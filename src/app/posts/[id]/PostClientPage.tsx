@@ -9,7 +9,7 @@ import { getUserById } from '@/lib/services/users';
 import type { Post, User, Comment } from '@/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Calendar, Eye, MessageSquare, Edit, Trash2, ArrowLeft, CornerUpLeft } from 'lucide-react';
+import { Clock, Calendar, Eye, MessageSquare, Edit, Trash2, ArrowLeft, CornerUpLeft, MessageCircle } from 'lucide-react';
 import { ShareButton } from '@/components/ShareButton';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -38,6 +38,7 @@ function CommentCard({ comment, onReply, onDelete, loggedInUser }: { comment: Co
     const [replyContent, setReplyContent] = useState('');
     const [isReplying, setIsReplying] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showReplies, setShowReplies] = useState(false);
 
     const handleReplySubmit = async () => {
         if (!replyContent.trim()) return;
@@ -46,79 +47,91 @@ function CommentCard({ comment, onReply, onDelete, loggedInUser }: { comment: Co
         setIsSubmitting(false);
         setReplyContent('');
         setIsReplying(false);
+        setShowReplies(true); // Automatically show replies after posting a new one
     };
 
     return (
-        <div id={`comment-${comment.id}`} className="flex gap-3 sm:gap-4 group scroll-mt-20">
-            <Avatar className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0">
-                <AvatarImage src={comment.author?.avatar_url} alt={comment.author?.name} />
-                <AvatarFallback>{comment.author?.name.charAt(0) || 'U'}</AvatarFallback>
-            </Avatar>
-            <div className="flex-grow min-w-0">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <p className="font-bold break-words">{comment.author?.name}</p>
-                        <p className="text-sm text-muted-foreground mb-1">
-                            {format(new Date(comment.created_at), 'dd.MM.yyyy')}
-                        </p>
+        <div id={`comment-${comment.id}`} className="group scroll-mt-20">
+            <div className="flex gap-3 sm:gap-4">
+                <Avatar className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0">
+                    <AvatarImage src={comment.author?.avatar_url} alt={comment.author?.name} />
+                    <AvatarFallback>{comment.author?.name.charAt(0) || 'U'}</AvatarFallback>
+                </Avatar>
+                <div className="flex-grow min-w-0">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="font-bold break-words">{comment.author?.name}</p>
+                            <p className="text-sm text-muted-foreground mb-1">
+                                {format(new Date(comment.created_at), 'dd.MM.yyyy')}
+                            </p>
+                        </div>
+                        {loggedInUser?.id === comment.user_id && (
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Sharhni o'chirishga ishonchingiz komilmi?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            Bu amalni qaytarib bo'lmaydi. Bu sizning sharhingizni butunlay o'chirib tashlaydi.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Bekor qilish</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => onDelete(comment.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                                            Ha, o'chirish
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        )}
                     </div>
-                    {loggedInUser?.id === comment.user_id && (
-                        <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-                                    <Trash2 className="h-4 w-4 text-destructive" />
+                    <p className="break-words">{comment.content}</p>
+                    
+                    <div className="flex items-center gap-2 mt-1">
+                        <Button variant="ghost" size="sm" className="-ml-2" onClick={() => setIsReplying(!isReplying)}>
+                            <CornerUpLeft className="mr-2 h-4 w-4" />
+                            Javob berish
+                        </Button>
+                        {comment.replies && comment.replies.length > 0 && (
+                             <Button variant="ghost" size="sm" onClick={() => setShowReplies(!showReplies)}>
+                                <MessageCircle className="mr-2 h-4 w-4"/>
+                                {showReplies ? 'Javoblarni yashirish' : `${comment.replies.length} ta javobni ko'rish`}
+                            </Button>
+                        )}
+                    </div>
+
+                    {isReplying && (
+                        <div className="mt-2">
+                            <Textarea
+                                value={replyContent}
+                                onChange={(e) => setReplyContent(e.target.value)}
+                                placeholder={`${comment.author?.name}ga javob...`}
+                                rows={2}
+                                className="mb-2"
+                            />
+                            <div className="flex gap-2">
+                                <Button onClick={handleReplySubmit} disabled={isSubmitting}>
+                                    {isSubmitting ? "Yuborilmoqda..." : "Yuborish"}
                                 </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                                <AlertDialogHeader>
-                                    <AlertDialogTitle>Sharhni o'chirishga ishonchingiz komilmi?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                        Bu amalni qaytarib bo'lmaydi. Bu sizning sharhingizni butunlay o'chirib tashlaydi.
-                                    </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                    <AlertDialogCancel>Bekor qilish</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => onDelete(comment.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                                        Ha, o'chirish
-                                    </AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
+                                <Button variant="ghost" onClick={() => setIsReplying(false)}>Bekor qilish</Button>
+                            </div>
+                        </div>
                     )}
                 </div>
-                <p className="break-words">{comment.content}</p>
-                
-                <Button variant="ghost" size="sm" className="mt-1 -ml-2" onClick={() => setIsReplying(!isReplying)}>
-                    <CornerUpLeft className="mr-2 h-4 w-4" />
-                    Javob berish
-                </Button>
-
-                {isReplying && (
-                    <div className="mt-2">
-                        <Textarea
-                            value={replyContent}
-                            onChange={(e) => setReplyContent(e.target.value)}
-                            placeholder={`${comment.author?.name}ga javob...`}
-                            rows={2}
-                            className="mb-2"
-                        />
-                        <div className="flex gap-2">
-                            <Button onClick={handleReplySubmit} disabled={isSubmitting}>
-                                {isSubmitting ? "Yuborilmoqda..." : "Yuborish"}
-                            </Button>
-                            <Button variant="ghost" onClick={() => setIsReplying(false)}>Bekor qilish</Button>
-                        </div>
-                    </div>
-                )}
-
-                {comment.replies && comment.replies.length > 0 && (
-                    <div className="mt-4 pl-2 sm:pl-4 border-l-2 space-y-4">
-                         {comment.replies.map((reply) => (
-                            <CommentCard key={reply.id} comment={reply} onReply={onReply} onDelete={onDelete} loggedInUser={loggedInUser} />
-                        ))}
-                    </div>
-                )}
             </div>
+
+             {showReplies && comment.replies && comment.replies.length > 0 && (
+                <div className="mt-4 pl-8 sm:pl-14 space-y-4">
+                     {comment.replies.map((reply) => (
+                        // We pass the parent comment's id to the onReply function
+                        <CommentCard key={reply.id} comment={reply} onReply={(parentId, content) => onReply(comment.id, content)} onDelete={onDelete} loggedInUser={loggedInUser} />
+                    ))}
+                </div>
+            )}
         </div>
     );
 }
@@ -139,7 +152,6 @@ const buildCommentTree = async (comments: Comment[]): Promise<CommentWithAuthor[
     for (const comment of commentsWithAuthors) {
         if (comment.parent_id && commentMap.has(comment.parent_id)) {
             const parent = commentMap.get(comment.parent_id)!;
-            // Ensure replies array exists
             if (!parent.replies) {
               parent.replies = [];
             }
@@ -149,14 +161,12 @@ const buildCommentTree = async (comments: Comment[]): Promise<CommentWithAuthor[
         }
     }
     
-    // Sort replies by date for all comments
     for (const comment of commentsWithAuthors) {
         if (comment.replies) {
             comment.replies.sort((a,b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
         }
     }
 
-    // Sort root comments by date (descending)
     rootComments.sort((a,b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     return rootComments;
 }
@@ -174,7 +184,7 @@ function CommentSection({ postId, allComments, onCommentChange, loggedInUser }: 
   const handleDeleteComment = async (commentId: string) => {
     try {
       await deleteCommentFromPost(postId, commentId);
-      onCommentChange(); // Triggers refetch in parent
+      onCommentChange();
       toast({
         title: "Muvaffaqiyatli!",
         description: "Sharh o'chirildi."
@@ -199,7 +209,7 @@ function CommentSection({ postId, allComments, onCommentChange, loggedInUser }: 
       await addCommentToPost(postId, loggedInUser.id, content, parentId);
       onCommentChange();
       if (!parentId) {
-        setNewComment(""); // Clear main text area only for root comments
+        setNewComment(""); 
       }
        toast({
         title: "Izohingiz qo'shildi!",
@@ -254,7 +264,6 @@ function CommentSection({ postId, allComments, onCommentChange, loggedInUser }: 
 
 function renderContent(content: any) {
   if (!content || !content.blocks) {
-    // Fallback for old string-based content
     if (typeof content === 'string') {
       return <div dangerouslySetInnerHTML={{ __html: content }} />;
     }
@@ -346,28 +355,24 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
 
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setLoggedInUser(JSON.parse(storedUser));
-    }
-    
-    const handleStorageChange = () => {
-       const storedUser = localStorage.getItem('user');
-       if (storedUser) {
-         setLoggedInUser(JSON.parse(storedUser));
-       } else {
-         setLoggedInUser(null);
-       }
+    const checkUser = () => {
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        setLoggedInUser(JSON.parse(storedUser));
+      } else {
+        setLoggedInUser(null);
+      }
     };
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    
+    checkUser();
+    window.addEventListener('storage', checkUser);
+    return () => window.removeEventListener('storage', checkUser);
   }, []);
 
   useEffect(() => {
     if (!postId || !initialPost) return;
 
     async function handleView() {
-      // --- View Count Logic ---
       const viewedPostsKey = 'viewed_posts';
       const viewedPosts = JSON.parse(localStorage.getItem(viewedPostsKey) || '[]');
 
@@ -375,18 +380,14 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
           await incrementPostView(postId);
           viewedPosts.push(postId);
           localStorage.setItem(viewedPostsKey, JSON.stringify(viewedPosts));
-          // Refetch post data to get updated view count
           fetchPostData();
       }
-      // --- End View Count Logic ---
     }
     handleView();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postId, initialPost]);
 
   const handleCommentChange = () => {
-    // This function will be called after adding or deleting a comment.
-    // It triggers a refetch of the post data to ensure the UI is in sync.
     fetchPostData();
   }
 
@@ -516,3 +517,5 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
     </article>
   );
 }
+
+    
