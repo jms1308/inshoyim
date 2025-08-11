@@ -120,26 +120,29 @@ export async function addCommentToPost(postId: string, userId: string, content: 
         comments: arrayUnion(newComment)
     });
 
-    // Create notification
+    // --- Notification Logic ---
     const actor = await getUserById(userId);
     if (!actor) throw new Error("Actor not found");
 
-    let notificationRecipientId: string;
+    let notificationRecipientId: string | null = null;
     let notificationType: 'new_comment' | 'new_reply' = 'new_comment';
 
     if (parentId) {
-        // It's a reply, notify the parent comment's author
+        // It's a reply, find parent comment to notify its author
         const parentComment = post.comments.find(c => c.id === parentId);
-        if (!parentComment) throw new Error("Parent comment not found");
-        notificationRecipientId = parentComment.user_id;
-        notificationType = 'new_reply';
+        if (parentComment) { // Check if parent comment exists
+            notificationRecipientId = parentComment.user_id;
+            notificationType = 'new_reply';
+        } else {
+            console.warn(`Parent comment with ID ${parentId} not found. Skipping notification.`);
+        }
     } else {
-        // It's a new comment, notify the post's author
+        // It's a new root comment, notify the post's author
         notificationRecipientId = post.author_id;
     }
 
-    // Don't notify user about their own actions
-    if (actor.id !== notificationRecipientId) {
+    // Send notification if we have a recipient and they are not the actor
+    if (notificationRecipientId && actor.id !== notificationRecipientId) {
         const userToNotifyRef = doc(db, 'users', notificationRecipientId);
         const notification: Notification = {
             id: uuidv4(),
@@ -158,7 +161,6 @@ export async function addCommentToPost(postId: string, userId: string, content: 
         });
     }
 
-
     return newComment;
 }
 
@@ -170,6 +172,8 @@ export async function deleteCommentFromPost(postId: string, commentId: string): 
     if (postSnap.exists()) {
         const postData = postSnap.data();
         const comments = postData.comments || [];
+        // This should also remove all replies to this comment, but for now, we just remove the comment itself.
+        // A more robust solution would be to find all comments with parent_id === commentId and remove them too.
         const updatedComments = comments.filter((comment: Comment) => comment.id !== commentId);
 
         await updateDoc(postRef, {
