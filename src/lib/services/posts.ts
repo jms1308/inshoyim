@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { db } from '@/lib/firebase';
@@ -23,7 +22,7 @@ import {
     QueryDocumentSnapshot,
     DocumentData
 } from 'firebase/firestore';
-import type { Post, Comment, Notification } from '@/types';
+import type { Post, Comment } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 import { getUserById } from './users';
 
@@ -116,49 +115,6 @@ export async function addCommentToPost(postId: string, userId: string, content: 
         comments: arrayUnion(newComment)
     });
 
-    // --- Notification Logic ---
-    // Refetch post and actor data *after* comment is saved
-    const updatedPostSnap = await getDoc(postRef);
-    if (!updatedPostSnap.exists()) {
-        throw new Error("Post not found after update");
-    }
-    const updatedPost = postFromDoc(updatedPostSnap);
-
-    const actor = await getUserById(userId);
-    if (!actor) throw new Error("Actor not found");
-
-    // ONLY send notifications for replies, not for new root comments.
-    if (parentId) {
-        let notificationRecipientId: string | null = null;
-        const parentComment = updatedPost.comments.find(c => c.id === parentId);
-        
-        if (parentComment) {
-            notificationRecipientId = parentComment.user_id;
-        } else {
-             console.warn(`Parent comment with ID ${parentId} not found. Skipping notification.`);
-        }
-
-        // Send notification if we have a recipient and they are not the actor
-        if (notificationRecipientId && actor.id !== notificationRecipientId) {
-            const userToNotifyRef = doc(db, 'users', notificationRecipientId);
-            const notification: Notification = {
-                id: uuidv4(),
-                user_id: notificationRecipientId,
-                type: 'new_reply', // Only type is reply now
-                post_id: postId,
-                post_title: updatedPost.title,
-                comment_id: newComment.id,
-                actor_id: actor.id,
-                actor_name: actor.name,
-                created_at: new Date().toISOString(),
-                read: false,
-            };
-            await updateDoc(userToNotifyRef, {
-                notifications: arrayUnion(notification)
-            });
-        }
-    }
-
     return newComment;
 }
 
@@ -249,5 +205,3 @@ export async function deletePost(postId: string): Promise<void> {
     const postRef = doc(db, 'posts', postId);
     await deleteDoc(postRef);
 }
-
-

@@ -3,7 +3,7 @@
 
 import { db } from '@/lib/firebase';
 import { collection, addDoc, getDocs, query, where, doc, getDoc, Timestamp, updateDoc } from 'firebase/firestore';
-import type { User, Notification } from '@/types';
+import type { User } from '@/types';
 
 const usersCollection = collection(db, 'users');
 
@@ -16,7 +16,6 @@ const userFromDoc = (doc: any): User => {
         id: doc.id,
         ...data,
         created_at: (data.created_at as Timestamp).toDate().toISOString(),
-        notifications: data.notifications || [],
     } as User;
 }
 
@@ -43,7 +42,6 @@ export async function createUser(name: string, email: string, password_DO_NOT_ST
         avatar_url: `https://api.dicebear.com/8.x/${randomStyle}/svg?seed=${encodeURIComponent(name)}`,
         created_at: new Date(),
         bio: 'Yangi foydalanuvchi',
-        notifications: [],
     };
 
     const docRef = await addDoc(usersCollection, newUser);
@@ -143,18 +141,4 @@ export async function updateUserProfile(userId: string, data: UpdateProfileData)
 
     const updatedUserSnap = await getDoc(userRef);
     return userFromDoc(updatedUserSnap);
-}
-
-
-export async function markNotificationsAsRead(userId: string): Promise<void> {
-    const userRef = doc(db, 'users', userId);
-    const userSnap = await getDoc(userRef);
-    if (userSnap.exists()) {
-        const userData = userFromDoc(userSnap);
-        const notifications = (userData.notifications || []).map((n: Notification) => ({
-            ...n,
-            read: true,
-        }));
-        await updateDoc(userRef, { notifications });
-    }
 }
