@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useEffect, useRef } from 'react';
@@ -71,6 +72,7 @@ const RichTextEditor = ({ id = "editorjs", data, onChange, placeholder }: RichTe
                         },
                       },
                 },
+                inlineToolbar: true,
                 data: data || undefined,
                 placeholder: placeholder || "Yozishni boshlang...",
                 async onChange(api) {
