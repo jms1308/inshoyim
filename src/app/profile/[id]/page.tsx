@@ -141,7 +141,7 @@ export default function ProfilePage() {
       <section className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12">
           <div className="relative group">
             <Avatar className="h-28 w-28 md:h-40 md:w-40 border-4 border-primary/20">
-              <AvatarImage src={user.avatar_url} alt={user.name} data-ai-hint="avatar" />
+              <AvatarImage src={user.avatar_url} alt={user.name} />
               <AvatarFallback className="text-4xl">{authorInitials}</AvatarFallback>
             </Avatar>
             {isOwnProfile && (
@@ -158,7 +158,7 @@ export default function ProfilePage() {
                              <Avatar className="h-10 w-10">
                                 <AvatarImage 
                                     src={`https://api.dicebear.com/8.x/${style}/svg?seed=${encodeURIComponent(user.name)}`}
-                                    alt={`${style} avatar`}
+                                    alt={`${style} avatar for ${user.name}`}
                                 />
                                 <AvatarFallback>{authorInitials}</AvatarFallback>
                              </Avatar>

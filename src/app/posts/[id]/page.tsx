@@ -113,7 +113,7 @@ function CommentSection({ postId, initialComments, onCommentAdded, onCommentDele
         {commentsWithAuthors.map((comment, index) => (
           <div key={`${comment.id}-${index}`} className="flex gap-4 group">
              <Avatar>
-                <AvatarImage src={comment.author?.avatar_url} alt={comment.author?.name} data-ai-hint="avatar" />
+                <AvatarImage src={comment.author?.avatar_url} alt={comment.author?.name} />
                 <AvatarFallback>{comment.author?.name.charAt(0) || 'U'}</AvatarFallback>
             </Avatar>
             <div className="flex-grow">
@@ -405,7 +405,7 @@ export default function PostPage() {
         {author && (
             <Link href={`/profile/${author.id}`} className="flex items-center gap-4 group">
                 <Avatar className="h-12 w-12 transition-transform group-hover:scale-105">
-                <AvatarImage src={author.avatar_url} alt={author.name} data-ai-hint="avatar" />
+                <AvatarImage src={author.avatar_url} alt={author.name} />
                 <AvatarFallback>{authorInitials}</AvatarFallback>
                 </Avatar>
                 <div>

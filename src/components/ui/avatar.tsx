@@ -22,14 +22,35 @@ Avatar.displayName = AvatarPrimitive.Root.displayName
 
 const AvatarImage = React.forwardRef<
   React.ElementRef<typeof AvatarPrimitive.Image>,
-  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>
->(({ className, ...props }, ref) => (
-  <AvatarPrimitive.Image
-    ref={ref}
-    className={cn("aspect-square h-full w-full", className)}
-    {...props}
-  />
-))
+  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image> & { alt?: string }
+>(({ className, src, alt, ...props }, ref) => {
+  const [error, setError] = React.useState(false);
+
+  const handleUnsupportedError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    // ui-avatars.com provides a simple, reliable fallback with initials.
+    // It's less likely to fail than DiceBear and doesn't rely on specific styles.
+    const name = alt || 'User';
+    e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff`;
+  }
+  
+  const handleError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    if (!error) {
+      setError(true);
+      handleUnsupportedError(e);
+    }
+  };
+
+  return (
+    <AvatarPrimitive.Image
+      ref={ref}
+      src={src}
+      alt={alt}
+      onError={handleError}
+      className={cn("aspect-square h-full w-full", className)}
+      {...props}
+    />
+  )
+})
 AvatarImage.displayName = AvatarPrimitive.Image.displayName
 
 const AvatarFallback = React.forwardRef<

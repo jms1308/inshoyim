@@ -192,7 +192,6 @@ export function Header() {
                       <AvatarImage
                         src={user.avatar_url}
                         alt={user.name}
-                        data-ai-hint="avatar"
                       />
                       <AvatarFallback>{authorInitials}</AvatarFallback>
                     </Avatar>

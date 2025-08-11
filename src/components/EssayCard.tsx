@@ -66,7 +66,7 @@ export function EssayCard({ post }: EssayCardProps) {
           <div className="w-full flex items-center justify-between gap-x-2 text-sm text-muted-foreground">
              <div className="flex items-center gap-2 shrink-0">
               <Avatar className="h-8 w-8">
-                <AvatarImage src={author?.avatar_url} alt={author?.name} data-ai-hint="avatar" />
+                <AvatarImage src={author?.avatar_url} alt={author?.name} />
                 <AvatarFallback>{authorInitials}</AvatarFallback>
               </Avatar>
               {author ? (
