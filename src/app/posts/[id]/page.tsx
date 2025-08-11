@@ -180,7 +180,7 @@ export default function PostPage() {
   const { toast } = useToast();
   const [fontSettings, setFontSettings] = useState<FontSettings>({
     size: 16,
-    family: 'font-headline'
+    family: 'font-body'
   });
 
   useEffect(() => {
@@ -368,7 +368,7 @@ export default function PostPage() {
       <div
         className={`prose dark:prose-invert max-w-none ${fontSettings.family}`}
         style={{ fontSize: `${fontSettings.size}px` }}
-        dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br />') }}
+        dangerouslySetInnerHTML={{ __html: post.content }}
       />
 
       <CommentSection 

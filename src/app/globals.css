@@ -58,17 +58,16 @@
   .prose {
     @apply text-foreground/90;
   }
-  .prose h1 {
-    @apply font-headline text-4xl font-bold mb-6 mt-8;
+  .prose h1, .prose h2, .prose h3 {
+    @apply font-headline font-bold;
   }
-  .prose h2 {
-    @apply font-headline text-3xl font-semibold mb-4 mt-6;
-  }
-  .prose h3 {
-    @apply font-headline text-2xl font-semibold mb-4 mt-6;
-  }
+
+  .prose h1 { @apply text-4xl mb-6 mt-8; }
+  .prose h2 { @apply text-3xl mb-4 mt-6; }
+  .prose h3 { @apply text-2xl mb-4 mt-6; }
+
   .prose p {
-    @apply leading-loose;
+    @apply leading-loose mb-4;
   }
   .prose a {
     @apply text-primary hover:underline;
@@ -87,5 +86,48 @@
   }
   .prose pre {
     @apply bg-muted p-4 rounded-md overflow-x-auto my-6;
+  }
+  .prose img {
+    @apply rounded-md my-6;
+  }
+  
+  /* Quill Editor Styles */
+  .ql-toolbar {
+    @apply rounded-t-md border-input;
+  }
+  .ql-container {
+    @apply rounded-b-md border-input text-base md:text-sm;
+    min-height: 400px;
+  }
+  .ql-editor {
+    @apply text-foreground;
+    font-family: inherit;
+  }
+  .ql-editor.ql-blank::before {
+    @apply text-muted-foreground not-italic;
+  }
+   /* Dark theme adjustments */
+  .dark .ql-toolbar {
+    @apply border-input;
+  }
+  .dark .ql-container {
+      @apply border-input;
+  }
+  .dark .ql-editor {
+    @apply text-foreground;
+  }
+  .dark .ql-picker-label,
+  .dark .ql-stroke {
+      @apply text-foreground/80;
+      stroke: hsl(var(--foreground) / 0.8);
+  }
+  .dark .ql-picker-options {
+      @apply bg-background border-border;
+  }
+  .dark .ql-picker-item {
+      @apply text-foreground;
+  }
+  .dark .ql-picker-item:hover, .dark .ql-picker-item.ql-selected {
+      @apply text-primary;
   }
 }

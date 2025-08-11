@@ -1,17 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import type { User } from '@/types';
 import { createPost } from '@/lib/services/posts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuthDialog } from '@/context/AuthDialogContext';
-
+import 'react-quill/dist/quill.snow.css';
+import { Skeleton } from '@/components/ui/skeleton';
 
 function AuthPrompt() {
   const { setLoginOpen, setRegisterOpen } = useAuthDialog();
@@ -44,6 +45,21 @@ export default function WritePage() {
   const router = useRouter();
   const { toast } = useToast();
 
+  const RichTextEditor = useMemo(() => 
+    dynamic(() => import('@/components/RichTextEditor'), { 
+      ssr: false,
+      loading: () => (
+        <div className="space-y-2">
+            <Skeleton className="h-[400px] w-full rounded-md" />
+            <div className="flex gap-2">
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-4 w-16" />
+            </div>
+        </div>
+      ),
+    }), 
+  []);
+
   useEffect(() => {
     const checkUser = () => {
       const storedUser = localStorage.getItem('user');
@@ -66,7 +82,9 @@ export default function WritePage() {
         toast({ title: "Xatolik", description: "Insho yaratish uchun tizimga kirishingiz kerak.", variant: "destructive" });
         return;
     }
-    if (!title.trim() || !content.trim()) {
+    // Basic check to see if content is just empty p tags
+    const plainTextContent = content.replace(/<[^>]+>/g, '').trim();
+    if (!title.trim() || !plainTextContent) {
         toast({ title: "Xatolik", description: "Sarlavha va kontent bo'sh bo'lishi mumkin emas.", variant: "destructive" });
         return;
     }
@@ -101,7 +119,7 @@ export default function WritePage() {
   }
 
   return (
-    <div className="container mx-auto max-w-3xl py-12">
+    <div className="container mx-auto max-w-4xl py-12">
         <Card>
             <CardHeader>
                 <CardTitle className="text-3xl font-headline">Yangi insho yaratish</CardTitle>
@@ -122,14 +140,11 @@ export default function WritePage() {
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="content" className="text-lg">Kontent</Label>
-                        <Textarea
-                        id="content"
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        placeholder="Inshongizni shu yerga yozing..."
-                        required
-                        rows={15}
-                        className="text-base"
+                        <RichTextEditor
+                            id="content"
+                            value={content}
+                            onChange={setContent}
+                            placeholder="Inshongizni shu yerga yozing..."
                         />
                     </div>
                     <div className="space-y-2">

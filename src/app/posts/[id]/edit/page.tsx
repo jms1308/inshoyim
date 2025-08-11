@@ -1,15 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter, useParams, notFound } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import type { User, Post } from '@/types';
 import { getPostById, updatePost } from '@/lib/services/posts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import 'react-quill/dist/quill.snow.css';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function EditPostPage() {
   const [post, setPost] = useState<Post | null>(null);
@@ -24,6 +26,21 @@ export default function EditPostPage() {
   const params = useParams();
   const postId = params.id as string;
   const { toast } = useToast();
+
+  const RichTextEditor = useMemo(() => 
+    dynamic(() => import('@/components/RichTextEditor'), { 
+      ssr: false,
+      loading: () => (
+        <div className="space-y-2">
+            <Skeleton className="h-[400px] w-full rounded-md" />
+            <div className="flex gap-2">
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-4 w-16" />
+            </div>
+        </div>
+      ),
+    }), 
+  []);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -61,7 +78,9 @@ export default function EditPostPage() {
         toast({ title: "Xatolik", description: "Sizda bu inshoni tahrirlash huquqi yo'q.", variant: "destructive" });
         return;
     }
-    if (!title.trim() || !content.trim()) {
+    
+    const plainTextContent = content.replace(/<[^>]+>/g, '').trim();
+    if (!title.trim() || !plainTextContent) {
         toast({ title: "Xatolik", description: "Sarlavha va kontent bo'sh bo'lishi mumkin emas.", variant: "destructive" });
         return;
     }
@@ -95,7 +114,7 @@ export default function EditPostPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-3xl py-12">
+    <div className="container mx-auto max-w-4xl py-12">
         <Card>
             <CardHeader>
                 <CardTitle className="text-3xl font-headline">Inshoni tahrirlash</CardTitle>
@@ -116,14 +135,11 @@ export default function EditPostPage() {
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="content" className="text-lg">Kontent</Label>
-                        <Textarea
-                        id="content"
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        placeholder="Inshongizni shu yerga yozing..."
-                        required
-                        rows={15}
-                        className="text-base"
+                        <RichTextEditor
+                           id="content"
+                           value={content}
+                           onChange={setContent}
+                           placeholder="Inshongizni shu yerga yozing..."
                         />
                     </div>
                     <div className="space-y-2">
