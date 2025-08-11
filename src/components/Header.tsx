@@ -10,6 +10,7 @@ import {
   Home,
   Compass,
   Edit,
+  Bell,
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
@@ -22,6 +23,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuPortal,
+  DropdownMenuSubContent,
 } from '@/components/ui/dropdown-menu';
 import {
   Sheet,
@@ -31,9 +36,13 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import type { User } from '@/types';
+import type { User, Notification } from '@/types';
 import { RegisterDialog } from './RegisterDialog';
 import { useAuthDialog } from '@/context/AuthDialogContext';
+import { markNotificationsAsRead } from '@/lib/services/users';
+import { Badge } from './ui/badge';
+import { formatDistanceToNow } from 'date-fns';
+import { uz } from 'date-fns/locale';
 
 function MobileNav({ user }: { user: User | null }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -104,6 +113,71 @@ function AuthButtons({ isDropdown = false }: { isDropdown?: boolean }) {
   );
 }
 
+function NotificationItem({ notification, onSelect }: { notification: Notification, onSelect: () => void }) {
+    const notificationText = {
+        'new_comment': 'inshongizga sharh yozdi',
+        'new_reply': 'sharhingizga javob berdi'
+    };
+    
+    return (
+        <DropdownMenuItem asChild onSelect={onSelect}>
+             <Link href={`/posts/${notification.post_id}#comment-${notification.comment_id}`} className="flex flex-col items-start gap-1 whitespace-normal">
+                <div className="flex items-center">
+                    {!notification.read && <div className="h-2 w-2 rounded-full bg-primary mr-2"></div>}
+                    <p>
+                        <span className="font-bold">{notification.actor_name}</span>
+                        {` sizning "${notification.post_title}" ${notificationText[notification.type]}.`}
+                    </p>
+                </div>
+                <p className="text-xs text-muted-foreground ml-4">
+                    {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true, locale: uz })}
+                </p>
+            </Link>
+        </DropdownMenuItem>
+    );
+}
+
+
+function Notifications({ user, onNotificationsRead }: { user: User, onNotificationsRead: () => void }) {
+    const [isOpen, setIsOpen] = useState(false);
+
+    const handleOpenChange = (open: boolean) => {
+        if (open && unreadCount > 0) {
+            markNotificationsAsRead(user.id);
+            onNotificationsRead();
+        }
+        setIsOpen(open);
+    }
+    
+    const sortedNotifications = user.notifications?.sort((a,b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) || [];
+    const unreadCount = user.notifications?.filter(n => !n.read).length || 0;
+
+    return (
+        <DropdownMenu open={isOpen} onOpenChange={handleOpenChange}>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="relative">
+                    <Bell className="h-5 w-5" />
+                    {unreadCount > 0 && (
+                        <Badge variant="destructive" className="absolute -top-1 -right-1 h-4 w-4 justify-center rounded-full p-0 text-xs">{unreadCount}</Badge>
+                    )}
+                    <span className="sr-only">Bildirishnomalar</span>
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-80 md:w-96" align="end">
+                <DropdownMenuLabel>Bildirishnomalar</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {sortedNotifications.length > 0 ? (
+                    <div className="max-h-80 overflow-y-auto">
+                        {sortedNotifications.map(n => <NotificationItem key={n.id} notification={n} onSelect={() => setIsOpen(false)} />)}
+                    </div>
+                ) : (
+                    <p className="p-2 text-sm text-muted-foreground">Sizda hali bildirishnomalar yo'q.</p>
+                )}
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
+}
+
 export function Header() {
   const [user, setUser] = useState<User | null>(null);
 
@@ -132,6 +206,18 @@ export function Header() {
     window.dispatchEvent(new Event('storage'));
     window.location.href = '/';
   };
+  
+  const handleNotificationsRead = () => {
+    setUser(currentUser => {
+        if (!currentUser) return null;
+        const updatedUser = {
+            ...currentUser,
+            notifications: currentUser.notifications?.map(n => ({...n, read: true})) || []
+        };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        return updatedUser;
+    });
+  }
 
   const authorInitials = user?.name
     .split(' ')
@@ -182,45 +268,48 @@ export function Header() {
           <div className="flex items-center gap-2 md:gap-4">
             <ThemeToggle />
             {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="relative h-8 w-8 rounded-full"
-                  >
-                    <Avatar className="h-9 w-9">
-                      <AvatarImage
-                        src={user.avatar_url}
-                        alt={user.name}
-                      />
-                      <AvatarFallback>{authorInitials}</AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        {user.name}
-                      </p>
-                      <p className="text-xs leading-none text-muted-foreground">
-                        {user.email}
-                      </p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href={`/profile/${user.id}`}>
-                      <UserIcon className="mr-2 h-4 w-4" />
-                      <span>Profil</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleLogout}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Chiqish</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+             <>
+                <Notifications user={user} onNotificationsRead={handleNotificationsRead} />
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                    <Button
+                        variant="ghost"
+                        className="relative h-8 w-8 rounded-full"
+                    >
+                        <Avatar className="h-9 w-9">
+                        <AvatarImage
+                            src={user.avatar_url}
+                            alt={user.name}
+                        />
+                        <AvatarFallback>{authorInitials}</AvatarFallback>
+                        </Avatar>
+                    </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuLabel className="font-normal">
+                        <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">
+                            {user.name}
+                        </p>
+                        <p className="text-xs leading-none text-muted-foreground">
+                            {user.email}
+                        </p>
+                        </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                        <Link href={`/profile/${user.id}`}>
+                        <UserIcon className="mr-2 h-4 w-4" />
+                        <span>Profil</span>
+                        </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleLogout}>
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Chiqish</span>
+                    </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+             </>
             ) : (
               <>
                 <div className="hidden md:flex items-center gap-2">

@@ -1,3 +1,4 @@
+
 export interface Post {
   id: string;
   title: string;
@@ -22,6 +23,7 @@ export interface User {
   avatar_url: string;
   created_at: string;
   bio?: string;
+  notifications?: Notification[];
 }
 
 export interface Comment {
@@ -30,4 +32,19 @@ export interface Comment {
   user_id: string;
   content: string;
   created_at: string;
+  parent_id?: string | null;
+  replies?: Comment[];
+}
+
+export interface Notification {
+  id: string;
+  user_id: string; // The user who will receive the notification
+  type: 'new_comment' | 'new_reply';
+  post_id: string;
+  post_title: string;
+  comment_id: string;
+  actor_id: string; // The user who performed the action
+  actor_name: string;
+  created_at: string;
+  read: boolean;
 }

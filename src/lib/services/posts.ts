@@ -22,8 +22,9 @@ import {
     QueryDocumentSnapshot,
     DocumentData
 } from 'firebase/firestore';
-import type { Post, Comment } from '@/types';
+import type { Post, Comment, Notification } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
+import { getUserById } from './users';
 
 
 const postsCollection = collection(db, 'posts');
@@ -98,23 +99,69 @@ export async function incrementPostView(postId: string): Promise<void> {
     });
 }
 
-export async function addCommentToPost(postId: string, userId: string, content: string): Promise<Comment> {
+export async function addCommentToPost(postId: string, userId: string, content: string, parentId: string | null = null): Promise<Comment> {
     const postRef = doc(db, 'posts', postId);
-    
+    const postSnap = await getDoc(postRef);
+    if (!postSnap.exists()) {
+        throw new Error("Post not found");
+    }
+    const post = postFromDoc(postSnap);
+
     const newComment: Comment = {
-        id: uuidv4(), // Generate a unique ID for the comment
+        id: uuidv4(),
         post_id: postId,
         user_id: userId,
         content: content,
         created_at: new Date().toISOString(),
+        parent_id: parentId,
     };
 
     await updateDoc(postRef, {
         comments: arrayUnion(newComment)
     });
 
+    // Create notification
+    const actor = await getUserById(userId);
+    if (!actor) throw new Error("Actor not found");
+
+    let notificationRecipientId: string;
+    let notificationType: 'new_comment' | 'new_reply' = 'new_comment';
+
+    if (parentId) {
+        // It's a reply, notify the parent comment's author
+        const parentComment = post.comments.find(c => c.id === parentId);
+        if (!parentComment) throw new Error("Parent comment not found");
+        notificationRecipientId = parentComment.user_id;
+        notificationType = 'new_reply';
+    } else {
+        // It's a new comment, notify the post's author
+        notificationRecipientId = post.author_id;
+    }
+
+    // Don't notify user about their own actions
+    if (actor.id !== notificationRecipientId) {
+        const userToNotifyRef = doc(db, 'users', notificationRecipientId);
+        const notification: Notification = {
+            id: uuidv4(),
+            user_id: notificationRecipientId,
+            type: notificationType,
+            post_id: postId,
+            post_title: post.title,
+            comment_id: newComment.id,
+            actor_id: actor.id,
+            actor_name: actor.name,
+            created_at: new Date().toISOString(),
+            read: false,
+        };
+        await updateDoc(userToNotifyRef, {
+            notifications: arrayUnion(notification)
+        });
+    }
+
+
     return newComment;
 }
+
 
 export async function deleteCommentFromPost(postId: string, commentId: string): Promise<void> {
     const postRef = doc(db, 'posts', postId);
