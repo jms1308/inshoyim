@@ -42,10 +42,19 @@ function AuthPrompt() {
   );
 }
 
+const getWordCount = (content: any): number => {
+    if (!content || !content.blocks) return 0;
+    const text = content.blocks
+        .filter((block: any) => block.type === 'paragraph' || block.type === 'header')
+        .map((block: any) => block.data.text.replace(/<[^>]*>?/gm, ''))
+        .join(' ');
+    return text.trim().split(/\s+/).filter(Boolean).length;
+};
+
 
 export default function WritePage() {
   const [title, setTitle] = useState('');
-  const [content, setContent] = useState(null);
+  const [content, setContent] = useState<any>(null);
   const [tags, setTags] = useState('');
   const [loading, setLoading] = useState(''); // 'publish', 'draft', or ''
   const [user, setUser] = useState<User | null>(null);
@@ -80,6 +89,12 @@ export default function WritePage() {
         toast({ title: "Xatolik", description: "Sarlavha va kontent bo'sh bo'lishi mumkin emas.", variant: "destructive" });
         return;
     }
+
+    if (getWordCount(content) < 70) {
+        toast({ title: "Xatolik", description: "Insho kamida 70 ta so'zdan iborat bo'lishi kerak.", variant: "destructive" });
+        return;
+    }
+
 
     setLoading(status);
 
