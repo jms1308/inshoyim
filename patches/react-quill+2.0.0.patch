@@ -1,61 +1,29 @@
-diff --git a/node_modules/react-quill/lib/index.js b/node_modules/react-quill/lib/index.js
-index 791a84f..8c5e631 100644
---- a/node_modules/react-quill/lib/index.js
-+++ b/node_modules/react-quill/lib/index.js
-@@ -5,7 +5,7 @@
- var Quill = require('quill');
- var PropTypes = require('prop-types');
- var React = require('react');
--var ReactDOM = require('react-dom');
-+var ReactDOM = require('react-dom/client');
- var isEqual = require('lodash/isEqual');
- var isFunction = require('lodash/isFunction');
- var isObject = require('lodash/isObject');
-@@ -194,7 +194,7 @@
- 	},
+diff --git a/node_modules/react-quill/lib/component.js b/node_modules/react-quill/lib/component.js
+index 9e57723..1552a4a 100644
+--- a/node_modules/react-quill/lib/component.js
++++ b/node_modules/react-quill/lib/component.js
+@@ -211,7 +211,7 @@ ReactQuill.prototype.getEditor = function getEditor() {
+ 	if (!this.quill) throw new Error('Accessing editor before it is mounted');
+ 	return this.quill;
+ };
+-
++/*
+ ReactQuill.prototype.getEditorNode = function getEditorNode() {
+ 	warn(
+ 		'`getEditorNode()` is deprecated and will be removed in a future version.' +
+@@ -219,7 +219,7 @@ ReactQuill.prototype.getEditorNode = function getEditorNode() {
+ 	);
+ 	return ReactDOM.findDOMNode(this);
+ };
+-
++*/
+ ReactQuill.prototype.getEditingArea = function getEditingArea() {
+ 	warn(
+ 		'`getEditingArea()` is deprecated and will be removed in a future version.' +
+@@ -227,7 +227,7 @@ ReactQuill.prototype.getEditingArea = function getEditingArea() {
+ 	);
+-	return ReactDOM.findDOMNode(this).querySelector('.ql-editor');
++	return this.quill.root;
+ };
  
- 	getEditor: function getEditor() {
--		return this.editor;
-+		return this.editor
- 	},
- 
- 	getEditingArea: function getEditingArea() {
-@@ -204,7 +204,7 @@
- 	},
- 
- 	createEditor: function createEditor(element, config) {
--		var editor = new Quill(element, config);
-+		var editor = new Quill(element, config)
- 		if (config.tabIndex !== undefined) {
- 			this.setEditorTabIndex(editor, config.tabIndex);
- 		}
-@@ -231,10 +231,10 @@
- 	},
- 
- 	setEditorContents: function setEditorContents(editor, value) {
--		var sel = this.getEditorSelection();
-+		var sel = this.getEditorSelection()
- 		if (typeof value === 'string') {
--			editor.setContents(editor.clipboard.convert(value));
--		} else {
-+			editor.setContents(editor.clipboard.convert(value))
-+		} else if (value) {
- 			editor.setContents(value);
- 		}
- 		this.setEditorSelection(editor, sel);
-@@ -559,7 +559,7 @@
- 	},
- 
- 	renderEditingArea: function renderEditingArea() {
--		var self = this;
-+		var self = this
- 		var editingArea = React.createElement('div', {
- 			ref: function ref(element) {
- 				self.editingArea = element;
-@@ -583,4 +583,4 @@
- 	}
- });
- 
--module.exports = ReactQuill;
-\ No newline at end of file
-+module.exports = ReactQuill;
+ ReactQuill.prototype.getSelection = function getSelection() {

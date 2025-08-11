@@ -28,10 +28,11 @@ const formats = [
     'link', 'image'
 ];
 
-export default function RichTextEditor({ id, value, onChange, placeholder }: RichTextEditorProps) {
+const RichTextEditor = React.forwardRef<ReactQuill, RichTextEditorProps>(({ id, value, onChange, placeholder }, ref) => {
     return (
         <div className="bg-background text-foreground">
              <ReactQuill
+                ref={ref}
                 theme="snow"
                 value={value}
                 onChange={onChange}
@@ -43,4 +44,8 @@ export default function RichTextEditor({ id, value, onChange, placeholder }: Ric
             />
         </div>
     );
-}
+});
+
+RichTextEditor.displayName = 'RichTextEditor';
+
+export default RichTextEditor;
