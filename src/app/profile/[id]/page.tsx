@@ -3,9 +3,10 @@
 
 import { notFound, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getUserById, updateUserBio } from "@/lib/services/users";
+import { getUserById, updateUserBio, updateUserAvatar } from "@/lib/services/users";
 import { getPostsByAuthor } from "@/lib/services/posts";
 import type { User, Post } from "@/types";
+import Image from 'next/image';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { EssayCard } from "@/components/EssayCard";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Edit } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
+const avatarStyles = ['bottts', 'micah', 'adventurer', 'fun-emoji', 'initials'];
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
@@ -22,6 +26,7 @@ export default function ProfilePage() {
   const [isEditingBio, setIsEditingBio] = useState(false);
   const [bioContent, setBioContent] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isAvatarPopoverOpen, setIsAvatarPopoverOpen] = useState(false);
 
   const params = useParams();
   const userId = params.id as string;
@@ -87,6 +92,26 @@ export default function ProfilePage() {
       setIsSaving(false);
     }
   };
+  
+  const handleAvatarChange = async (style: string) => {
+    if (!user) return;
+    const newAvatarUrl = `https://api.dicebear.com/8.x/${style}/svg?seed=${encodeURIComponent(user.name)}`;
+    try {
+      await updateUserAvatar(user.id, newAvatarUrl);
+      const updatedUser = { ...user, avatar_url: newAvatarUrl };
+      setUser(updatedUser);
+       if (loggedInUser?.id === user.id) {
+          localStorage.setItem('user', JSON.stringify(updatedUser));
+          window.dispatchEvent(new Event('storage')); // Notify other components of the change
+       }
+      toast({ title: "Muvaffaqiyatli!", description: "Avatar muvaffaqiyatli yangilandi."});
+      setIsAvatarPopoverOpen(false);
+    } catch (error) {
+      console.error("Failed to update avatar:", error);
+      toast({ title: "Xatolik!", description: "Avatarni yangilashda xatolik yuz berdi.", variant: "destructive"});
+    }
+  }
+
 
   if (loading) {
     return <div className="text-center py-10">Yuklanmoqda...</div>;
@@ -104,10 +129,36 @@ export default function ProfilePage() {
   return (
     <div className="container mx-auto max-w-5xl px-4 py-8 md:py-16">
       <section className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12">
-        <Avatar className="h-32 w-32 md:h-40 md:w-40 border-4 border-primary/20">
-          <AvatarImage src={user.avatar_url} alt={user.name} data-ai-hint="avatar" />
-          <AvatarFallback className="text-4xl">{authorInitials}</AvatarFallback>
-        </Avatar>
+          <div className="relative group">
+            <Avatar className="h-32 w-32 md:h-40 md:w-40 border-4 border-primary/20">
+              <AvatarImage src={user.avatar_url} alt={user.name} data-ai-hint="avatar" />
+              <AvatarFallback className="text-4xl">{authorInitials}</AvatarFallback>
+            </Avatar>
+            {isOwnProfile && (
+              <Popover open={isAvatarPopoverOpen} onOpenChange={setIsAvatarPopoverOpen}>
+                <PopoverTrigger asChild>
+                   <button className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Edit className="h-8 w-8 text-white" />
+                    </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto">
+                    <div className="grid grid-cols-5 gap-2">
+                        {avatarStyles.map((style) => (
+                           <button key={style} onClick={() => handleAvatarChange(style)} className="p-1 rounded-full hover:bg-accent transition-colors">
+                             <Avatar className="h-12 w-12">
+                                <AvatarImage 
+                                    src={`https://api.dicebear.com/8.x/${style}/svg?seed=${encodeURIComponent(user.name)}`}
+                                    alt={`${style} avatar`}
+                                />
+                                <AvatarFallback>{authorInitials}</AvatarFallback>
+                             </Avatar>
+                           </button>
+                        ))}
+                    </div>
+                </PopoverContent>
+              </Popover>
+            )}
+          </div>
         <div className="text-center md:text-left flex-grow">
           <h1 className="font-headline text-4xl md:text-5xl font-bold">{user.name}</h1>
           <p className="mt-2 text-lg text-muted-foreground">{user.email}</p>

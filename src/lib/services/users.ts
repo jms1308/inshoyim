@@ -7,6 +7,9 @@ import type { User } from '@/types';
 
 const usersCollection = collection(db, 'users');
 
+const avatarStyles = ['bottts', 'micah', 'adventurer', 'fun-emoji', 'initials'];
+
+
 const userFromDoc = (doc: any): User => {
     const data = doc.data();
     return {
@@ -29,12 +32,14 @@ export async function createUser(name: string, email: string, password_DO_NOT_ST
     if (!nameSnapshot.empty) {
         throw new Error('Bu ism allaqachon mavjud.');
     }
+    
+    const randomStyle = avatarStyles[Math.floor(Math.random() * avatarStyles.length)];
 
     const newUser = {
         name,
         email,
         password: password_DO_NOT_STORE_IN_PLAIN_TEXT, // WARNING: Storing plain text passwords is a security risk.
-        avatar_url: `https://api.dicebear.com/8.x/bottts/svg?seed=${encodeURIComponent(name)}`,
+        avatar_url: `https://api.dicebear.com/8.x/${randomStyle}/svg?seed=${encodeURIComponent(name)}`,
         created_at: new Date(),
         bio: 'Yangi foydalanuvchi',
     };
@@ -84,4 +89,12 @@ export async function updateUserBio(userId: string, newBio: string): Promise<voi
     await updateDoc(userDocRef, {
         bio: newBio
     });
+}
+
+export async function updateUserAvatar(userId: string, avatarUrl: string): Promise<void> {
+  if (!userId) return;
+  const userDocRef = doc(db, 'users', userId);
+  await updateDoc(userDocRef, {
+    avatar_url: avatarUrl
+  });
 }
