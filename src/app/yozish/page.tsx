@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
@@ -112,13 +112,13 @@ export default function WritePage() {
   }
 
   return (
-    <div className="container mx-auto max-w-4xl py-12 px-4 md:px-6">
+    <div className="container mx-auto max-w-4xl py-12 px-2 md:px-6">
         <Card>
             <CardHeader>
                 <CardTitle className="text-3xl font-headline">Yangi insho yaratish</CardTitle>
                 <CardDescription>Fikrlaringizni dunyo bilan baham ko'ring.</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-2 sm:p-6">
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="space-y-2">
                         <Label htmlFor="title" className="text-lg">Sarlavha</Label>
