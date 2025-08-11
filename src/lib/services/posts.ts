@@ -40,36 +40,16 @@ const postFromDoc = (doc: QueryDocumentSnapshot<DocumentData>): Post => {
     } as Post;
 }
 
-export async function getPublishedPosts(
-    postLimit: number, 
-    lastVisible: QueryDocumentSnapshot<DocumentData> | null = null
-): Promise<{ posts: Post[], lastVisible: QueryDocumentSnapshot<DocumentData> | null }> {
-    
-    let q;
-    if (lastVisible) {
-        q = query(
-            postsCollection, 
-            where('status', '==', 'published'),
-            orderBy('created_at', 'desc'),
-            startAfter(lastVisible),
-            limit(postLimit)
-        );
-    } else {
-        q = query(
-            postsCollection, 
-            where('status', '==', 'published'),
-            orderBy('created_at', 'desc'),
-            limit(postLimit)
-        );
-    }
-
+export async function getPublishedPosts(): Promise<Post[]> {
+    const q = query(
+        postsCollection, 
+        where('status', '==', 'published'),
+        orderBy('created_at', 'desc')
+    );
     const snapshot = await getDocs(q);
-    
-    const posts = snapshot.docs.map(postFromDoc);
-    const newLastVisible = snapshot.docs[snapshot.docs.length - 1] || null;
-    
-    return { posts, lastVisible: newLastVisible };
+    return snapshot.docs.map(postFromDoc);
 }
+
 
 export async function getPostsByAuthor(authorId: string): Promise<Post[]> {
   if (!authorId) return [];

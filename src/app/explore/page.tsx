@@ -6,20 +6,12 @@ import { EssayCard } from "@/components/EssayCard";
 import { Input } from "@/components/ui/input";
 import { getPublishedPosts } from '@/lib/services/posts';
 import type { Post } from '@/types';
-import type { DocumentData, QueryDocumentSnapshot } from 'firebase/firestore';
 import { Search } from "lucide-react";
-import { Button } from '@/components/ui/button';
-
-const INITIAL_LOAD_COUNT = 9;
-const LOAD_MORE_COUNT = 6;
 
 export default function ExplorePage() {
   const [allPosts, setAllPosts] = useState<Post[]>([]);
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [lastVisible, setLastVisible] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
   const phrases = ['Insholar', 'Xulosalar', 'Tahlillar'];
@@ -58,53 +50,20 @@ export default function ExplorePage() {
   }, [charIndex, isDeleting, phraseIndex]);
 
   useEffect(() => {
-    async function fetchInitialPosts() {
-      // Only fetch if posts are not already loaded
-      if (allPosts.length > 0) {
-        setLoading(false);
-        return;
-      }
-      
+    async function fetchPosts() {
       try {
         setLoading(true);
-        const { posts, lastVisible: newLastVisible } = await getPublishedPosts(INITIAL_LOAD_COUNT);
+        const posts = await getPublishedPosts();
         setAllPosts(posts);
         setFilteredPosts(posts);
-        setLastVisible(newLastVisible);
-        setHasMore(posts.length === INITIAL_LOAD_COUNT);
       } catch (error) {
         console.error("Error fetching posts:", error);
       } finally {
         setLoading(false);
       }
     }
-    fetchInitialPosts();
-  }, []); // Empty dependency array ensures this runs only once on initial mount
-
-  const fetchMorePosts = async () => {
-    if (!hasMore || loadingMore) return;
-
-    setLoadingMore(true);
-    try {
-      const { posts: newPosts, lastVisible: newLastVisible } = await getPublishedPosts(LOAD_MORE_COUNT, lastVisible);
-      const updatedPosts = [...allPosts, ...newPosts];
-      setAllPosts(updatedPosts);
-      // If searchTerm is active, we should filter the new posts as well
-      const results = updatedPosts.filter(post =>
-        post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-      setFilteredPosts(results);
-      
-      setLastVisible(newLastVisible);
-      setHasMore(newPosts.length === LOAD_MORE_COUNT);
-    } catch (error) {
-      console.error("Error fetching more posts:", error);
-    } finally {
-      setLoadingMore(false);
-    }
-  };
-
+    fetchPosts();
+  }, []);
 
   useEffect(() => {
     // When search term changes, filter from the already loaded posts
@@ -140,20 +99,11 @@ export default function ExplorePage() {
         {loading ? (
           <p className="text-center">Yuklanmoqda...</p>
         ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredPosts.map((post) => (
-                <EssayCard key={post.id} post={post} />
-              ))}
-            </div>
-             {hasMore && !searchTerm && (
-              <div className="mt-12 text-center">
-                <Button onClick={fetchMorePosts} disabled={loadingMore}>
-                  {loadingMore ? "Yuklanmoqda..." : "Ko'proq yuklash"}
-                </Button>
-              </div>
-            )}
-          </>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredPosts.map((post) => (
+              <EssayCard key={post.id} post={post} />
+            ))}
+          </div>
         )}
       </section>
     </div>
