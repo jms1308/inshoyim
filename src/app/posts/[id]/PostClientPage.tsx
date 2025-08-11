@@ -125,9 +125,8 @@ function CommentCard({ comment, onReply, onDelete, loggedInUser }: { comment: Co
             </div>
 
              {showReplies && comment.replies && comment.replies.length > 0 && (
-                <div className="mt-4 pl-8 sm:pl-14 space-y-4">
+                <div className="mt-4 sm:pl-14 space-y-4">
                      {comment.replies.map((reply) => (
-                        // We pass the parent comment's id to the onReply function
                         <CommentCard key={reply.id} comment={reply} onReply={(parentId, content) => onReply(comment.id, content)} onDelete={onDelete} loggedInUser={loggedInUser} />
                     ))}
                 </div>
@@ -517,5 +516,7 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
     </article>
   );
 }
+
+    
 
     
