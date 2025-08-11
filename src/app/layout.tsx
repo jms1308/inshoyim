@@ -9,8 +9,35 @@ import { Toaster } from '@/components/ui/toaster';
 import { AuthDialogProvider } from '@/context/AuthDialogContext';
 
 export const metadata: Metadata = {
-  title: 'Inshoyim',
-  description: 'Uzoq formalı insholar va kitob sharhlari uchun zamonaviy, sezgir va koʻp funksiyali veb-sayt.',
+  metadataBase: new URL('https://inshoyim.uz'), // Replace with your actual domain
+  title: {
+    default: 'Inshoyim - O‘qing, Yozing, Ulashing',
+    template: '%s | Inshoyim',
+  },
+  description: 'O‘zbek tilidagi insholar, tahlillar va ijodiy yozuvlar uchun zamonaviy platforma. O‘qing, o‘zingiznikini yozing va fikrlaringizni butun dunyo bilan baham ko‘ring.',
+  keywords: ['insho', 'maqola', 'tahlil', 'o‘zbek adabiyoti', 'yozish', 'ijod', 'blog', 'o‘zbekcha'],
+  openGraph: {
+    title: 'Inshoyim - O‘qing, Yozing, Ulashing',
+    description: 'O‘zbek tilidagi insholar va ijodiy yozuvlar uchun platforma.',
+    type: 'website',
+    locale: 'uz_UZ',
+    url: 'https://inshoyim.uz', // Replace with your actual domain
+    siteName: 'Inshoyim',
+    images: [
+      {
+        url: '/og-image.png', // Replace with a link to your open graph image
+        width: 1200,
+        height: 630,
+        alt: 'Inshoyim Platformasi',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Inshoyim - O‘qing, Yozing, Ulashing',
+    description: 'O‘zbek tilidagi insholar, tahlillar va ijodiy yozuvlar uchun zamonaviy platforma.',
+     images: ['/twitter-image.png'], // Replace with a link to your twitter image
+  },
 };
 
 export default function RootLayout({
