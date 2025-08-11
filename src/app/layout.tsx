@@ -10,10 +10,7 @@ import { AuthDialogProvider } from '@/context/AuthDialogContext';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://inshoyim.uz'),
-  title: {
-    default: 'Inshoyim | O‘zbekcha Insholar, Maqolalar Yozish va O‘qish',
-    template: '%s | Inshoyim',
-  },
+  title: 'Inshoyim',
   description: 'Inshoyim – o‘zbek tilidagi insholar, maqolalar va ijodiy yozuvlar uchun eng yaxshi platforma. Bu yerda o‘qing, o‘zingiznikini yozing, fikrlaringizni ulashing va o‘zbek adabiyotini boyiting.',
   keywords: [
     // Asosiy kalit so'zlar
@@ -63,7 +60,7 @@ export default function RootLayout({
   return (
     <html lang="uz" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='blue' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-book'%3E%3Cpath d='M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20'/%3E%3C/svg%3E" />
+        <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='blue' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20'/%3E%3C/svg%3E" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,700;1,7..72,400&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
