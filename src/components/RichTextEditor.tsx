@@ -87,6 +87,7 @@ const RichTextEditor = ({ id = "editorjs", data, onChange, placeholder }: RichTe
                 editorRef.current = null;
             }
         };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
