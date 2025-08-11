@@ -94,18 +94,19 @@ export function ShareButton({ title, content }: { title: string, content: string
   }
   
   const encodedUrl = encodeURIComponent(url);
-  const encodedTitle = encodeURIComponent(title);
-  const telegramText = encodeURIComponent(`*${title}*\n\n${shareText}`);
+  const fullShareText = `${title}\n\n${shareText}\n\n${url}`;
+  const encodedFullShareText = encodeURIComponent(fullShareText);
+  const encodedTitleAndUrl = encodeURIComponent(`${title}\n\n${url}`);
 
   
   const PopoverContentMenu = (
     <div className="flex flex-col gap-2">
         <p className="text-sm font-medium text-center mb-2">Inshoni ulashish</p>
         <div className="flex items-center gap-2">
-            <a href={`https://t.me/share/url?url=${encodedUrl}&text=${telegramText}`} target="_blank" rel="noopener noreferrer">
+            <a href={`https://t.me/share/url?url=${encodedUrl}&text=${encodeURIComponent(`${title}\n\n${shareText}`)}`} target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" size="icon"><TelegramIcon /></Button>
             </a>
-            <a href={`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`} target="_blank" rel="noopener noreferrer">
+            <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`${title}\n\n${url}`)}`} target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" size="icon"><TwitterXIcon /></Button>
             </a>
             <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`} target="_blank" rel="noopener noreferrer">
