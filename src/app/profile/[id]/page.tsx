@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Edit } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
@@ -26,15 +27,20 @@ export default function ProfilePage() {
   const userId = params.id as string;
   const { toast } = useToast();
 
+  const isOwnProfile = loggedInUser?.id === userId;
+
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       setLoggedInUser(JSON.parse(storedUser));
     }
+  }, []);
 
+  useEffect(() => {
     async function fetchData() {
       if (!userId) return;
       try {
+        setLoading(true);
         const userData = await getUserById(userId);
         if (!userData) {
           notFound();
@@ -43,7 +49,9 @@ export default function ProfilePage() {
         setUser(userData);
         setBioContent(userData.bio || "");
 
-        const postsData = await getPostsByAuthor(userId);
+        // If it's the user's own profile, fetch all posts (published and drafts).
+        // Otherwise, only fetch published posts.
+        const postsData = await getPostsByAuthor(userId, isOwnProfile);
         setUserPosts(postsData);
       } catch (error) {
         console.error("Failed to fetch profile data:", error);
@@ -52,8 +60,11 @@ export default function ProfilePage() {
         setLoading(false);
       }
     }
-    fetchData();
-  }, [userId, toast]);
+    // We need loggedInUser to be set before we can determine if it's their own profile
+    if (loggedInUser !== undefined) {
+      fetchData();
+    }
+  }, [userId, toast, isOwnProfile, loggedInUser]);
 
   const handleSaveBio = async () => {
     if (!user || !loggedInUser || user.id !== loggedInUser.id) return;
@@ -86,7 +97,9 @@ export default function ProfilePage() {
   }
 
   const authorInitials = user.name.split(' ').map(n => n[0]).join('') || 'U';
-  const isOwnProfile = loggedInUser?.id === user.id;
+  
+  const publishedPosts = userPosts.filter(post => post.status === 'published');
+  const draftPosts = userPosts.filter(post => post.status === 'draft');
 
   return (
     <div className="container mx-auto max-w-5xl px-4 py-8 md:py-16">
@@ -136,22 +149,41 @@ export default function ProfilePage() {
       </section>
 
       <section>
-        <h2 className="font-headline text-3xl font-bold mb-8 border-b pb-4">
-          Nashrlar
-        </h2>
-        {userPosts.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {userPosts.map((post) => (
-              <EssayCard key={post.id} post={post} />
-            ))}
-          </div>
-        ) : (
-          <p className="text-muted-foreground text-center py-10">
-            Bu muallif hali hech qanday insho nashr etmagan.
-          </p>
-        )}
+          <Tabs defaultValue="published" className="w-full">
+            <TabsList className="grid w-full grid-cols-1 sm:w-auto sm:grid-cols-2 mb-8">
+                <TabsTrigger value="published">Nashrlar ({publishedPosts.length})</TabsTrigger>
+                {isOwnProfile && <TabsTrigger value="drafts">Qoralamalar ({draftPosts.length})</TabsTrigger>}
+            </TabsList>
+            <TabsContent value="published">
+                {publishedPosts.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {publishedPosts.map((post) => (
+                    <EssayCard key={post.id} post={post} />
+                    ))}
+                </div>
+                ) : (
+                <p className="text-muted-foreground text-center py-10">
+                    Bu muallif hali hech qanday insho nashr etmagan.
+                </p>
+                )}
+            </TabsContent>
+            {isOwnProfile && (
+                <TabsContent value="drafts">
+                    {draftPosts.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {draftPosts.map((post) => (
+                        <EssayCard key={post.id} post={post} />
+                        ))}
+                    </div>
+                    ) : (
+                    <p className="text-muted-foreground text-center py-10">
+                        Sizda qoralamalar mavjud emas.
+                    </p>
+                    )}
+                </TabsContent>
+            )}
+        </Tabs>
       </section>
     </div>
   )
 }
-    

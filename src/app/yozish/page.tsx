@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import type { User } from '@/types';
+import type { User, Post } from '@/types';
 import { createPost } from '@/lib/services/posts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuthDialog } from '@/context/AuthDialogContext';
@@ -47,7 +47,7 @@ export default function WritePage() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState(null);
   const [tags, setTags] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(''); // 'publish', 'draft', or ''
   const [user, setUser] = useState<User | null>(null);
   const [isCheckingUser, setIsCheckingUser] = useState(true);
   
@@ -70,8 +70,7 @@ export default function WritePage() {
     return () => window.removeEventListener('storage', checkUser);
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (status: 'published' | 'draft') => {
     if (!user) {
         toast({ title: "Xatolik", description: "Insho yaratish uchun tizimga kirishingiz kerak.", variant: "destructive" });
         return;
@@ -82,24 +81,25 @@ export default function WritePage() {
         return;
     }
 
-    setLoading(true);
+    setLoading(status);
 
     const postData = {
         title,
         content,
         tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag),
-        author_id: user.id
+        author_id: user.id,
+        status,
     };
 
     try {
-        const newPost = await createPost(postData);
-        toast({ title: "Muvaffaqiyatli!", description: "Insho muvaffaqiyatli yaratildi." });
+        await createPost(postData);
+        toast({ title: "Muvaffaqiyatli!", description: `Insho muvaffaqiyatli ${status === 'published' ? 'nashr etildi' : 'qoralama sifatida saqlandi'}.` });
         router.push(`/explore`);
     } catch (error) {
         console.error("Failed to create post:", error);
         toast({ title: "Xatolik", description: "Insho yaratishda xatolik yuz berdi.", variant: "destructive" });
     } finally {
-        setLoading(false);
+        setLoading('');
     }
   };
   
@@ -119,7 +119,7 @@ export default function WritePage() {
                 <CardDescription>Fikrlaringizni dunyo bilan baham ko'ring.</CardDescription>
             </CardHeader>
             <CardContent className="p-2 sm:p-6">
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
                     <div className="space-y-2">
                         <Label htmlFor="title" className="text-lg">Sarlavha</Label>
                         <Input
@@ -149,9 +149,12 @@ export default function WritePage() {
                         placeholder="masalan, she'riyat, tarix, falsafa"
                         />
                     </div>
-                    <div>
-                        <Button type="submit" disabled={loading} size="lg">
-                        {loading ? 'Nashr etilmoqda...' : 'Nashr etish'}
+                    <div className="flex flex-wrap gap-4">
+                        <Button onClick={() => handleSubmit('published')} disabled={!!loading} size="lg">
+                            {loading === 'publish' ? 'Nashr etilmoqda...' : 'Nashr etish'}
+                        </Button>
+                         <Button onClick={() => handleSubmit('draft')} disabled={!!loading} size="lg" variant="outline">
+                            {loading === 'draft' ? 'Saqlanmoqda...' : 'Qoralama sifatida saqlash'}
                         </Button>
                     </div>
                 </form>

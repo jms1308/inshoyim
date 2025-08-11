@@ -27,7 +27,7 @@ export default function EditPostPage() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState(null);
   const [tags, setTags] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(''); // 'publish', 'draft', or ''
   const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
   const [isCheckingUser, setIsCheckingUser] = useState(true);
   
@@ -66,8 +66,7 @@ export default function EditPostPage() {
     fetchPost();
   }, [postId, toast]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (status: 'published' | 'draft') => {
     if (!loggedInUser || !post) {
         toast({ title: "Xatolik", description: "Sizda bu inshoni tahrirlash huquqi yo'q.", variant: "destructive" });
         return;
@@ -82,23 +81,24 @@ export default function EditPostPage() {
         return;
     }
 
-    setLoading(true);
+    setLoading(status);
 
     const postData = {
         title,
         content,
         tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+        status,
     };
 
     try {
         await updatePost(post.id, postData);
-        toast({ title: "Muvaffaqiyatli!", description: "Insho muvaffaqiyatli yangilandi." });
+        toast({ title: "Muvaffaqiyatli!", description: `Insho muvaffaqiyatli ${status === 'published' ? 'nashr etildi' : 'qoralama sifatida saqlandi'}.` });
         router.push(`/explore`);
     } catch (error) {
         console.error("Failed to update post:", error);
         toast({ title: "Xatolik", description: "Inshoni yangilashda xatolik yuz berdi.", variant: "destructive" });
     } finally {
-        setLoading(false);
+        setLoading('');
     }
   };
   
@@ -118,7 +118,7 @@ export default function EditPostPage() {
                 <CardDescription>O'zgartirishlaringizni kiriting va saqlang.</CardDescription>
             </CardHeader>
             <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
                     <div className="space-y-2">
                         <Label htmlFor="title" className="text-lg">Sarlavha</Label>
                         <Input
@@ -148,9 +148,12 @@ export default function EditPostPage() {
                         placeholder="masalan, she'riyat, tarix, falsafa"
                         />
                     </div>
-                    <div>
-                        <Button type="submit" disabled={loading} size="lg">
-                        {loading ? 'Saqlanmoqda...' : 'Saqlash'}
+                    <div className="flex flex-wrap gap-4">
+                        <Button onClick={() => handleSubmit('published')} disabled={!!loading} size="lg">
+                            {loading === 'publish' ? 'Nashr etilmoqda...' : 'Nashr etish'}
+                        </Button>
+                         <Button onClick={() => handleSubmit('draft')} disabled={!!loading} size="lg" variant="outline">
+                            {loading === 'draft' ? 'Saqlanmoqda...' : post?.status === 'draft' ? 'Qoralamani saqlash' : 'Qoralama sifatida saqlash' }
                         </Button>
                     </div>
                 </form>

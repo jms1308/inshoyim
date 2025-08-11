@@ -29,7 +29,7 @@ import { v4 as uuidv4 } from 'uuid';
 const postsCollection = collection(db, 'posts');
 
 // Function to convert Firestore timestamp to our Post type
-const postFromDoc = (doc: QueryDocumentSnapshot<DocumentData>): Post => {
+const postFromDoc = (doc: QueryDocumentSnapshot<DocumentData> | DocumentData): Post => {
     const data = doc.data();
     return {
         id: doc.id,
@@ -51,15 +51,24 @@ export async function getPublishedPosts(): Promise<Post[]> {
 }
 
 
-export async function getPostsByAuthor(authorId: string): Promise<Post[]> {
+export async function getPostsByAuthor(authorId: string, includeDrafts: boolean = false): Promise<Post[]> {
   if (!authorId) return [];
-  const q = query(postsCollection, 
-    where('author_id', '==', authorId), 
-    where('status', '==', 'published')
-  );
   
-  const snapshot = await getDocs(q);
+  let postQuery;
+  if (includeDrafts) {
+    // Fetch all posts by author, regardless of status
+    postQuery = query(postsCollection, 
+      where('author_id', '==', authorId)
+    );
+  } else {
+    // Fetch only published posts by author
+    postQuery = query(postsCollection, 
+      where('author_id', '==', authorId), 
+      where('status', '==', 'published')
+    );
+  }
   
+  const snapshot = await getDocs(postQuery);
   let posts = snapshot.docs.map(postFromDoc);
 
   // Sort posts by creation date in descending order
@@ -75,14 +84,7 @@ export async function getPostById(id: string): Promise<Post | null> {
     const snapshot = await getDoc(postDoc);
 
     if (snapshot.exists()) {
-        const data = snapshot.data();
-        return {
-            id: snapshot.id,
-            ...data,
-            created_at: (data.created_at as Timestamp).toDate().toISOString(),
-            updated_at: (data.updated_at as Timestamp).toDate().toISOString(),
-            comments: data.comments || [],
-        } as Post;
+        return postFromDoc(snapshot);
     } else {
         return null;
     }
@@ -147,6 +149,7 @@ interface CreatePostData {
     content: any; // Editor.js content is an object
     author_id: string;
     tags: string[];
+    status: 'published' | 'draft';
 }
 
 export async function createPost(data: CreatePostData): Promise<Post> {
@@ -157,7 +160,6 @@ export async function createPost(data: CreatePostData): Promise<Post> {
         created_at: new Date(),
         updated_at: new Date(),
         views: 0,
-        status: 'published' as const,
         read_time: readTime,
         comments: [],
         viewed_by: [],
@@ -178,6 +180,7 @@ interface UpdatePostData {
     title: string;
     content: any; // Editor.js content is an object
     tags: string[];
+    status: 'published' | 'draft';
 }
 
 export async function updatePost(postId: string, data: UpdatePostData): Promise<void> {
