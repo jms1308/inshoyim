@@ -70,14 +70,18 @@ export default function Home() {
     const timer = setTimeout(handleTyping, isDeleting ? deletingSpeed : typingSpeed);
 
     return () => clearTimeout(timer);
-  }, [charIndex, isDeleting, phraseIndex, phrases, isInitialDelay]);
+  }, [charIndex, isDeleting, phraseIndex, isInitialDelay]);
 
 
   useEffect(() => {
     async function fetchPosts() {
+       if (posts.length > 0) {
+          setLoading(false);
+          return;
+      }
       try {
-        const { posts: publishedPosts } = await getPublishedPosts(6);
-        setPosts(publishedPosts);
+        const publishedPosts = await getPublishedPosts();
+        setPosts(publishedPosts.slice(0, 6)); // Get latest 6 posts
       } catch (error) {
         console.error("Error fetching posts:", error);
       } finally {
@@ -85,6 +89,7 @@ export default function Home() {
       }
     }
     fetchPosts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

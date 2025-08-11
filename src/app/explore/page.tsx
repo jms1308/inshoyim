@@ -51,6 +51,11 @@ export default function ExplorePage() {
 
   useEffect(() => {
     async function fetchPosts() {
+      // Only fetch posts if they haven't been loaded yet.
+      if (allPosts.length > 0) {
+          setLoading(false);
+          return;
+      }
       try {
         setLoading(true);
         const posts = await getPublishedPosts();
@@ -63,6 +68,7 @@ export default function ExplorePage() {
       }
     }
     fetchPosts();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
