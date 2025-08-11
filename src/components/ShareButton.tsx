@@ -53,11 +53,11 @@ export function ShareButton({ title, content }: { title: string, content: string
     const currentUrl = window.location.href;
     setUrl(currentUrl);
     
-    // Pass the raw content which could be a string or an object
     const plainTextContent = getTextFromEditorJs(content);
     const excerpt = plainTextContent.split(' ').slice(0, 30).join(' ') + (plainTextContent.split(' ').length > 30 ? '...' : '');
     
-    setShareText(`"${title}"\n\n${excerpt}\n\n${currentUrl}`);
+    // Just the excerpt for the 'text' property
+    setShareText(excerpt);
 
     if (navigator.share) {
       setIsWebShareSupported(true)
@@ -94,14 +94,15 @@ export function ShareButton({ title, content }: { title: string, content: string
   }
   
   const encodedUrl = encodeURIComponent(url);
-  const encodedTitle = encodeURIComponent(`"${title}"`);
-  const encodedShareText = encodeURIComponent(shareText);
+  const encodedTitle = encodeURIComponent(title);
+  const telegramText = encodeURIComponent(`*${title}*\n\n${shareText}`);
+
   
   const PopoverContentMenu = (
     <div className="flex flex-col gap-2">
         <p className="text-sm font-medium text-center mb-2">Inshoni ulashish</p>
         <div className="flex items-center gap-2">
-            <a href={`https://t.me/share/url?url=${encodedUrl}&text=${encodedShareText}`} target="_blank" rel="noopener noreferrer">
+            <a href={`https://t.me/share/url?url=${encodedUrl}&text=${telegramText}`} target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" size="icon"><TelegramIcon /></Button>
             </a>
             <a href={`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`} target="_blank" rel="noopener noreferrer">
