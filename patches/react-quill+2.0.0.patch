@@ -1,0 +1,61 @@
+diff --git a/node_modules/react-quill/lib/index.js b/node_modules/react-quill/lib/index.js
+index 791a84f..8c5e631 100644
+--- a/node_modules/react-quill/lib/index.js
++++ b/node_modules/react-quill/lib/index.js
+@@ -5,7 +5,7 @@
+ var Quill = require('quill');
+ var PropTypes = require('prop-types');
+ var React = require('react');
+-var ReactDOM = require('react-dom');
++var ReactDOM = require('react-dom/client');
+ var isEqual = require('lodash/isEqual');
+ var isFunction = require('lodash/isFunction');
+ var isObject = require('lodash/isObject');
+@@ -194,7 +194,7 @@
+ 	},
+ 
+ 	getEditor: function getEditor() {
+-		return this.editor;
++		return this.editor
+ 	},
+ 
+ 	getEditingArea: function getEditingArea() {
+@@ -204,7 +204,7 @@
+ 	},
+ 
+ 	createEditor: function createEditor(element, config) {
+-		var editor = new Quill(element, config);
++		var editor = new Quill(element, config)
+ 		if (config.tabIndex !== undefined) {
+ 			this.setEditorTabIndex(editor, config.tabIndex);
+ 		}
+@@ -231,10 +231,10 @@
+ 	},
+ 
+ 	setEditorContents: function setEditorContents(editor, value) {
+-		var sel = this.getEditorSelection();
++		var sel = this.getEditorSelection()
+ 		if (typeof value === 'string') {
+-			editor.setContents(editor.clipboard.convert(value));
+-		} else {
++			editor.setContents(editor.clipboard.convert(value))
++		} else if (value) {
+ 			editor.setContents(value);
+ 		}
+ 		this.setEditorSelection(editor, sel);
+@@ -559,7 +559,7 @@
+ 	},
+ 
+ 	renderEditingArea: function renderEditingArea() {
+-		var self = this;
++		var self = this
+ 		var editingArea = React.createElement('div', {
+ 			ref: function ref(element) {
+ 				self.editingArea = element;
+@@ -583,4 +583,4 @@
+ 	}
+ });
+ 
+-module.exports = ReactQuill;
+\ No newline at end of file
++module.exports = ReactQuill;
