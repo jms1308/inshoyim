@@ -203,7 +203,7 @@ function renderContent(content: any) {
                     <img 
                         src={block.data.file.url} 
                         alt={block.data.caption || 'Insho rasmi'} 
-                        className="rounded-md max-w-xl h-auto mx-auto"
+                        className="w-full rounded-md max-w-xl h-auto mx-auto"
                     />
                     {block.data.caption && <p className="text-center text-sm text-muted-foreground mt-2">{block.data.caption}</p>}
                 </div>
@@ -430,5 +430,7 @@ export default function PostPage() {
     </article>
   );
 }
+
+    
 
     
