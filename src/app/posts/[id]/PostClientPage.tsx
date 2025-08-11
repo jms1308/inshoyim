@@ -91,7 +91,7 @@ function CommentCard({ comment, onReply, onDelete, loggedInUser }: { comment: Co
                     </div>
                     <p className="break-words">{comment.content}</p>
                     
-                    <div className="flex items-center gap-2 mt-1">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mt-1 flex-wrap">
                         <Button variant="ghost" size="sm" className="-ml-2" onClick={() => setIsReplying(!isReplying)}>
                             <CornerUpLeft className="mr-2 h-4 w-4" />
                             Javob berish
@@ -124,7 +124,7 @@ function CommentCard({ comment, onReply, onDelete, loggedInUser }: { comment: Co
                 </div>
             </div>
 
-             {showReplies && comment.replies && comment.replies.length > 0 && (
+            {showReplies && comment.replies && comment.replies.length > 0 && (
                 <div className="mt-4 sm:pl-14 space-y-4">
                      {comment.replies.map((reply) => (
                         <CommentCard key={reply.id} comment={reply} onReply={(parentId, content) => onReply(comment.id, content)} onDelete={onDelete} loggedInUser={loggedInUser} />
