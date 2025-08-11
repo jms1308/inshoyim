@@ -215,6 +215,11 @@ function CommentSection({ postId, allComments, onCommentChange, loggedInUser }: 
     }
   };
   
+  const handleReply = async (parentId: string, content: string) => {
+      if (!content.trim()) return;
+      await handleAddComment(content, parentId);
+  }
+
   const handleSubmitRootComment = async () => {
       if (!newComment.trim()) return;
       setIsSubmitting(true);
@@ -227,7 +232,7 @@ function CommentSection({ postId, allComments, onCommentChange, loggedInUser }: 
       <h2 className="font-headline text-2xl font-bold mb-6">Sharhlar ({allComments?.length || 0})</h2>
       <div className="space-y-6">
         {structuredComments.map((comment) => (
-          <CommentCard key={comment.id} comment={comment} onReply={handleAddComment} onDelete={handleDeleteComment} loggedInUser={loggedInUser} />
+          <CommentCard key={comment.id} comment={comment} onReply={handleReply} onDelete={handleDeleteComment} loggedInUser={loggedInUser} />
         ))}
       </div>
        <div className="mt-8">
@@ -500,5 +505,3 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
     </article>
   );
 }
-
-    
