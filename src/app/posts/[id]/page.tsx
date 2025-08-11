@@ -327,6 +327,7 @@ export default function PostPage() {
   }
   
   const isAuthor = loggedInUser?.id === post.author_id;
+  const isAdmin = loggedInUser?.name === 'Anonim';
   const authorInitials = author?.name.split(' ').map(n => n[0]).join('') || 'U';
   const formattedDate = format(new Date(post.created_at), 'dd.MM.yyyy');
 
@@ -339,7 +340,7 @@ export default function PostPage() {
         </Button>
       </div>
       <header className="mb-8 md:mb-12">
-         {isAuthor && (
+         {(isAuthor || isAdmin) && (
           <TooltipProvider>
             <div className="flex justify-end gap-2 mb-4">
                 <Tooltip>
@@ -436,7 +437,3 @@ export default function PostPage() {
     </article>
   );
 }
-
-    
-
-    

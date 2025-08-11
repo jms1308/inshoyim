@@ -28,7 +28,7 @@ export default function EditPostPage() {
   const [content, setContent] = useState(null);
   const [tags, setTags] = useState('');
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
+  const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
   const [isCheckingUser, setIsCheckingUser] = useState(true);
   
   const router = useRouter();
@@ -39,7 +39,7 @@ export default function EditPostPage() {
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      setLoggedInUser(JSON.parse(storedUser));
     }
     setIsCheckingUser(false);
   }, []);
@@ -68,7 +68,11 @@ export default function EditPostPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !post || user.id !== post.author_id) {
+    if (!loggedInUser || !post) {
+        toast({ title: "Xatolik", description: "Sizda bu inshoni tahrirlash huquqi yo'q.", variant: "destructive" });
+        return;
+    }
+     if (loggedInUser.id !== post.author_id && loggedInUser.name !== 'Anonim') {
         toast({ title: "Xatolik", description: "Sizda bu inshoni tahrirlash huquqi yo'q.", variant: "destructive" });
         return;
     }
@@ -102,7 +106,7 @@ export default function EditPostPage() {
     return <div className="container mx-auto py-12 text-center">Yuklanmoqda...</div>;
   }
   
-  if (!user || user.id !== post.author_id) {
+  if (!loggedInUser || (loggedInUser.id !== post.author_id && loggedInUser.name !== 'Anonim')) {
     return <div className="container mx-auto py-12 text-center text-red-500">Sizda bu sahifani ko'rish huquqi yo'q.</div>;
   }
 
