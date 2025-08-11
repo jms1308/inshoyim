@@ -151,11 +151,11 @@ export default function ProfilePage() {
                       <Edit className="h-8 w-8 text-white" />
                     </button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto">
+                <PopoverContent>
                     <div className="grid grid-cols-5 gap-2">
                         {avatarStyles.map((style) => (
                            <button key={style} onClick={() => handleAvatarChange(style)} className="p-1 rounded-full hover:bg-accent transition-colors">
-                             <Avatar className="h-12 w-12">
+                             <Avatar className="h-10 w-10">
                                 <AvatarImage 
                                     src={`https://api.dicebear.com/8.x/${style}/svg?seed=${encodeURIComponent(user.name)}`}
                                     alt={`${style} avatar`}
