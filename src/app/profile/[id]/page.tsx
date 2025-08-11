@@ -2,7 +2,7 @@
 'use client';
 
 import { notFound, useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { getUserById, updateUserBio, updateUserAvatar } from "@/lib/services/users";
 import { getPostsByAuthor } from "@/lib/services/posts";
 import type { User, Post } from "@/types";
@@ -16,7 +16,14 @@ import { Edit } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
-const avatarStyles = ['bottts', 'micah', 'adventurer', 'fun-emoji', 'initials'];
+const allAvatarStyles = ['adventurer-neutral', 'avataaars', 'big-ears', 'big-smile', 'bottts', 'croodles', 'fun-emoji', 'icons', 'identicon', 'initials', 'lorelei', 'micah', 'miniavs', 'open-peeps', 'personas', 'pixel-art', 'rings', 'shapes', 'thumbs'];
+
+// Function to get 5 random styles from the list
+const getRandomAvatarStyles = () => {
+    const shuffled = [...allAvatarStyles].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 5);
+};
+
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
@@ -27,6 +34,9 @@ export default function ProfilePage() {
   const [bioContent, setBioContent] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isAvatarPopoverOpen, setIsAvatarPopoverOpen] = useState(false);
+  
+  // Memoize the random avatar styles so they don't change on every render, only on refresh.
+  const avatarStyles = useMemo(() => getRandomAvatarStyles(), []);
 
   const params = useParams();
   const userId = params.id as string;
@@ -137,7 +147,7 @@ export default function ProfilePage() {
             {isOwnProfile && (
               <Popover open={isAvatarPopoverOpen} onOpenChange={setIsAvatarPopoverOpen}>
                 <PopoverTrigger asChild>
-                   <button className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                   <button className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                       <Edit className="h-8 w-8 text-white" />
                     </button>
                 </PopoverTrigger>
