@@ -89,7 +89,7 @@ export default function EditPostPage() {
     try {
         await updatePost(post.id, postData);
         toast({ title: "Muvaffaqiyatli!", description: "Insho muvaffaqiyatli yangilandi." });
-        router.push(`/posts/${post.id}`);
+        router.push(`/explore`);
     } catch (error) {
         console.error("Failed to update post:", error);
         toast({ title: "Xatolik", description: "Inshoni yangilashda xatolik yuz berdi.", variant: "destructive" });

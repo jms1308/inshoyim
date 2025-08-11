@@ -94,7 +94,7 @@ export default function WritePage() {
     try {
         const newPost = await createPost(postData);
         toast({ title: "Muvaffaqiyatli!", description: "Insho muvaffaqiyatli yaratildi." });
-        router.push(`/posts/${newPost.id}`);
+        router.push(`/explore`);
     } catch (error) {
         console.error("Failed to create post:", error);
         toast({ title: "Xatolik", description: "Insho yaratishda xatolik yuz berdi.", variant: "destructive" });
