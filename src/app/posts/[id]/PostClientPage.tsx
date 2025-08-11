@@ -123,49 +123,58 @@ function CommentCard({ comment, onReply, onDelete, loggedInUser }: { comment: Co
     );
 }
 
-function CommentSection({ postId, initialComments, onCommentAdded, onCommentDeleted, loggedInUser }: { postId: string, initialComments: Comment[], onCommentAdded: (comment: Comment) => void, onCommentDeleted: (commentId: string) => void, loggedInUser: User | null }) {
+const buildCommentTree = async (comments: Comment[]): Promise<CommentWithAuthor[]> => {
+    if (!comments || comments.length === 0) return [];
+
+    const commentsWithAuthors = await Promise.all(
+        comments.map(async (comment) => {
+            const author = await getUserById(comment.user_id);
+            return { ...comment, author, replies: [] } as CommentWithAuthor;
+        })
+    );
+    
+    const commentMap = new Map(commentsWithAuthors.map(c => [c.id, c]));
+    const rootComments: CommentWithAuthor[] = [];
+
+    for (const comment of commentsWithAuthors) {
+        if (comment.parent_id && commentMap.has(comment.parent_id)) {
+            const parent = commentMap.get(comment.parent_id)!;
+            // Ensure replies array exists
+            if (!parent.replies) {
+              parent.replies = [];
+            }
+            parent.replies.push(comment);
+        } else {
+            rootComments.push(comment);
+        }
+    }
+    
+    // Sort replies by date for all comments
+    for (const comment of commentsWithAuthors) {
+        if (comment.replies) {
+            comment.replies.sort((a,b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+        }
+    }
+
+    // Sort root comments by date (descending)
+    rootComments.sort((a,b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    return rootComments;
+}
+
+function CommentSection({ postId, allComments, onCommentChange, loggedInUser }: { postId: string, allComments: Comment[], onCommentChange: () => void, loggedInUser: User | null }) {
   const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [comments, setComments] = useState<CommentWithAuthor[]>([]);
+  const [structuredComments, setStructuredComments] = useState<CommentWithAuthor[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
-    async function buildCommentTree() {
-        if (!initialComments) return;
-
-        const commentsWithAuthors = await Promise.all(
-            initialComments.map(async (comment) => {
-                const author = await getUserById(comment.user_id);
-                return { ...comment, author, replies: [] } as CommentWithAuthor;
-            })
-        );
-        
-        const commentMap = new Map(commentsWithAuthors.map(c => [c.id, c]));
-        const rootComments: CommentWithAuthor[] = [];
-
-        for (const comment of commentsWithAuthors) {
-            if (comment.parent_id && commentMap.has(comment.parent_id)) {
-                commentMap.get(comment.parent_id)!.replies.push(comment);
-            } else {
-                rootComments.push(comment);
-            }
-        }
-        
-        // Sort replies by date
-        for (const comment of commentsWithAuthors) {
-            comment.replies.sort((a,b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-        }
-
-        rootComments.sort((a,b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-        setComments(rootComments);
-    }
-    buildCommentTree();
-  }, [initialComments]);
+    buildCommentTree(allComments).then(setStructuredComments);
+  }, [allComments]);
 
   const handleDeleteComment = async (commentId: string) => {
     try {
       await deleteCommentFromPost(postId, commentId);
-      onCommentDeleted(commentId);
+      onCommentChange(); // Triggers refetch in parent
       toast({
         title: "Muvaffaqiyatli!",
         description: "Sharh o'chirildi."
@@ -187,8 +196,8 @@ function CommentSection({ postId, initialComments, onCommentAdded, onCommentDele
     }
 
     try {
-      const addedComment = await addCommentToPost(postId, loggedInUser.id, content, parentId);
-      onCommentAdded(addedComment);
+      await addCommentToPost(postId, loggedInUser.id, content, parentId);
+      onCommentChange(); // Triggers refetch in parent
       if (!parentId) {
         setNewComment(""); // Clear main text area only for root comments
       }
@@ -215,9 +224,9 @@ function CommentSection({ postId, initialComments, onCommentAdded, onCommentDele
 
   return (
     <div className="mt-12 pt-8 border-t">
-      <h2 className="font-headline text-2xl font-bold mb-6">Sharhlar ({initialComments?.length || 0})</h2>
+      <h2 className="font-headline text-2xl font-bold mb-6">Sharhlar ({allComments?.length || 0})</h2>
       <div className="space-y-6">
-        {comments.map((comment) => (
+        {structuredComments.map((comment) => (
           <CommentCard key={comment.id} comment={comment} onReply={handleAddComment} onDelete={handleDeleteComment} loggedInUser={loggedInUser} />
         ))}
       </div>
@@ -301,13 +310,35 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
   const postId = params.id as string;
   const [post, setPost] = useState<Post | null>(initialPost);
   const [author, setAuthor] = useState<User | null>(initialAuthor);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(!initialPost);
   const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
   const { toast } = useToast();
   const [fontSettings, setFontSettings] = useState<FontSettings>({
     size: 16,
     family: 'font-body'
   });
+
+  const fetchPostData = async () => {
+    try {
+      setLoading(true);
+      const postData = await getPostById(postId);
+      if (postData) {
+        setPost(postData);
+        if (postData.author_id && !author) {
+          const authorData = await getUserById(postData.author_id);
+          setAuthor(authorData);
+        }
+      } else {
+        notFound();
+      }
+    } catch (error) {
+      console.error("Error refetching post:", error);
+      toast({ title: "Xatolik", description: "Ma'lumotlarni yangilab bo'lmadi.", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -329,36 +360,18 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
           viewedPosts.push(postId);
           localStorage.setItem(viewedPostsKey, JSON.stringify(viewedPosts));
           // Refetch post data to get updated view count
-          const postData = await getPostById(postId);
-          if (postData) {
-            setPost(postData);
-          }
+          fetchPostData();
       }
       // --- End View Count Logic ---
     }
     handleView();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postId, initialPost]);
-  
-  const handleCommentAdded = (newComment: Comment) => {
-    setPost(prevPost => {
-      if (!prevPost) return null;
-      const existingComments = prevPost.comments || [];
-      return { 
-        ...prevPost, 
-        comments: [...existingComments, newComment]
-      };
-    });
-  };
 
-  const handleCommentDeleted = (commentId: string) => {
-     setPost(prevPost => {
-      if (!prevPost) return null;
-      const updatedComments = (prevPost.comments || []).filter(c => c.id !== commentId);
-      return { 
-        ...prevPost, 
-        comments: updatedComments
-      };
-    });
+  const handleCommentChange = () => {
+    // This function will be called after adding or deleting a comment.
+    // It triggers a full refetch of the post data to ensure the UI is in sync.
+    fetchPostData();
   }
 
   const handlePostDeleted = () => {
@@ -480,11 +493,12 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
 
       <CommentSection 
         postId={post.id} 
-        initialComments={post.comments || []} 
-        onCommentAdded={handleCommentAdded}
-        onCommentDeleted={handleCommentDeleted}
+        allComments={post.comments || []} 
+        onCommentChange={handleCommentChange}
         loggedInUser={loggedInUser}
       />
     </article>
   );
 }
+
+    
