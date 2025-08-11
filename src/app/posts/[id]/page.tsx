@@ -29,6 +29,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { PostSettings, type FontSettings } from '@/components/PostSettings';
 import React from 'react';
+import Image from 'next/image';
 
 function CommentSection({ postId, initialComments, onCommentAdded, onCommentDeleted, loggedInUser }: { postId: string, initialComments: Comment[], onCommentAdded: (comment: (Comment & { author: User | null })) => void, onCommentDeleted: (commentId: string) => void, loggedInUser: User | null }) {
   const [newComment, setNewComment] = useState("");
@@ -193,6 +194,19 @@ function renderContent(content: any) {
               <li key={i} dangerouslySetInnerHTML={{ __html: item }} />
             ))}
           </ListTag>
+        );
+      case 'image':
+        return (
+            <div key={index} className="relative my-6">
+                <Image 
+                    src={block.data.file.url} 
+                    alt={block.data.caption || 'Insho rasmi'} 
+                    width={block.data.file.width || 800}
+                    height={block.data.file.height || 600}
+                    className="rounded-md"
+                />
+                {block.data.caption && <p className="text-center text-sm text-muted-foreground mt-2">{block.data.caption}</p>}
+            </div>
         );
       default:
         return null;

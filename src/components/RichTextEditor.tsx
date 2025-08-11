@@ -6,6 +6,8 @@ import EditorJS from '@editorjs/editorjs';
 import Header from '@editorjs/header';
 // @ts-ignore
 import List from '@editorjs/list';
+// @ts-ignore
+import ImageTool from '@editorjs/image';
 
 interface RichTextEditorProps {
     id?: string;
@@ -23,7 +25,40 @@ const RichTextEditor = ({ id = "editorjs", data, onChange, placeholder }: RichTe
                 holder: id,
                 tools: { 
                     header: Header, 
-                    list: List 
+                    list: List,
+                    image: {
+                        class: ImageTool,
+                        config: {
+                          /**
+                           * Custom uploader
+                           */
+                          uploader: {
+                            /**
+                             * Upload file to the server and return an uploaded image data
+                             */
+                            async uploadByFile(file: File) {
+                              const reader = new FileReader();
+                              
+                              return new Promise((resolve, reject) => {
+                                reader.onload = (event) => {
+                                   resolve({
+                                    success: 1,
+                                    file: {
+                                      url: event.target?.result,
+                                    }
+                                  });
+                                };
+                                
+                                reader.onerror = (error) => {
+                                  reject(error);
+                                };
+                                
+                                reader.readAsDataURL(file);
+                              });
+                            },
+                          },
+                        },
+                      },
                 },
                 data: data || undefined,
                 placeholder: placeholder || "Yozishni boshlang...",
