@@ -323,23 +323,15 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
     family: 'font-body'
   });
 
-  const fetchPostData = async (shouldRefetchUser = false) => {
+  const fetchPostData = async () => {
     try {
       setLoading(true);
       const postData = await getPostById(postId);
       if (postData) {
         setPost(postData);
-        if (postData.author_id && (!author || shouldRefetchUser)) {
+        if (postData.author_id && !author) {
           const authorData = await getUserById(postData.author_id);
           setAuthor(authorData);
-        }
-        if (loggedInUser && shouldRefetchUser) {
-            const updatedUser = await getUserById(loggedInUser.id);
-            if (updatedUser) {
-                setLoggedInUser(updatedUser);
-                localStorage.setItem('user', JSON.stringify(updatedUser));
-                window.dispatchEvent(new Event('storage'));
-            }
         }
       } else {
         notFound();
@@ -383,8 +375,9 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
 
   const handleCommentChange = () => {
     // This function will be called after adding or deleting a comment.
-    // It triggers a full refetch of the post and user data to ensure the UI is in sync.
-    fetchPostData(true);
+    // It triggers a refetch of the post data to ensure the UI is in sync.
+    // No need to update user here, it will be updated on next page load/refresh.
+    fetchPostData();
   }
 
   const handlePostDeleted = () => {
@@ -513,3 +506,4 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
     </article>
   );
 }
+

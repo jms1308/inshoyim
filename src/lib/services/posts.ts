@@ -102,12 +102,7 @@ export async function incrementPostView(postId: string): Promise<void> {
 
 export async function addCommentToPost(postId: string, userId: string, content: string, parentId: string | null = null): Promise<Comment> {
     const postRef = doc(db, 'posts', postId);
-    const postSnap = await getDoc(postRef);
-    if (!postSnap.exists()) {
-        throw new Error("Post not found");
-    }
-    const post = postFromDoc(postSnap);
-
+    
     const newComment: Comment = {
         id: uuidv4(),
         post_id: postId,
@@ -122,48 +117,46 @@ export async function addCommentToPost(postId: string, userId: string, content: 
     });
 
     // --- Notification Logic ---
-    // Refetch the post data to ensure we have the newly added comment for replies.
+    // Refetch post and actor data *after* comment is saved
     const updatedPostSnap = await getDoc(postRef);
+    if (!updatedPostSnap.exists()) {
+        throw new Error("Post not found after update");
+    }
     const updatedPost = postFromDoc(updatedPostSnap);
 
     const actor = await getUserById(userId);
     if (!actor) throw new Error("Actor not found");
 
-    let notificationRecipientId: string | null = null;
-    let notificationType: 'new_comment' | 'new_reply' = 'new_comment';
-
+    // ONLY send notifications for replies, not for new root comments.
     if (parentId) {
-        // It's a reply, find parent comment to notify its author
+        let notificationRecipientId: string | null = null;
         const parentComment = updatedPost.comments.find(c => c.id === parentId);
-        if (parentComment) { // Check if parent comment exists
+        
+        if (parentComment) {
             notificationRecipientId = parentComment.user_id;
-            notificationType = 'new_reply';
         } else {
-            console.warn(`Parent comment with ID ${parentId} not found. Skipping notification.`);
+             console.warn(`Parent comment with ID ${parentId} not found. Skipping notification.`);
         }
-    } else {
-        // It's a new root comment, notify the post's author
-        notificationRecipientId = updatedPost.author_id;
-    }
 
-    // Send notification if we have a recipient and they are not the actor
-    if (notificationRecipientId && actor.id !== notificationRecipientId) {
-        const userToNotifyRef = doc(db, 'users', notificationRecipientId);
-        const notification: Notification = {
-            id: uuidv4(),
-            user_id: notificationRecipientId,
-            type: notificationType,
-            post_id: postId,
-            post_title: updatedPost.title,
-            comment_id: newComment.id,
-            actor_id: actor.id,
-            actor_name: actor.name,
-            created_at: new Date().toISOString(),
-            read: false,
-        };
-        await updateDoc(userToNotifyRef, {
-            notifications: arrayUnion(notification)
-        });
+        // Send notification if we have a recipient and they are not the actor
+        if (notificationRecipientId && actor.id !== notificationRecipientId) {
+            const userToNotifyRef = doc(db, 'users', notificationRecipientId);
+            const notification: Notification = {
+                id: uuidv4(),
+                user_id: notificationRecipientId,
+                type: 'new_reply', // Only type is reply now
+                post_id: postId,
+                post_title: updatedPost.title,
+                comment_id: newComment.id,
+                actor_id: actor.id,
+                actor_name: actor.name,
+                created_at: new Date().toISOString(),
+                read: false,
+            };
+            await updateDoc(userToNotifyRef, {
+                notifications: arrayUnion(notification)
+            });
+        }
     }
 
     return newComment;
@@ -256,4 +249,5 @@ export async function deletePost(postId: string): Promise<void> {
     const postRef = doc(db, 'posts', postId);
     await deleteDoc(postRef);
 }
+
 
