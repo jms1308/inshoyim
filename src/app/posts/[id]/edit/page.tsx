@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -12,6 +13,15 @@ import { getPostById, updatePost } from '@/lib/services/posts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
+const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { 
+  ssr: false,
+  loading: () => (
+    <div className="space-y-2">
+        <Skeleton className="h-[400px] w-full rounded-md" />
+    </div>
+  ),
+});
+
 export default function EditPostPage() {
   const [post, setPost] = useState<Post | null>(null);
   const [title, setTitle] = useState('');
@@ -25,17 +35,6 @@ export default function EditPostPage() {
   const params = useParams();
   const postId = params.id as string;
   const { toast } = useToast();
-
-  const RichTextEditor = useMemo(() => 
-    dynamic(() => import('@/components/RichTextEditor'), { 
-      ssr: false,
-      loading: () => (
-        <div className="space-y-2">
-            <Skeleton className="h-[400px] w-full rounded-md" />
-        </div>
-      ),
-    }), 
-  []);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -12,6 +13,15 @@ import { createPost } from '@/lib/services/posts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuthDialog } from '@/context/AuthDialogContext';
 import { Skeleton } from '@/components/ui/skeleton';
+
+const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { 
+  ssr: false,
+  loading: () => (
+    <div className="space-y-2">
+        <Skeleton className="h-[400px] w-full rounded-md" />
+    </div>
+  ),
+});
 
 function AuthPrompt() {
   const { setLoginOpen, setRegisterOpen } = useAuthDialog();
@@ -43,17 +53,6 @@ export default function WritePage() {
   
   const router = useRouter();
   const { toast } = useToast();
-
-  const RichTextEditor = useMemo(() => 
-    dynamic(() => import('@/components/RichTextEditor'), { 
-      ssr: false,
-      loading: () => (
-        <div className="space-y-2">
-            <Skeleton className="h-[400px] w-full rounded-md" />
-        </div>
-      ),
-    }), 
-  []);
 
   useEffect(() => {
     const checkUser = () => {
