@@ -327,11 +327,9 @@ export default function PostPage() {
   return (
     <article className="container mx-auto max-w-3xl px-4 py-8 md:py-16">
        <div className="mb-4">
-        <Button variant="ghost" asChild className="pl-0">
-          <Link href="/explore">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Insholarga qaytish
-          </Link>
+        <Button variant="ghost" onClick={() => router.push('/explore')} className="pl-0">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Insholarga qaytish
         </Button>
       </div>
       <header className="mb-8 md:mb-12">
