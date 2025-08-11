@@ -9,23 +9,27 @@ import { Toaster } from '@/components/ui/toaster';
 import { AuthDialogProvider } from '@/context/AuthDialogContext';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://inshoyim.uz'), // Replace with your actual domain
+  metadataBase: new URL('https://inshoyim.uz'),
   title: {
-    default: 'Inshoyim - O‘qing, Yozing, Ulashing',
+    default: 'Inshoyim | O‘zbekcha Insholar, Maqolalar Yozish va O‘qish',
     template: '%s | Inshoyim',
   },
-  description: 'O‘zbek tilidagi insholar, tahlillar va ijodiy yozuvlar uchun zamonaviy platforma. O‘qing, o‘zingiznikini yozing va fikrlaringizni butun dunyo bilan baham ko‘ring.',
-  keywords: ['insho', 'maqola', 'tahlil', 'o‘zbek adabiyoti', 'yozish', 'ijod', 'blog', 'o‘zbekcha'],
+  description: 'Inshoyim – o‘zbek tilidagi insholar, maqolalar va ijodiy yozuvlar uchun eng yaxshi platforma. Bu yerda o‘qing, o‘zingiznikini yozing, fikrlaringizni ulashing va o‘zbek adabiyotini boyiting.',
+  keywords: [
+    'insho', 'insholar', 'insho yozish', 'maqola', 'maqolalar', 'tahlil', 
+    'o‘zbek adabiyoti', 'yozish', 'yozuvchi', 'ijod', 'blog', 'o‘zbekcha', 
+    'matn', 'esse', 'hikoya', 'o‘zbek tilida insho', 'adabiyot'
+  ],
   openGraph: {
-    title: 'Inshoyim - O‘qing, Yozing, Ulashing',
-    description: 'O‘zbek tilidagi insholar va ijodiy yozuvlar uchun platforma.',
+    title: 'Inshoyim | O‘zbekcha Insholar, Maqolalar Yozish va O‘qish',
+    description: 'O‘zbek tilidagi insholar va ijodiy yozuvlar uchun zamonaviy platforma.',
     type: 'website',
     locale: 'uz_UZ',
-    url: 'https://inshoyim.uz', // Replace with your actual domain
+    url: 'https://inshoyim.uz',
     siteName: 'Inshoyim',
     images: [
       {
-        url: '/og-image.png', // Replace with a link to your open graph image
+        url: '/og-image.png',
         width: 1200,
         height: 630,
         alt: 'Inshoyim Platformasi',
@@ -34,9 +38,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Inshoyim - O‘qing, Yozing, Ulashing',
+    title: 'Inshoyim | O‘zbekcha Insholar, Maqolalar Yozish va O‘qish',
     description: 'O‘zbek tilidagi insholar, tahlillar va ijodiy yozuvlar uchun zamonaviy platforma.',
-     images: ['/twitter-image.png'], // Replace with a link to your twitter image
+    images: ['/twitter-image.png'],
   },
 };
 
@@ -48,7 +52,7 @@ export default function RootLayout({
   return (
     <html lang="uz" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='blue' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 19.5A2.5 2.5 0 0 1 6.5 17H20'></path><path d='M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z'></path></svg>" />
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,700;1,7..72,400&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
