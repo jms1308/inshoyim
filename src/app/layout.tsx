@@ -16,9 +16,20 @@ export const metadata: Metadata = {
   },
   description: 'Inshoyim – o‘zbek tilidagi insholar, maqolalar va ijodiy yozuvlar uchun eng yaxshi platforma. Bu yerda o‘qing, o‘zingiznikini yozing, fikrlaringizni ulashing va o‘zbek adabiyotini boyiting.',
   keywords: [
-    'insho', 'insholar', 'insho yozish', 'maqola', 'maqolalar', 'tahlil', 
-    'o‘zbek adabiyoti', 'yozish', 'yozuvchi', 'ijod', 'blog', 'o‘zbekcha', 
-    'matn', 'esse', 'hikoya', 'o‘zbek tilida insho', 'adabiyot'
+    // Asosiy kalit so'zlar
+    'insho', 'insholar', 'maqola', 'maqolalar', 'esse', 'hikoya', 'tahlil', 'yozish', 'ijod', 'adabiyot', 'blog', 'o‘zbekcha', 'matn',
+    // Harakatga chaqiruvchi so'zlar
+    'insho yozish', 'maqola yozish', 'blog yuritish', 'hikoya yozish', 'ijod qilish', 'fikr ulashish', 'insho o‘qish',
+    // Mavzular
+    'o‘zbek adabiyoti', 'jahon adabiyoti', 'tarixiy insholar', 'ilmiy maqolalar', 'falsafiy qarashlar', 'texnologiya haqida', 'san’at va madaniyat', 'shaxsiy rivojlanish',
+    // Auditoriya
+    'o‘quvchilar uchun insho', 'talabalar uchun maqola', 'abituriyentlarga yordam', 'yosh yozuvchilar', 'ijodkorlar platformasi',
+    // Platforma turlari
+    'o‘zbekcha blog platforma', 'insholar to‘plami', 'maqolalar sayti', 'ijodiy hamjamiyat', 'onlayn kutubxona',
+    // Sinonimlar va o'xshash so'zlar
+    'yozma ish', 'ijodiy matn', 'badiiy adabiyot', 'publitsistika', 'notiqlar', 'fikrlar', 'mulohazalar',
+    // Brend so'rovlari
+    'inshoyim', 'inshoyim uz', 'inshoyim platformasi'
   ],
   openGraph: {
     title: 'Inshoyim | O‘zbekcha Insholar, Maqolalar Yozish va O‘qish',
