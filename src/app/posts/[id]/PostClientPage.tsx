@@ -49,8 +49,8 @@ function CommentCard({ comment, onReply, onDelete, loggedInUser }: { comment: Co
     };
 
     return (
-        <div id={`comment-${comment.id}`} className="flex gap-4 group scroll-mt-20">
-            <Avatar>
+        <div id={`comment-${comment.id}`} className="flex gap-3 sm:gap-4 group scroll-mt-20">
+            <Avatar className="w-8 h-8 sm:w-10 sm:h-10">
                 <AvatarImage src={comment.author?.avatar_url} alt={comment.author?.name} />
                 <AvatarFallback>{comment.author?.name.charAt(0) || 'U'}</AvatarFallback>
             </Avatar>
@@ -86,7 +86,7 @@ function CommentCard({ comment, onReply, onDelete, loggedInUser }: { comment: Co
                         </AlertDialog>
                     )}
                 </div>
-                <p>{comment.content}</p>
+                <p className="break-words">{comment.content}</p>
                 
                 <Button variant="ghost" size="sm" className="mt-1 -ml-2" onClick={() => setIsReplying(!isReplying)}>
                     <CornerUpLeft className="mr-2 h-4 w-4" />
@@ -112,7 +112,7 @@ function CommentCard({ comment, onReply, onDelete, loggedInUser }: { comment: Co
                 )}
 
                 {comment.replies && comment.replies.length > 0 && (
-                    <div className="mt-4 pl-6 border-l-2">
+                    <div className="mt-4 pl-4 md:pl-6 border-l-2">
                          {comment.replies.map((reply) => (
                             <CommentCard key={reply.id} comment={reply} onReply={onReply} onDelete={onDelete} loggedInUser={loggedInUser} />
                         ))}
@@ -506,4 +506,3 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
     </article>
   );
 }
-
