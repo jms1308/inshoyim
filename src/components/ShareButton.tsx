@@ -30,7 +30,6 @@ const TelegramIcon = () => (
 
 function getTextFromEditorJs(content: any): string {
     if (typeof content === 'string') {
-        // Handle old plain text content for backward compatibility
         return content;
     }
     if (!content || !content.blocks) return '';
@@ -56,8 +55,8 @@ export function ShareButton({ title, content }: { title: string, content: string
     const plainTextContent = getTextFromEditorJs(content);
     const excerpt = plainTextContent.split(' ').slice(0, 30).join(' ') + (plainTextContent.split(' ').length > 30 ? '...' : '');
     
-    // Just the excerpt for the 'text' property
-    setShareText(excerpt);
+    // Format: Title, then excerpt
+    setShareText(`${title}\n\n${excerpt}`);
 
     if (navigator.share) {
       setIsWebShareSupported(true)
@@ -69,7 +68,7 @@ export function ShareButton({ title, content }: { title: string, content: string
       try {
         await navigator.share({
           title: title,
-          text: shareText,
+          text: shareText, // This already contains title + excerpt
           url: url,
         })
       } catch (error: any) {
@@ -94,22 +93,24 @@ export function ShareButton({ title, content }: { title: string, content: string
   }
   
   const encodedUrl = encodeURIComponent(url);
-  const fullShareText = `${title}\n\n${shareText}\n\n${url}`;
-  const encodedFullShareText = encodeURIComponent(fullShareText);
-  const encodedTitleAndUrl = encodeURIComponent(`${title}\n\n${url}`);
+  // Format: Title + Excerpt + URL
+  const encodedFullShareText = encodeURIComponent(`${shareText}\n\n${url}`);
+  // For platforms that handle URL separately (like Twitter)
+  const encodedShareTextOnly = encodeURIComponent(shareText);
+
 
   
   const PopoverContentMenu = (
     <div className="flex flex-col gap-2">
         <p className="text-sm font-medium text-center mb-2">Inshoni ulashish</p>
         <div className="flex items-center gap-2">
-            <a href={`https://t.me/share/url?url=${encodedUrl}&text=${encodeURIComponent(`${title}\n\n${shareText}`)}`} target="_blank" rel="noopener noreferrer">
+            <a href={`https://t.me/share/url?url=${encodedUrl}&text=${encodedShareTextOnly}`} target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" size="icon"><TelegramIcon /></Button>
             </a>
-            <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`${title}\n\n${url}`)}`} target="_blank" rel="noopener noreferrer">
+            <a href={`https://twitter.com/intent/tweet?text=${encodedShareTextOnly}&url=${encodedUrl}`} target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" size="icon"><TwitterXIcon /></Button>
             </a>
-            <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`} target="_blank" rel="noopener noreferrer">
+            <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedShareTextOnly}`} target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" size="icon"><Facebook /></Button>
             </a>
             <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`} target="_blank" rel="noopener noreferrer">
