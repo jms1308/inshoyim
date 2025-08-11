@@ -55,6 +55,9 @@
   body {
     @apply bg-background text-foreground;
   }
+  .dark ::selection {
+    background-color: hsl(var(--accent) / 0.4);
+  }
   .prose {
     @apply text-foreground/90;
   }
