@@ -126,16 +126,26 @@ export async function deleteCommentFromPost(postId: string, commentId: string): 
     }
 }
 
+function calculateReadTime(content: any): number {
+    if (!content || !content.blocks) return 0;
+    const textContent = content.blocks
+        .filter((block: any) => block.type === 'paragraph' || block.type === 'header')
+        .map((block: any) => block.data.text)
+        .join(' ');
+    
+    const words = textContent.split(/\s+/).length;
+    return Math.ceil(words / 200);
+}
 
 interface CreatePostData {
     title: string;
-    content: string;
+    content: any; // Editor.js content is an object
     author_id: string;
     tags: string[];
 }
 
 export async function createPost(data: CreatePostData): Promise<Post> {
-    const readTime = Math.ceil(data.content.split(' ').length / 200);
+    const readTime = calculateReadTime(data.content);
 
     const newPost = {
         ...data,
@@ -161,13 +171,13 @@ export async function createPost(data: CreatePostData): Promise<Post> {
 
 interface UpdatePostData {
     title: string;
-    content: string;
+    content: any; // Editor.js content is an object
     tags: string[];
 }
 
 export async function updatePost(postId: string, data: UpdatePostData): Promise<void> {
     const postRef = doc(db, 'posts', postId);
-    const readTime = Math.ceil(data.content.split(' ').length / 200);
+    const readTime = calculateReadTime(data.content);
 
     const updateData = {
         ...data,

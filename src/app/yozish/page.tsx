@@ -11,7 +11,6 @@ import type { User } from '@/types';
 import { createPost } from '@/lib/services/posts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuthDialog } from '@/context/AuthDialogContext';
-import 'react-quill/dist/quill.snow.css';
 import { Skeleton } from '@/components/ui/skeleton';
 
 function AuthPrompt() {
@@ -36,7 +35,7 @@ function AuthPrompt() {
 
 export default function WritePage() {
   const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState(null);
   const [tags, setTags] = useState('');
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<User | null>(null);
@@ -51,10 +50,6 @@ export default function WritePage() {
       loading: () => (
         <div className="space-y-2">
             <Skeleton className="h-[400px] w-full rounded-md" />
-            <div className="flex gap-2">
-                <Skeleton className="h-4 w-16" />
-                <Skeleton className="h-4 w-16" />
-            </div>
         </div>
       ),
     }), 
@@ -82,9 +77,8 @@ export default function WritePage() {
         toast({ title: "Xatolik", description: "Insho yaratish uchun tizimga kirishingiz kerak.", variant: "destructive" });
         return;
     }
-    // Basic check to see if content is just empty p tags
-    const plainTextContent = content.replace(/<[^>]+>/g, '').trim();
-    if (!title.trim() || !plainTextContent) {
+    
+    if (!title.trim() || !content) {
         toast({ title: "Xatolik", description: "Sarlavha va kontent bo'sh bo'lishi mumkin emas.", variant: "destructive" });
         return;
     }
@@ -142,7 +136,7 @@ export default function WritePage() {
                         <Label htmlFor="content" className="text-lg">Kontent</Label>
                         <RichTextEditor
                             id="content"
-                            value={content}
+                            data={content}
                             onChange={setContent}
                             placeholder="Inshongizni shu yerga yozing..."
                         />

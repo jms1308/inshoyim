@@ -28,6 +28,15 @@ const TelegramIcon = () => (
     </svg>
 )
 
+function getTextFromEditorJs(content: any): string {
+    if (!content || !content.blocks) return '';
+    return content.blocks
+        .filter((block: any) => block.type === 'paragraph' || block.type === 'header')
+        .map((block: any) => block.data.text)
+        .join(' ');
+}
+
+
 export function ShareButton({ title, content }: { title: string, content: string }) {
   const [url, setUrl] = useState("")
   const [shareText, setShareText] = useState("");
@@ -39,8 +48,8 @@ export function ShareButton({ title, content }: { title: string, content: string
   useEffect(() => {
     const currentUrl = window.location.href;
     setUrl(currentUrl);
-
-    const plainTextContent = content.replace(/<[^>]*>?/gm, '');
+    
+    const plainTextContent = getTextFromEditorJs(JSON.parse(content || '{}'));
     const excerpt = plainTextContent.split(' ').slice(0, 30).join(' ') + (plainTextContent.split(' ').length > 30 ? '...' : '');
     
     setShareText(`"${title}"\n\n${excerpt}\n\n${currentUrl}`);
@@ -81,7 +90,7 @@ export function ShareButton({ title, content }: { title: string, content: string
   
   const encodedUrl = encodeURIComponent(url);
   const encodedTitle = encodeURIComponent(`"${title}"`);
-  const encodedShareText = encodeURIComponent(`${title}\n\n${content.substring(0, 100)}...`);
+  const encodedShareText = encodeURIComponent(shareText);
   
   const PopoverContentMenu = (
     <div className="flex flex-col gap-2">

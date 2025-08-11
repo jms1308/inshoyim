@@ -2,7 +2,7 @@ export interface Post {
   id: string;
   title: string;
   author_id: string;
-  content: string;
+  content: any; // Can be string (old) or Editor.js data object
   created_at: string;
   updated_at: string;
   views: number;

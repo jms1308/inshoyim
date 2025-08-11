@@ -1,51 +1,51 @@
 'use client';
 
-import React from 'react';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import React, { useEffect, useRef } from 'react';
+import EditorJS from '@editorjs/editorjs';
+// @ts-ignore
+import Header from '@editorjs/header';
+// @ts-ignore
+import List from '@editorjs/list';
 
 interface RichTextEditorProps {
     id?: string;
-    value: string;
-    onChange: (value: string) => void;
+    data: any;
+    onChange: (data: any) => void;
     placeholder?: string;
 }
 
-const modules = {
-    toolbar: [
-        [{ 'header': [1, 2, 3, false] }],
-        ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-        [{'list': 'ordered'}, {'list': 'bullet'}],
-        ['link', 'image'],
-        ['clean']
-    ],
-};
+const RichTextEditor = ({ id = "editorjs", data, onChange, placeholder }: RichTextEditorProps) => {
+    const editorRef = useRef<EditorJS | null>(null);
 
-const formats = [
-    'header',
-    'bold', 'italic', 'underline', 'strike', 'blockquote',
-    'list', 'bullet',
-    'link', 'image'
-];
+    useEffect(() => {
+        if (!editorRef.current) {
+            const editor = new EditorJS({
+                holder: id,
+                tools: { 
+                    header: Header, 
+                    list: List 
+                },
+                data: data || undefined,
+                placeholder: placeholder || "Yozishni boshlang...",
+                async onChange(api) {
+                    const savedData = await api.saver.save();
+                    onChange(savedData);
+                },
+            });
+            editorRef.current = editor;
+        }
 
-const RichTextEditor = React.forwardRef<ReactQuill, RichTextEditorProps>(({ id, value, onChange, placeholder }, ref) => {
+        return () => {
+            if (editorRef.current && editorRef.current.destroy) {
+                editorRef.current.destroy();
+                editorRef.current = null;
+            }
+        };
+    }, []);
+
     return (
-        <div className="bg-background text-foreground">
-             <ReactQuill
-                ref={ref}
-                theme="snow"
-                value={value}
-                onChange={onChange}
-                modules={modules}
-                formats={formats}
-                placeholder={placeholder}
-                className="rich-text-editor"
-                id={id}
-            />
-        </div>
+        <div id={id} className="prose dark:prose-invert max-w-none border rounded-md p-4 min-h-[400px] bg-background" />
     );
-});
-
-RichTextEditor.displayName = 'RichTextEditor';
+};
 
 export default RichTextEditor;

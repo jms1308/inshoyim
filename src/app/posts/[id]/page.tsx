@@ -28,6 +28,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { PostSettings, type FontSettings } from '@/components/PostSettings';
+import React from 'react';
 
 function CommentSection({ postId, initialComments, onCommentAdded, onCommentDeleted, loggedInUser }: { postId: string, initialComments: Comment[], onCommentAdded: (comment: (Comment & { author: User | null })) => void, onCommentDeleted: (commentId: string) => void, loggedInUser: User | null }) {
   const [newComment, setNewComment] = useState("");
@@ -166,6 +167,37 @@ function CommentSection({ postId, initialComments, onCommentAdded, onCommentDele
       </div>
     </div>
   )
+}
+
+function renderContent(content: any) {
+  if (!content || !content.blocks) {
+    // Fallback for old string-based content
+    if (typeof content === 'string') {
+      return <div dangerouslySetInnerHTML={{ __html: content }} />;
+    }
+    return <p>Kontent mavjud emas.</p>;
+  }
+
+  return content.blocks.map((block: any, index: number) => {
+    switch (block.type) {
+      case 'header':
+        const Tag = `h${block.data.level}` as keyof JSX.IntrinsicElements;
+        return <Tag key={index} dangerouslySetInnerHTML={{ __html: block.data.text }} />;
+      case 'paragraph':
+        return <p key={index} dangerouslySetInnerHTML={{ __html: block.data.text }} />;
+      case 'list':
+        const ListTag = block.data.style === 'ordered' ? 'ol' : 'ul';
+        return (
+          <ListTag key={index}>
+            {block.data.items.map((item: string, i: number) => (
+              <li key={i} dangerouslySetInnerHTML={{ __html: item }} />
+            ))}
+          </ListTag>
+        );
+      default:
+        return null;
+    }
+  });
 }
 
 
@@ -361,15 +393,16 @@ export default function PostPage() {
         )}
         <div className="flex items-center gap-2">
             <PostSettings settings={fontSettings} onSettingsChange={setFontSettings} />
-            <ShareButton title={post.title} content={post.content} />
+            <ShareButton title={post.title} content={JSON.stringify(post.content)} />
         </div>
       </div>
 
       <div
         className={`prose dark:prose-invert max-w-none ${fontSettings.family}`}
         style={{ fontSize: `${fontSettings.size}px` }}
-        dangerouslySetInnerHTML={{ __html: post.content }}
-      />
+      >
+        {renderContent(post.content)}
+      </div>
 
       <CommentSection 
         postId={post.id} 
