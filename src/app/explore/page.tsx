@@ -44,8 +44,8 @@ export default function ExplorePage() {
           setPhraseIndex((prev) => (prev + 1) % phrases.length);
         }
       } else {
-        if (charIndex < currentPhrase.length) {
-          setDynamicText(currentPhrase.substring(0, charIndex + 1));
+        if (charIndex < phrases[phraseIndex].length) {
+          setDynamicText(phrases[phraseIndex].substring(0, charIndex + 1));
           setCharIndex(charIndex + 1);
         } else {
           setTimeout(() => setIsDeleting(true), delayBetweenPhrases);
@@ -55,7 +55,7 @@ export default function ExplorePage() {
 
     const timer = setTimeout(handleTyping, isDeleting ? deletingSpeed : typingSpeed);
     return () => clearTimeout(timer);
-  }, [charIndex, isDeleting, phraseIndex, phrases]);
+  }, [charIndex, isDeleting, phraseIndex]);
 
   useEffect(() => {
     async function fetchInitialPosts() {
