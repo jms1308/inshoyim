@@ -7,7 +7,7 @@ import type { User } from '@/types';
 
 const usersCollection = collection(db, 'users');
 
-const avatarStyles = ['bottts', 'micah', 'adventurer', 'fun-emoji', 'initials'];
+const avatarStyles = ['bottts', 'micah', 'adventurer', 'fun-emoji', 'initials', 'adventurer-neutral', 'avataaars', 'big-ears', 'big-smile', 'croodles', 'icons', 'identicon', 'lorelei', 'miniavs', 'open-peeps', 'personas', 'pixel-art', 'rings', 'shapes', 'thumbs'];
 
 
 const userFromDoc = (doc: any): User => {
@@ -97,4 +97,48 @@ export async function updateUserAvatar(userId: string, avatarUrl: string): Promi
   await updateDoc(userDocRef, {
     avatar_url: avatarUrl
   });
+}
+
+interface UpdateProfileData {
+    name: string;
+    email: string;
+    bio: string;
+    avatar_url: string;
+}
+
+export async function updateUserProfile(userId: string, data: UpdateProfileData): Promise<User> {
+    if (!userId) throw new Error("Foydalanuvchi IDsi berilmagan.");
+
+    const userRef = doc(db, 'users', userId);
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) {
+        throw new Error("Foydalanuvchi topilmadi.");
+    }
+    const currentUser = userSnap.data() as User;
+
+    // Check if new name or email is already taken by another user
+    if (data.name !== currentUser.name) {
+        const nameQuery = query(usersCollection, where('name', '==', data.name));
+        const nameSnapshot = await getDocs(nameQuery);
+        if (!nameSnapshot.empty) {
+            throw new Error("Bu ism allaqachon mavjud.");
+        }
+    }
+    if (data.email !== currentUser.email) {
+        const emailQuery = query(usersCollection, where('email', '==', data.email));
+        const emailSnapshot = await getDocs(emailQuery);
+        if (!emailSnapshot.empty) {
+            throw new Error("Bu email allaqachon mavjud.");
+        }
+    }
+    
+    await updateDoc(userRef, {
+        name: data.name,
+        email: data.email,
+        bio: data.bio,
+        avatar_url: data.avatar_url
+    });
+
+    const updatedUserSnap = await getDoc(userRef);
+    return userFromDoc(updatedUserSnap);
 }
