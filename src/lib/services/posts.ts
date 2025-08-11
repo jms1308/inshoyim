@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { db } from '@/lib/firebase';
@@ -251,3 +252,4 @@ export async function deletePost(postId: string): Promise<void> {
     const postRef = doc(db, 'posts', postId);
     await deleteDoc(postRef);
 }
+
