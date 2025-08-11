@@ -10,7 +10,7 @@ import type { DocumentData, QueryDocumentSnapshot } from 'firebase/firestore';
 import { Search } from "lucide-react";
 import { Button } from '@/components/ui/button';
 
-const INITIAL_LOAD_COUNT = 12;
+const INITIAL_LOAD_COUNT = 9;
 const LOAD_MORE_COUNT = 6;
 
 export default function ExplorePage() {
