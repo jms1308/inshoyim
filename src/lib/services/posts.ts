@@ -122,6 +122,10 @@ export async function addCommentToPost(postId: string, userId: string, content: 
     });
 
     // --- Notification Logic ---
+    // Refetch the post data to ensure we have the newly added comment for replies.
+    const updatedPostSnap = await getDoc(postRef);
+    const updatedPost = postFromDoc(updatedPostSnap);
+
     const actor = await getUserById(userId);
     if (!actor) throw new Error("Actor not found");
 
@@ -130,7 +134,7 @@ export async function addCommentToPost(postId: string, userId: string, content: 
 
     if (parentId) {
         // It's a reply, find parent comment to notify its author
-        const parentComment = post.comments.find(c => c.id === parentId);
+        const parentComment = updatedPost.comments.find(c => c.id === parentId);
         if (parentComment) { // Check if parent comment exists
             notificationRecipientId = parentComment.user_id;
             notificationType = 'new_reply';
@@ -139,7 +143,7 @@ export async function addCommentToPost(postId: string, userId: string, content: 
         }
     } else {
         // It's a new root comment, notify the post's author
-        notificationRecipientId = post.author_id;
+        notificationRecipientId = updatedPost.author_id;
     }
 
     // Send notification if we have a recipient and they are not the actor
@@ -150,7 +154,7 @@ export async function addCommentToPost(postId: string, userId: string, content: 
             user_id: notificationRecipientId,
             type: notificationType,
             post_id: postId,
-            post_title: post.title,
+            post_title: updatedPost.title,
             comment_id: newComment.id,
             actor_id: actor.id,
             actor_name: actor.name,
