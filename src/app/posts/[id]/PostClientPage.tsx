@@ -463,7 +463,7 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
             <Badge key={tag} variant="secondary" className="text-sm">{tag}</Badge>
           ))}
         </div>
-        <h1 className="font-headline text-3xl md:text-4xl font-extrabold leading-tight tracking-tighter mb-4">
+        <h1 className="font-headline text-2xl md:text-4xl font-extrabold leading-tight tracking-tighter mb-4">
           {post.title}
         </h1>
         <div className="flex flex-wrap items-center gap-x-6 gap-y-4 text-sm text-muted-foreground">
@@ -534,5 +534,7 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
     </article>
   );
 }
+
+    
 
     
