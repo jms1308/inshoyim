@@ -7,10 +7,16 @@ import { Input } from "@/components/ui/input";
 import { usePosts } from '@/context/PostContext';
 import type { Post } from '@/types';
 import { Search } from "lucide-react";
+import { cn } from '@/lib/utils';
 
 export default function ExplorePage() {
   const { posts: allPosts, loading } = usePosts();
   const [searchTerm, setSearchTerm] = useState('');
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const filteredPosts = useMemo(() => {
     if (!searchTerm) {
@@ -59,7 +65,10 @@ export default function ExplorePage() {
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
-      <section className="mb-12">
+      <section className={cn(
+          "transition-all duration-700 ease-out",
+          isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
+        )}>
         <h1 className="font-headline text-4xl md:text-5xl font-bold text-center h-14">
           {dynamicText}
           <span className="animate-ping">|</span>
@@ -78,13 +87,13 @@ export default function ExplorePage() {
         </div>
       </section>
 
-      <section>
+      <section className="mt-12">
         {loading ? (
           <p className="text-center">Yuklanmoqda...</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredPosts.map((post) => (
-              <EssayCard key={post.id} post={post} />
+            {filteredPosts.map((post, index) => (
+              <EssayCard key={post.id} post={post} index={index} />
             ))}
           </div>
         )}

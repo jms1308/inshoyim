@@ -8,9 +8,25 @@ import { usePosts } from '@/context/PostContext';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Edit, BookOpen, Globe } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
-const FeatureCard = ({ icon, title, children }: { icon: React.ReactNode, title: string, children: React.ReactNode }) => (
-    <Card className="text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+const FeatureCard = ({ icon, title, children, index = 0 }: { icon: React.ReactNode, title: string, children: React.ReactNode, index?: number }) => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    // Stagger the animation based on index
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, index * 150);
+    return () => clearTimeout(timer);
+  }, [index]);
+  
+  return (
+    <Card className={cn(
+      "text-center transition-all duration-700 ease-out transform",
+      isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5',
+      "hover:shadow-xl hover:-translate-y-2"
+    )}>
         <CardHeader className="items-center">
             <div className="p-3 bg-primary/10 rounded-full mb-2">
                 {icon}
@@ -21,13 +37,19 @@ const FeatureCard = ({ icon, title, children }: { icon: React.ReactNode, title: 
             <p className="font-body">{children}</p>
         </CardContent>
     </Card>
-);
+  )
+};
 
 
 export default function Home() {
   const { posts, loading } = usePosts();
   const latestPosts = useMemo(() => posts.slice(0, 6), [posts]);
   
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const phrases = ['Inshoyim 1.0', 'O‘qing. Yozing. Ulashing.'];
   const [dynamicText, setDynamicText] = useState(phrases[0]);
   const [phraseIndex, setPhraseIndex] = useState(0);
@@ -73,7 +95,10 @@ export default function Home() {
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
-       <section className="text-center py-12 md:py-20">
+       <section className={cn(
+          "text-center py-12 md:py-20 transition-all duration-700 ease-out",
+          isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
+        )}>
         <div>
             <h1 className="font-body text-4xl md:text-6xl font-bold tracking-tighter leading-tight h-20 md:h-24">
             {dynamicText}
@@ -104,18 +129,21 @@ export default function Home() {
               <FeatureCard 
                 icon={<Edit className="h-8 w-8 text-primary" />}
                 title="Insho yozing"
+                index={0}
               >
                 Inshoyim platformasida o‘z insholaringizni chop eting. Har bir fikr qadrlanadi, har bir yozuv esda qoladi.
               </FeatureCard>
                <FeatureCard 
                 icon={<BookOpen className="h-8 w-8 text-primary" />}
                 title="Boshqalarning insholarini o‘qing"
+                index={1}
               >
                 Minglab foydalanuvchilarning insholari sizni kutmoqda. Yangi mavzular, turli yondashuvlar, real hayotiy fikrlar — barchasi shu yerda.
               </FeatureCard>
                <FeatureCard 
                 icon={<Globe className="h-8 w-8 text-primary" />}
                 title="O‘zbek tilida bilim manbai"
+                index={2}
               >
                 Inshoyim — o‘zbek tilidagi insholar uchun maxsus platforma. Yozing, o‘qing, baham ko‘ring — barchasi ona tilingizda.
               </FeatureCard>
@@ -128,8 +156,8 @@ export default function Home() {
           <p>Yuklanmoqda...</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {latestPosts.map((post) => (
-              <EssayCard key={post.id} post={post} />
+            {latestPosts.map((post, index) => (
+              <EssayCard key={post.id} post={post} index={index} />
             ))}
           </div>
         )}

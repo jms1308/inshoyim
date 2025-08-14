@@ -9,9 +9,11 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Eye, Clock, MessageSquare } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface EssayCardProps {
   post: Post;
+  index?: number;
 }
 
 const getExcerptFromContent = (content: any): string => {
@@ -30,8 +32,16 @@ const getExcerptFromContent = (content: any): string => {
 };
 
 
-export function EssayCard({ post }: EssayCardProps) {
+export function EssayCard({ post, index = 0 }: EssayCardProps) {
   const [author, setAuthor] = useState<User | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, index * 100); // Staggered delay
+    return () => clearTimeout(timer);
+  }, [index]);
 
   useEffect(() => {
     async function fetchAuthor() {
@@ -48,7 +58,11 @@ export function EssayCard({ post }: EssayCardProps) {
 
   return (
     <Link href={`/posts/${post.id}`} className="group block">
-      <Card className="flex flex-col h-full overflow-hidden transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-1">
+      <Card className={cn(
+        "flex flex-col h-full overflow-hidden transition-all duration-700 ease-out transform",
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5',
+        "group-hover:shadow-xl group-hover:-translate-y-2" // Combined hover effects
+      )}>
         <CardHeader>
           <CardTitle className="font-headline text-2xl leading-tight group-hover:text-primary transition-colors">
             {post.title}
