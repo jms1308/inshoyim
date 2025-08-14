@@ -171,18 +171,18 @@ export default function Home() {
                 Inshoyim platformasida o‘z insholaringizni chop eting. Har bir fikr qadrlanadi, har bir yozuv esda qoladi.
               </FeatureCard>
                <FeatureCard
-                icon={<BookOpen className="h-8 w-8 text-blue-700" />}
+                icon={<BookOpen className="h-8 w-8 text-purple-700" />}
                 title="Boshqalarni o‘qing"
                 index={1}
-                className="bg-blue-50 dark:bg-blue-900/20"
+                className="bg-purple-50 dark:bg-purple-900/20"
               >
                 Minglab foydalanuvchilarning insholari sizni kutmoqda. Yangi mavzular, turli yondashuvlar, real hayotiy fikrlar — barchasi shu yerda.
               </FeatureCard>
                <FeatureCard
-                icon={<Globe className="h-8 w-8 text-green-700" />}
+                icon={<Globe className="h-8 w-8 text-purple-700" />}
                 title="O‘zbek tilida bilim manbai"
                 index={2}
-                className="bg-green-50 dark:bg-green-900/20"
+                className="bg-purple-50 dark:bg-purple-900/20"
               >
                 Inshoyim — o‘zbek tilidagi insholar uchun maxsus platforma. Yozing, o‘qing, baham ko‘ring — barchasi ona tilingizda.
               </FeatureCard>
