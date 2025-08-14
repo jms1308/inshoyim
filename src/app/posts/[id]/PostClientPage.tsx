@@ -9,7 +9,7 @@ import { getUserById } from '@/lib/services/users';
 import type { Post, User, Comment } from '@/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Calendar, Eye, MessageSquare, Edit, Trash2, ArrowLeft, CornerUpLeft, MessageCircle } from 'lucide-react';
+import { Clock, Calendar, Eye, MessageSquare, Edit, Trash2, ArrowLeft, CornerUpLeft, MessageCircle, ChevronDown } from 'lucide-react';
 import { ShareButton } from '@/components/ShareButton';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -28,6 +28,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import { PostSettings, type FontSettings } from '@/components/PostSettings';
 import React from 'react';
 import Image from 'next/image';
@@ -237,8 +243,7 @@ function CommentSection({ postId, allComments, onCommentChange, loggedInUser }: 
   }
 
   return (
-    <div className="mt-12 pt-8 border-t">
-      <h2 className="font-headline text-2xl font-bold mb-6">Sharhlar ({allComments?.length || 0})</h2>
+    <>
       <div className="space-y-6">
         {structuredComments.map((comment) => (
           <CommentCard key={comment.id} comment={comment} onReply={handleReply} onDelete={handleDeleteComment} loggedInUser={loggedInUser} />
@@ -257,7 +262,7 @@ function CommentSection({ postId, allComments, onCommentChange, loggedInUser }: 
           {isSubmitting ? "Yuborilmoqda..." : "Sharhni yuborish"}
         </Button>
       </div>
-    </div>
+    </>
   )
 }
 
@@ -507,16 +512,27 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
         {renderContent(post.content)}
       </div>
 
-      <CommentSection 
-        postId={post.id} 
-        allComments={post.comments || []} 
-        onCommentChange={handleCommentChange}
-        loggedInUser={loggedInUser}
-      />
+      <div className="mt-12 pt-8 border-t">
+        <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="item-1">
+                <AccordionTrigger>
+                  <h2 className="font-headline text-2xl font-bold">
+                    Sharhlar ({post.comments?.length || 0})
+                  </h2>
+                </AccordionTrigger>
+                <AccordionContent className="pt-6">
+                    <CommentSection 
+                        postId={post.id} 
+                        allComments={post.comments || []} 
+                        onCommentChange={handleCommentChange}
+                        loggedInUser={loggedInUser}
+                    />
+                </AccordionContent>
+            </AccordionItem>
+        </Accordion>
+      </div>
     </article>
   );
 }
-
-    
 
     
