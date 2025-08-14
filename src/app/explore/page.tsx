@@ -2,10 +2,10 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { EssayCard } from "@/components/EssayCard";
 import { Input } from "@/components/ui/input";
 import { usePosts } from '@/context/PostContext';
-import type { Post } from '@/types';
 import { Search } from "lucide-react";
 import { cn } from '@/lib/utils';
 
@@ -13,10 +13,19 @@ export default function ExplorePage() {
   const { posts: allPosts, loading } = usePosts();
   const [searchTerm, setSearchTerm] = useState('');
   const [isMounted, setIsMounted] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  const handleCardClick = (postId: string) => {
+    setSelectedPostId(postId);
+    setTimeout(() => {
+      router.push(`/posts/${postId}`);
+    }, 300);
+  };
 
   const filteredPosts = useMemo(() => {
     if (!searchTerm) {
@@ -93,7 +102,14 @@ export default function ExplorePage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredPosts.map((post, index) => (
-              <EssayCard key={post.id} post={post} index={index} />
+              <EssayCard 
+                key={post.id} 
+                post={post} 
+                index={index} 
+                onClick={() => handleCardClick(post.id)}
+                isSelected={selectedPostId === post.id}
+                isAnySelected={!!selectedPostId}
+              />
             ))}
           </div>
         )}
