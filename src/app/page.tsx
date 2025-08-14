@@ -145,13 +145,13 @@ export default function Home() {
             </p>
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link href="/explore">
-                    <Button size="lg" variant="outline" className="font-headline">
+                    <Button size="lg" variant="outline" className="font-headline shadow-md hover:shadow-lg transition-shadow">
                         Barcha insholar
                         <ArrowRight className="ml-2 h-5 w-5" />
                     </Button>
                 </Link>
                 <Link href="/yozish">
-                    <Button size="lg" className="font-headline">
+                    <Button size="lg" className="font-headline shadow-md hover:shadow-lg transition-shadow">
                         Yozishni boshlash
                         <Edit className="ml-2 h-5 w-5" />
                     </Button>
