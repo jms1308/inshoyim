@@ -4,7 +4,6 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { Post, User } from '@/types';
-import { getUserById } from '@/lib/services/users';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -33,7 +32,6 @@ const getExcerptFromContent = (content: any): string => {
 
 
 export function EssayCard({ post, index = 0 }: EssayCardProps) {
-  const [author, setAuthor] = useState<User | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -43,17 +41,8 @@ export function EssayCard({ post, index = 0 }: EssayCardProps) {
     return () => clearTimeout(timer);
   }, [index]);
 
-  useEffect(() => {
-    async function fetchAuthor() {
-      if (post.author_id) {
-        const authorData = await getUserById(post.author_id);
-        setAuthor(authorData);
-      }
-    }
-    fetchAuthor();
-  }, [post.author_id]);
-
   const excerpt = getExcerptFromContent(post.content);
+  const author = post.author;
   const authorInitials = author?.name.split(' ').map(n => n[0]).join('') || 'U';
 
   return (

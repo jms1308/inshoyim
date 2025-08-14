@@ -3,7 +3,8 @@
 
 import React, { createContext, useState, useContext, ReactNode, useEffect, useCallback } from 'react';
 import { getPublishedPosts } from '@/lib/services/posts';
-import type { Post } from '@/types';
+import { getUserById } from '@/lib/services/users';
+import type { Post, User } from '@/types';
 
 interface PostContextType {
   posts: Post[];
@@ -21,7 +22,29 @@ export function PostsProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true);
       const fetchedPosts = await getPublishedPosts();
-      setPosts(fetchedPosts);
+      
+      // Get unique author IDs
+      const authorIds = [...new Set(fetchedPosts.map(p => p.author_id))];
+      
+      // Fetch all authors in parallel
+      const authorPromises = authorIds.map(id => getUserById(id));
+      const authors = await Promise.all(authorPromises);
+      
+      // Create a map for quick lookup
+      const authorMap = new Map<string, User | null>();
+      authors.forEach(author => {
+        if (author) {
+          authorMap.set(author.id, author);
+        }
+      });
+      
+      // Attach author to each post
+      const postsWithAuthors = fetchedPosts.map(post => ({
+        ...post,
+        author: authorMap.get(post.author_id) || undefined,
+      }));
+
+      setPosts(postsWithAuthors);
     } catch (error) {
       console.error("Error fetching posts:", error);
     } finally {
