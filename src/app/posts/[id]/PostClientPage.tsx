@@ -328,7 +328,6 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
   const postId = params.id as string;
   const [post, setPost] = useState<Post | null>(initialPost);
   const [author, setAuthor] = useState<User | null>(initialAuthor);
-  const [loading, setLoading] = useState(!initialPost);
   const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
   const { toast } = useToast();
   const [fontSettings, setFontSettings] = useState<FontSettings>({
@@ -338,7 +337,6 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
 
   const fetchPostData = async () => {
     try {
-      setLoading(true);
       const postData = await getPostById(postId);
       if (postData) {
         setPost(postData);
@@ -350,10 +348,7 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
         notFound();
       }
     } catch (error) {
-      console.error("Error refetching post:", error);
-      toast({ title: "Xatolik", description: "Ma'lumotlarni yangilab bo'lmadi.", variant: "destructive" });
-    } finally {
-      setLoading(false);
+      console.error("Error refetching post for comment update:", error);
     }
   };
 
@@ -384,7 +379,10 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
           await incrementPostView(postId);
           viewedPosts.push(postId);
           localStorage.setItem(viewedPostsKey, JSON.stringify(viewedPosts));
-          fetchPostData();
+          // After incrementing, we don't need to refetch the whole post data from the client,
+          // as the new view count will be available on the next static regeneration.
+          // We can optionally update the view count in the local state for immediate feedback.
+          setPost(prevPost => prevPost ? { ...prevPost, views: prevPost.views + 1 } : null);
       }
     }
     handleView();
@@ -401,10 +399,6 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
         description: "Insho o'chirildi."
     });
     router.push('/');
-  }
-
-  if (loading) {
-    return <div className="container mx-auto max-w-3xl px-4 py-8 md:py-16 text-center">Yuklanmoqda...</div>;
   }
 
   if (!post) {
