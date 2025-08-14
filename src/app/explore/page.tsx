@@ -1,23 +1,17 @@
 
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { EssayCard } from "@/components/EssayCard";
 import { Input } from "@/components/ui/input";
 import { usePosts } from '@/context/PostContext';
 import { Search } from "lucide-react";
-import { cn } from '@/lib/utils';
 
 export default function ExplorePage() {
   const { posts: allPosts, loading } = usePosts();
   const [searchTerm, setSearchTerm] = useState('');
-  const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   const filteredPosts = useMemo(() => {
     if (!searchTerm) {
@@ -39,7 +33,7 @@ export default function ExplorePage() {
   const deletingSpeed = 100;
   const delayBetweenPhrases = 2000;
 
-  useEffect(() => {
+  useState(() => {
     const handleTyping = () => {
       const currentPhrase = phrases[phraseIndex];
       if (isDeleting) {
@@ -62,14 +56,11 @@ export default function ExplorePage() {
 
     const timer = setTimeout(handleTyping, isDeleting ? deletingSpeed : typingSpeed);
     return () => clearTimeout(timer);
-  }, [charIndex, isDeleting, phraseIndex]);
+  });
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
-      <section className={cn(
-          "transition-all duration-700 ease-out",
-          isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
-        )}>
+      <section className="animate-fade-in-up">
         <h1 className="font-headline text-4xl md:text-5xl font-bold text-center h-14">
           {dynamicText}
           <span className="animate-ping">|</span>
@@ -94,11 +85,13 @@ export default function ExplorePage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredPosts.map((post, index) => (
-              <EssayCard 
+              <div 
                 key={post.id} 
-                post={post} 
-                index={index} 
-              />
+                className="animate-fade-in-up" 
+                style={{ animationDelay: `${index * 100}ms`}}
+              >
+                <EssayCard post={post} />
+              </div>
             ))}
           </div>
         )}

@@ -20,16 +20,8 @@ import Autoplay from "embla-carousel-autoplay"
 import { useRouter } from 'next/navigation';
 
 const FeatureCard = ({ icon, title, children, index = 0, className }: { icon: React.ReactNode, title: string, children: React.ReactNode, index?: number, className?: string }) => {
-    const [isVisible, setIsVisible] = useState(false);
     const cardRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setIsVisible(true);
-        }, index * 150);
-        return () => clearTimeout(timer);
-    }, [index]);
-    
     useEffect(() => {
         const card = cardRef.current;
         if (!card) return;
@@ -53,10 +45,11 @@ const FeatureCard = ({ icon, title, children, index = 0, className }: { icon: Re
     return (
         <div
             ref={cardRef}
+            style={{ animationDelay: `${index * 150}ms`}}
             className={cn(
                 "relative p-8 rounded-2xl overflow-hidden transform-gpu transition-all duration-500 ease-out group border shadow-md hover:shadow-2xl transition-shadow",
                 "before:absolute before:inset-0 before:z-0 before:bg-[radial-gradient(400px_circle_at_var(--mouse-x)_var(--mouse-y),_rgba(255,255,255,0.2),_transparent_40%)] before:opacity-0 before:transition-opacity before:duration-500 group-hover:before:opacity-100",
-                isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95",
+                "animate-fade-in-up",
                 className
             )}
         >
@@ -131,10 +124,7 @@ export default function Home() {
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
-       <section className={cn(
-          "text-center py-12 md:py-20 transition-all duration-700 ease-out",
-          isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
-        )}>
+       <section className="text-center py-12 md:py-20 animate-fade-in-up">
         <div>
             <h1 className="font-body text-4xl md:text-6xl font-bold tracking-tighter leading-tight h-20 md:h-24">
             {dynamicText}
@@ -208,7 +198,7 @@ export default function Home() {
               {latestPosts.map((post, index) => (
                 <CarouselItem key={post.id} className="md:basis-1/2 lg:basis-1/3">
                   <div className="p-1">
-                    <EssayCard post={post} index={index} onClick={() => router.push(`/posts/${post.id}`)} />
+                    <EssayCard post={post} />
                   </div>
                 </CarouselItem>
               ))}

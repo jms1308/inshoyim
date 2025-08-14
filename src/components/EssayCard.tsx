@@ -2,8 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import type { Post, User } from '@/types';
+import type { Post } from '@/types';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -12,7 +11,6 @@ import { cn } from '@/lib/utils';
 
 interface EssayCardProps {
   post: Post;
-  index?: number;
 }
 
 const getExcerptFromContent = (content: any): string => {
@@ -30,17 +28,7 @@ const getExcerptFromContent = (content: any): string => {
     return '';
 };
 
-
-export function EssayCard({ post, index = 0 }: EssayCardProps) {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-    }, index * 100); // Staggered delay
-    return () => clearTimeout(timer);
-  }, [index]);
-
+export function EssayCard({ post }: EssayCardProps) {
   const excerpt = getExcerptFromContent(post.content);
   const author = post.author;
   const authorInitials = author?.name.split(' ').map(n => n[0]).join('') || 'U';
@@ -49,7 +37,6 @@ export function EssayCard({ post, index = 0 }: EssayCardProps) {
     <Link href={`/posts/${post.id}`} className="group block h-full">
       <Card className={cn(
         "flex flex-col h-full overflow-hidden transition-all duration-300 ease-in-out",
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5',
         "group-hover:shadow-xl group-hover:-translate-y-2"
       )}>
         <CardHeader>
