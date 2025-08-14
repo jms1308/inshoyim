@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { EssayCard } from "@/components/EssayCard";
 import { Input } from "@/components/ui/input";
@@ -33,7 +33,7 @@ export default function ExplorePage() {
   const deletingSpeed = 100;
   const delayBetweenPhrases = 2000;
 
-  useState(() => {
+  useEffect(() => {
     const handleTyping = () => {
       const currentPhrase = phrases[phraseIndex];
       if (isDeleting) {
@@ -45,8 +45,9 @@ export default function ExplorePage() {
           setPhraseIndex((prev) => (prev + 1) % phrases.length);
         }
       } else {
-        if (charIndex < phrases[phraseIndex].length) {
-          setDynamicText(phrases[phraseIndex].substring(0, charIndex + 1));
+        const nextPhrase = phrases[phraseIndex];
+        if (charIndex < nextPhrase.length) {
+          setDynamicText(nextPhrase.substring(0, charIndex + 1));
           setCharIndex(charIndex + 1);
         } else {
           setTimeout(() => setIsDeleting(true), delayBetweenPhrases);
@@ -56,7 +57,7 @@ export default function ExplorePage() {
 
     const timer = setTimeout(handleTyping, isDeleting ? deletingSpeed : typingSpeed);
     return () => clearTimeout(timer);
-  });
+  }, [charIndex, isDeleting, phraseIndex, phrases]);
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
