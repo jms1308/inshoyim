@@ -13,17 +13,11 @@ export default function ExplorePage() {
   const { posts: allPosts, loading } = usePosts();
   const [searchTerm, setSearchTerm] = useState('');
   const [isMounted, setIsMounted] = useState(false);
-  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
-  const handleCardClick = (postId: string) => {
-    setSelectedPostId(postId);
-    router.push(`/posts/${postId}`);
-  };
 
   const filteredPosts = useMemo(() => {
     if (!searchTerm) {
@@ -104,9 +98,6 @@ export default function ExplorePage() {
                 key={post.id} 
                 post={post} 
                 index={index} 
-                onClick={() => handleCardClick(post.id)}
-                isSelected={selectedPostId === post.id}
-                isAnySelected={!!selectedPostId}
               />
             ))}
           </div>

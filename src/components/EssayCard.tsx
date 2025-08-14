@@ -13,9 +13,6 @@ import { cn } from '@/lib/utils';
 interface EssayCardProps {
   post: Post;
   index?: number;
-  onClick?: () => void;
-  isSelected?: boolean;
-  isAnySelected?: boolean;
 }
 
 const getExcerptFromContent = (content: any): string => {
@@ -34,7 +31,7 @@ const getExcerptFromContent = (content: any): string => {
 };
 
 
-export function EssayCard({ post, index = 0, onClick, isSelected, isAnySelected }: EssayCardProps) {
+export function EssayCard({ post, index = 0 }: EssayCardProps) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -47,25 +44,12 @@ export function EssayCard({ post, index = 0, onClick, isSelected, isAnySelected 
   const excerpt = getExcerptFromContent(post.content);
   const author = post.author;
   const authorInitials = author?.name.split(' ').map(n => n[0]).join('') || 'U';
-  
-  const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (onClick) {
-      e.preventDefault();
-      onClick();
-    }
-  };
-
-  const CardWrapper = onClick ? 'div' : Link;
-  const cardProps = onClick 
-    ? { onClick: handleCardClick, className: "group block cursor-pointer" } 
-    : { href: `/posts/${post.id}`, className: "group block" };
 
   return (
-    <CardWrapper {...cardProps}>
+    <Link href={`/posts/${post.id}`} className="group block h-full">
       <Card className={cn(
         "flex flex-col h-full overflow-hidden transition-all duration-300 ease-in-out",
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5',
-        isAnySelected && !isSelected ? 'opacity-0 scale-95' : 'opacity-100 scale-100',
         "group-hover:shadow-xl group-hover:-translate-y-2"
       )}>
         <CardHeader>
@@ -111,6 +95,6 @@ export function EssayCard({ post, index = 0, onClick, isSelected, isAnySelected 
           </div>
         </CardFooter>
       </Card>
-    </CardWrapper>
+    </Link>
   );
 }
