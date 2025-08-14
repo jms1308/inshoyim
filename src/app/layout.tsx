@@ -7,6 +7,7 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthDialogProvider } from '@/context/AuthDialogContext';
+import { PostsProvider } from '@/context/PostContext';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://inshoyim.uz'),
@@ -68,10 +69,12 @@ export default function RootLayout({
       <body className={cn('font-body antialiased min-h-screen flex flex-col')}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthDialogProvider>
-            <Header />
-            <main className="flex-grow">{children}</main>
-            <Footer />
-            <Toaster />
+            <PostsProvider>
+              <Header />
+              <main className="flex-grow">{children}</main>
+              <Footer />
+              <Toaster />
+            </PostsProvider>
           </AuthDialogProvider>
         </ThemeProvider>
       </body>

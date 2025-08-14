@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ import { createPost } from '@/lib/services/posts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuthDialog } from '@/context/AuthDialogContext';
 import { Skeleton } from '@/components/ui/skeleton';
+import { usePosts } from '@/context/PostContext';
 
 const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { 
   ssr: false,
@@ -62,6 +63,7 @@ export default function WritePage() {
   
   const router = useRouter();
   const { toast } = useToast();
+  const { refetchPosts } = usePosts();
 
   useEffect(() => {
     const checkUser = () => {
@@ -109,6 +111,7 @@ export default function WritePage() {
     try {
         await createPost(postData);
         toast({ title: "Muvaffaqiyatli!", description: `Insho muvaffaqiyatli ${status === 'published' ? 'nashr etildi' : 'qoralama sifatida saqlandi'}.` });
+        await refetchPosts(); // Refetch all posts after creation
         router.push(`/explore`);
     } catch (error) {
         console.error("Failed to create post:", error);

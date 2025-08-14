@@ -1,11 +1,10 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { EssayCard } from '@/components/EssayCard';
-import { getPublishedPosts } from '@/lib/services/posts';
-import type { Post } from '@/types';
+import { usePosts } from '@/context/PostContext';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Edit, BookOpen, Globe } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -26,8 +25,8 @@ const FeatureCard = ({ icon, title, children }: { icon: React.ReactNode, title: 
 
 
 export default function Home() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { posts, loading } = usePosts();
+  const latestPosts = useMemo(() => posts.slice(0, 6), [posts]);
   
   const phrases = ['Inshoyim 1.0', 'O‘qing. Yozing. Ulashing.'];
   const [dynamicText, setDynamicText] = useState(phrases[0]);
@@ -71,26 +70,6 @@ export default function Home() {
 
     return () => clearTimeout(timer);
   }, [charIndex, isDeleting, phraseIndex, isInitialDelay]);
-
-
-  useEffect(() => {
-    async function fetchPosts() {
-       if (posts.length > 0) {
-          setLoading(false);
-          return;
-      }
-      try {
-        const publishedPosts = await getPublishedPosts();
-        setPosts(publishedPosts.slice(0, 6)); // Get latest 6 posts
-      } catch (error) {
-        console.error("Error fetching posts:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchPosts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -149,7 +128,7 @@ export default function Home() {
           <p>Yuklanmoqda...</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {posts.map((post) => (
+            {latestPosts.map((post) => (
               <EssayCard key={post.id} post={post} />
             ))}
           </div>

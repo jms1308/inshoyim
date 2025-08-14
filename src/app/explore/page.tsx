@@ -1,18 +1,26 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { EssayCard } from "@/components/EssayCard";
 import { Input } from "@/components/ui/input";
-import { getPublishedPosts } from '@/lib/services/posts';
+import { usePosts } from '@/context/PostContext';
 import type { Post } from '@/types';
 import { Search } from "lucide-react";
 
 export default function ExplorePage() {
-  const [allPosts, setAllPosts] = useState<Post[]>([]);
-  const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { posts: allPosts, loading } = usePosts();
   const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredPosts = useMemo(() => {
+    if (!searchTerm) {
+      return allPosts;
+    }
+    return allPosts.filter(post =>
+      post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  }, [searchTerm, allPosts]);
 
   const phrases = ['Insholar', 'Xulosalar', 'Tahlillar'];
   const [dynamicText, setDynamicText] = useState(phrases[0]);
@@ -48,37 +56,6 @@ export default function ExplorePage() {
     const timer = setTimeout(handleTyping, isDeleting ? deletingSpeed : typingSpeed);
     return () => clearTimeout(timer);
   }, [charIndex, isDeleting, phraseIndex]);
-
-  useEffect(() => {
-    async function fetchPosts() {
-      // Only fetch posts if they haven't been loaded yet.
-      if (allPosts.length > 0) {
-          setLoading(false);
-          return;
-      }
-      try {
-        setLoading(true);
-        const posts = await getPublishedPosts();
-        setAllPosts(posts);
-        setFilteredPosts(posts);
-      } catch (error) {
-        console.error("Error fetching posts:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchPosts();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    // When search term changes, filter from the already loaded posts
-    const results = allPosts.filter(post =>
-      post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
-    setFilteredPosts(results);
-  }, [searchTerm, allPosts]);
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">

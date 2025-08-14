@@ -12,6 +12,7 @@ import type { User, Post } from '@/types';
 import { getPostById, updatePost } from '@/lib/services/posts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { usePosts } from '@/context/PostContext';
 
 const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { 
   ssr: false,
@@ -45,6 +46,7 @@ export default function EditPostPage() {
   const params = useParams();
   const postId = params.id as string;
   const { toast } = useToast();
+  const { refetchPosts } = usePosts();
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -108,6 +110,7 @@ export default function EditPostPage() {
     try {
         await updatePost(post.id, postData);
         toast({ title: "Muvaffaqiyatli!", description: `Insho muvaffaqiyatli ${status === 'published' ? 'nashr etildi' : 'qoralama sifatida saqlandi'}.` });
+        await refetchPosts(); // Refetch posts after update
         router.push(`/explore`);
     } catch (error) {
         console.error("Failed to update post:", error);
