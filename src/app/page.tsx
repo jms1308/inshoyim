@@ -9,6 +9,13 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, Edit, BookOpen, Globe } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
 
 const FeatureCard = ({ icon, title, children, index = 0 }: { icon: React.ReactNode, title: string, children: React.ReactNode, index?: number }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -155,11 +162,24 @@ export default function Home() {
         {loading ? (
           <p>Yuklanmoqda...</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {latestPosts.map((post, index) => (
-              <EssayCard key={post.id} post={post} index={index} />
-            ))}
-          </div>
+          <Carousel
+            opts={{
+              align: "start",
+            }}
+            className="w-full"
+          >
+            <CarouselContent>
+              {latestPosts.map((post, index) => (
+                <CarouselItem key={post.id} className="md:basis-1/2 lg:basis-1/3">
+                  <div className="p-1">
+                    <EssayCard post={post} index={index} />
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+          </Carousel>
         )}
       </section>
     </div>
