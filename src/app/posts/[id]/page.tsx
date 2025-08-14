@@ -5,8 +5,7 @@ import { getPostById } from '@/lib/services/posts';
 import { getUserById } from '@/lib/services/users';
 import PostClientPage from './PostClientPage';
 
-export const revalidate = 600; // Revalidate every 10 minutes
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 // Function to extract text from Editor.js content for SEO
 const getTextFromContent = (content: any): string => {
