@@ -7,7 +7,7 @@ import { EssayCard } from '@/components/EssayCard';
 import { usePosts } from '@/context/PostContext';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Edit, BookOpen, Globe } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import {
   Carousel,
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/carousel"
 import Autoplay from "embla-carousel-autoplay"
 import { useRouter } from 'next/navigation';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const FeatureCard = ({ icon, title, children, index = 0, className }: { icon: React.ReactNode, title: string, children: React.ReactNode, index?: number, className?: string }) => {
     const cardRef = useRef<HTMLDivElement>(null);
@@ -63,6 +64,38 @@ const FeatureCard = ({ icon, title, children, index = 0, className }: { icon: Re
         </div>
     );
 };
+
+function EssayCardSkeleton() {
+  return (
+    <div className="p-1">
+      <Card className="flex flex-col h-full">
+        <CardHeader>
+          <Skeleton className="h-6 w-3/4" />
+        </CardHeader>
+        <CardContent className="flex-grow space-y-2">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-5/6" />
+        </CardContent>
+        <CardFooter className="flex flex-col items-start gap-4">
+          <div className="flex flex-wrap gap-2">
+              <Skeleton className="h-6 w-16 rounded-full" />
+              <Skeleton className="h-6 w-20 rounded-full" />
+          </div>
+          <div className="w-full flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                  <Skeleton className="h-8 w-8 rounded-full" />
+                  <Skeleton className="h-4 w-24" />
+              </div>
+              <div className="flex items-center gap-2">
+                  <Skeleton className="h-4 w-12" />
+                  <Skeleton className="h-4 w-12" />
+              </div>
+          </div>
+        </CardFooter>
+      </Card>
+    </div>
+  )
+}
 
 
 export default function Home() {
@@ -182,7 +215,20 @@ export default function Home() {
       <section>
         <h2 className="font-headline text-3xl font-bold mb-8 text-center md:text-left">So'nggi nashrlar</h2>
         {loading ? (
-          <p>Yuklanmoqda...</p>
+           <Carousel
+            opts={{ align: "start", loop: false }}
+            className="w-full"
+          >
+            <CarouselContent>
+              {Array.from({ length: 3 }).map((_, index) => (
+                <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                  <EssayCardSkeleton />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 md:-left-4" />
+            <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 md:-right-4" />
+          </Carousel>
         ) : (
           <Carousel
             plugins={[plugin.current]}

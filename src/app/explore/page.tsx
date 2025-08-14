@@ -7,6 +7,39 @@ import { EssayCard } from "@/components/EssayCard";
 import { Input } from "@/components/ui/input";
 import { usePosts } from '@/context/PostContext';
 import { Search } from "lucide-react";
+import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+
+function EssayCardSkeleton() {
+  return (
+    <Card className="flex flex-col h-full">
+      <CardHeader>
+        <Skeleton className="h-6 w-3/4" />
+      </CardHeader>
+      <CardContent className="flex-grow space-y-2">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-5/6" />
+      </CardContent>
+      <CardFooter className="flex flex-col items-start gap-4">
+        <div className="flex flex-wrap gap-2">
+            <Skeleton className="h-6 w-16 rounded-full" />
+            <Skeleton className="h-6 w-20 rounded-full" />
+        </div>
+        <div className="w-full flex items-center justify-between">
+             <div className="flex items-center gap-2">
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <Skeleton className="h-4 w-24" />
+            </div>
+            <div className="flex items-center gap-2">
+                <Skeleton className="h-4 w-12" />
+                <Skeleton className="h-4 w-12" />
+            </div>
+        </div>
+      </CardFooter>
+    </Card>
+  )
+}
+
 
 export default function ExplorePage() {
   const { posts: allPosts, loading } = usePosts();
@@ -82,7 +115,11 @@ export default function ExplorePage() {
 
       <section className="mt-12">
         {loading ? (
-          <p className="text-center">Yuklanmoqda...</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {Array.from({ length: 6 }).map((_, index) => (
+                <EssayCardSkeleton key={index} />
+            ))}
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredPosts.map((post, index) => (

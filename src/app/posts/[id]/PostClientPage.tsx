@@ -37,8 +37,24 @@ import {
 import { PostSettings, type FontSettings } from '@/components/PostSettings';
 import React from 'react';
 import Image from 'next/image';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type CommentWithAuthor = Comment & { author: User | null; replies: CommentWithAuthor[] };
+
+function CommentSkeleton() {
+    return (
+        <div className="flex gap-3 sm:gap-4">
+            <Skeleton className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex-shrink-0" />
+            <div className="flex-grow min-w-0 space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-5 w-full" />
+                <Skeleton className="h-5 w-3/4" />
+            </div>
+        </div>
+    );
+}
+
 
 function CommentCard({ comment, onReply, onDelete, loggedInUser }: { comment: CommentWithAuthor; onReply: (parentId: string, content: string) => Promise<void>; onDelete: (commentId: string) => void; loggedInUser: User | null; }) {
     const [replyContent, setReplyContent] = useState('');
@@ -180,10 +196,14 @@ function CommentSection({ postId, allComments, onCommentChange, loggedInUser }: 
   const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [structuredComments, setStructuredComments] = useState<CommentWithAuthor[]>([]);
+  const [isLoadingComments, setIsLoadingComments] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    buildCommentTree(allComments).then(setStructuredComments);
+    setIsLoadingComments(true);
+    buildCommentTree(allComments)
+        .then(setStructuredComments)
+        .finally(() => setIsLoadingComments(false));
   }, [allComments]);
 
   const handleDeleteComment = async (commentId: string) => {
@@ -245,9 +265,15 @@ function CommentSection({ postId, allComments, onCommentChange, loggedInUser }: 
   return (
     <>
       <div className="space-y-6">
-        {structuredComments.map((comment) => (
-          <CommentCard key={comment.id} comment={comment} onReply={handleReply} onDelete={handleDeleteComment} loggedInUser={loggedInUser} />
-        ))}
+        {isLoadingComments ? (
+            Array.from({ length: 3 }).map((_, index) => <CommentSkeleton key={index} />)
+        ) : structuredComments.length > 0 ? (
+            structuredComments.map((comment) => (
+                <CommentCard key={comment.id} comment={comment} onReply={handleReply} onDelete={handleDeleteComment} loggedInUser={loggedInUser} />
+            ))
+        ) : (
+            <p className="text-muted-foreground text-center py-4">Hali sharhlar mavjud emas. Birinchi bo'lib fikr qoldiring!</p>
+        )}
       </div>
        <div className="mt-8">
         <h3 className="text-lg font-semibold mb-2">Fikr qoldirish</h3>
@@ -528,7 +554,3 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
     </article>
   );
 }
-
-    
-
-    

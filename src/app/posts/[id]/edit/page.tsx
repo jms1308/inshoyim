@@ -121,7 +121,34 @@ export default function EditPostPage() {
   };
   
   if (isCheckingUser || !post || content === null) {
-    return <div className="container mx-auto py-12 text-center">Yuklanmoqda...</div>;
+    return (
+      <div className="container mx-auto max-w-4xl py-12">
+        <Card>
+            <CardHeader>
+                <Skeleton className="h-8 w-1/2" />
+                <Skeleton className="h-4 w-3/4" />
+            </CardHeader>
+            <CardContent className="space-y-6">
+                <div className="space-y-2">
+                    <Skeleton className="h-5 w-24" />
+                    <Skeleton className="h-10 w-full" />
+                </div>
+                <div className="space-y-2">
+                    <Skeleton className="h-5 w-24" />
+                    <Skeleton className="h-[400px] w-full" />
+                </div>
+                 <div className="space-y-2">
+                    <Skeleton className="h-5 w-48" />
+                    <Skeleton className="h-10 w-full" />
+                </div>
+                <div className="flex gap-4">
+                    <Skeleton className="h-12 w-32" />
+                    <Skeleton className="h-12 w-48" />
+                </div>
+            </CardContent>
+        </Card>
+      </div>
+    );
   }
   
   if (!loggedInUser || (loggedInUser.id !== post.author_id && loggedInUser.name !== 'Anonim')) {
@@ -168,7 +195,7 @@ export default function EditPostPage() {
                     </div>
                     <div className="flex flex-wrap gap-4">
                         <Button onClick={() => handleSubmit('published')} disabled={!!loading} size="lg">
-                            {loading === 'publish' ? 'Nashr etilmoqda...' : 'Nashr etish'}
+                            {loading === 'published' ? 'Nashr etilmoqda...' : 'Nashr etish'}
                         </Button>
                          <Button onClick={() => handleSubmit('draft')} disabled={!!loading} size="lg" variant="outline">
                             {loading === 'draft' ? 'Saqlanmoqda...' : post?.status === 'draft' ? 'Qoralamani saqlash' : 'Qoralama sifatida saqlash' }
