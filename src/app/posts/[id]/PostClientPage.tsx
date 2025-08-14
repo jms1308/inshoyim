@@ -495,7 +495,7 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
                 </Avatar>
                 <div>
                 <p className="font-bold text-lg group-hover:text-primary transition-colors">{author.name}</p>
-                <p className="text-sm text-muted-foreground">{author.bio}</p>
+                <p className="text-sm text-muted-foreground hidden md:block">{author.bio}</p>
                 </div>
             </Link>
         )}
