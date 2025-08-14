@@ -44,7 +44,7 @@ export async function generateMetadata(
 
   const postText = getTextFromContent(post.content);
   const description = postText.substring(0, 160).trim() + (postText.length > 160 ? '...' : '');
-  const author = await getUserById(post.author_id);
+  const author = post.author_id ? await getUserById(post.author_id) : null;
   const imageUrl = getFirstImageUrl(post.content) || '/og-image.png'; // Fallback to default OG image
  
   return {
@@ -82,7 +82,8 @@ export default async function PostPage({ params }: Props) {
   if (!post) {
     notFound();
   }
-
+  
+  // Fetch author in parallel with post data if possible, or after post is confirmed to exist
   const author = post.author_id ? await getUserById(post.author_id) : null;
 
   return <PostClientPage initialPost={post} initialAuthor={author} />;
