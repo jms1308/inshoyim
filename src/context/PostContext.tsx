@@ -53,11 +53,9 @@ export function PostsProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    // Fetch posts only once when the provider mounts
-    if (posts.length === 0) {
-      fetchPosts();
-    }
-  }, [fetchPosts, posts.length]);
+    // Fetch posts when the provider mounts
+    fetchPosts();
+  }, [fetchPosts]);
   
   const value = {
     posts,
