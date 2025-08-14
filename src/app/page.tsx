@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { EssayCard } from '@/components/EssayCard';
 import { usePosts } from '@/context/PostContext';
@@ -16,6 +16,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
+import Autoplay from "embla-carousel-autoplay"
 
 const FeatureCard = ({ icon, title, children, index = 0 }: { icon: React.ReactNode, title: string, children: React.ReactNode, index?: number }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -99,6 +100,10 @@ export default function Home() {
 
     return () => clearTimeout(timer);
   }, [charIndex, isDeleting, phraseIndex, isInitialDelay]);
+  
+  const plugin = useRef(
+    Autoplay({ delay: 5000, stopOnInteraction: true })
+  )
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -163,10 +168,14 @@ export default function Home() {
           <p>Yuklanmoqda...</p>
         ) : (
           <Carousel
+            plugins={[plugin.current]}
             opts={{
               align: "start",
+              loop: true,
             }}
             className="w-full"
+            onMouseEnter={plugin.current.stop}
+            onMouseLeave={plugin.current.reset}
           >
             <CarouselContent>
               {latestPosts.map((post, index) => (
@@ -177,8 +186,8 @@ export default function Home() {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
+            <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 md:-left-4" />
+            <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 md:-right-4" />
           </Carousel>
         )}
       </section>
