@@ -21,6 +21,7 @@ import { useRouter } from 'next/navigation';
 
 const FeatureCard = ({ icon, title, children, index = 0, className }: { icon: React.ReactNode, title: string, children: React.ReactNode, index?: number, className?: string }) => {
     const [isVisible, setIsVisible] = useState(false);
+    const cardRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -28,15 +29,37 @@ const FeatureCard = ({ icon, title, children, index = 0, className }: { icon: Re
         }, index * 150);
         return () => clearTimeout(timer);
     }, [index]);
+    
+    useEffect(() => {
+        const card = cardRef.current;
+        if (!card) return;
+
+        const handleMouseMove = (e: MouseEvent) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            card.style.setProperty('--mouse-x', `${x}px`);
+            card.style.setProperty('--mouse-y', `${y}px`);
+        };
+
+        card.addEventListener('mousemove', handleMouseMove);
+
+        return () => {
+            card.removeEventListener('mousemove', handleMouseMove);
+        };
+    }, []);
+
 
     return (
-        <div className={cn(
-            "relative p-8 rounded-2xl overflow-hidden transform-gpu transition-all duration-500 ease-out group",
-            "hover:shadow-2xl",
-            isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95",
-            className
-        )}>
-            <div className="absolute -inset-2 bg-gradient-to-br from-primary/20 to-secondary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-lg"></div>
+        <div
+            ref={cardRef}
+            className={cn(
+                "relative p-8 rounded-2xl overflow-hidden transform-gpu transition-all duration-500 ease-out group",
+                "before:absolute before:inset-0 before:z-0 before:bg-[radial-gradient(400px_circle_at_var(--mouse-x)_var(--mouse-y),_rgba(255,255,255,0.2),_transparent_40%)] before:opacity-0 before:transition-opacity before:duration-500 group-hover:before:opacity-100",
+                isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95",
+                className
+            )}
+        >
             <div className="relative z-10 flex flex-col h-full">
                 <div className="mb-4 bg-white/20 p-3 rounded-full w-max shadow-lg backdrop-blur-sm">
                     {icon}
@@ -89,7 +112,7 @@ export default function Home() {
         }
       } else {
         if (charIndex < currentPhrase.length) {
-          setDynamicText(currentPhrase.substring(0, charIndex + 1));
+          setDynamicText(phrases[phraseIndex].substring(0, charIndex + 1));
           setCharIndex(charIndex + 1);
         } else {
           setTimeout(() => setIsDeleting(true), delayBetweenPhrases);
@@ -140,26 +163,26 @@ export default function Home() {
       <section className="py-12 md:py-16">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <FeatureCard
-                icon={<Edit className="h-8 w-8 text-primary" />}
+                icon={<Edit className="h-8 w-8 text-purple-700" />}
                 title="Insho yozing"
                 index={0}
-                className="bg-secondary dark:bg-secondary/50"
+                className="bg-purple-50 dark:bg-purple-900/20"
               >
                 Inshoyim platformasida o‘z insholaringizni chop eting. Har bir fikr qadrlanadi, har bir yozuv esda qoladi.
               </FeatureCard>
                <FeatureCard
-                icon={<BookOpen className="h-8 w-8 text-primary" />}
+                icon={<BookOpen className="h-8 w-8 text-blue-700" />}
                 title="Boshqalarni o‘qing"
                 index={1}
-                className="bg-secondary dark:bg-secondary/50"
+                className="bg-blue-50 dark:bg-blue-900/20"
               >
                 Minglab foydalanuvchilarning insholari sizni kutmoqda. Yangi mavzular, turli yondashuvlar, real hayotiy fikrlar — barchasi shu yerda.
               </FeatureCard>
                <FeatureCard
-                icon={<Globe className="h-8 w-8 text-primary" />}
+                icon={<Globe className="h-8 w-8 text-green-700" />}
                 title="O‘zbek tilida bilim manbai"
                 index={2}
-                className="bg-secondary dark:bg-secondary/50"
+                className="bg-green-50 dark:bg-green-900/20"
               >
                 Inshoyim — o‘zbek tilidagi insholar uchun maxsus platforma. Yozing, o‘qing, baham ko‘ring — barchasi ona tilingizda.
               </FeatureCard>
