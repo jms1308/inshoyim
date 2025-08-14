@@ -17,6 +17,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel"
 import Autoplay from "embla-carousel-autoplay"
+import { useRouter } from 'next/navigation';
 
 const FeatureCard = ({ icon, title, children, index = 0, className }: { icon: React.ReactNode, title: string, children: React.ReactNode, index?: number, className?: string }) => {
     const [isVisible, setIsVisible] = useState(false);
@@ -30,14 +31,14 @@ const FeatureCard = ({ icon, title, children, index = 0, className }: { icon: Re
 
     return (
         <div className={cn(
-            "relative p-8 rounded-2xl overflow-hidden transform-gpu transition-all duration-500 ease-out",
-            "hover:shadow-2xl hover:scale-105",
+            "relative p-8 rounded-2xl overflow-hidden transform-gpu transition-all duration-500 ease-out group",
+            "hover:shadow-2xl",
             isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95",
             className
         )}>
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 backdrop-blur-sm"></div>
+            <div className="absolute -inset-2 bg-gradient-to-br from-primary/20 to-secondary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-lg"></div>
             <div className="relative z-10 flex flex-col h-full">
-                <div className="mb-4 bg-white/10 p-3 rounded-full w-max shadow-lg">
+                <div className="mb-4 bg-white/20 p-3 rounded-full w-max shadow-lg backdrop-blur-sm">
                     {icon}
                 </div>
                 <h3 className="font-headline text-2xl font-bold text-card-foreground mb-3">{title}</h3>
@@ -51,6 +52,7 @@ const FeatureCard = ({ icon, title, children, index = 0, className }: { icon: Re
 export default function Home() {
   const { posts, loading } = usePosts();
   const latestPosts = useMemo(() => posts.slice(0, 6), [posts]);
+  const router = useRouter();
   
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
@@ -141,7 +143,7 @@ export default function Home() {
                 icon={<Edit className="h-8 w-8 text-primary" />}
                 title="Insho yozing"
                 index={0}
-                className="bg-purple-50 dark:bg-purple-900/20"
+                className="bg-secondary dark:bg-secondary/50"
               >
                 Inshoyim platformasida o‘z insholaringizni chop eting. Har bir fikr qadrlanadi, har bir yozuv esda qoladi.
               </FeatureCard>
@@ -149,7 +151,7 @@ export default function Home() {
                 icon={<BookOpen className="h-8 w-8 text-primary" />}
                 title="Boshqalarni o‘qing"
                 index={1}
-                className="bg-blue-50 dark:bg-blue-900/20"
+                className="bg-secondary dark:bg-secondary/50"
               >
                 Minglab foydalanuvchilarning insholari sizni kutmoqda. Yangi mavzular, turli yondashuvlar, real hayotiy fikrlar — barchasi shu yerda.
               </FeatureCard>
@@ -157,7 +159,7 @@ export default function Home() {
                 icon={<Globe className="h-8 w-8 text-primary" />}
                 title="O‘zbek tilida bilim manbai"
                 index={2}
-                className="bg-green-50 dark:bg-green-900/20"
+                className="bg-secondary dark:bg-secondary/50"
               >
                 Inshoyim — o‘zbek tilidagi insholar uchun maxsus platforma. Yozing, o‘qing, baham ko‘ring — barchasi ona tilingizda.
               </FeatureCard>
