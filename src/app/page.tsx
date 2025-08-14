@@ -18,34 +18,33 @@ import {
 } from "@/components/ui/carousel"
 import Autoplay from "embla-carousel-autoplay"
 
-const FeatureCard = ({ icon, title, children, index = 0 }: { icon: React.ReactNode, title: string, children: React.ReactNode, index?: number }) => {
-  const [isVisible, setIsVisible] = useState(false);
+const FeatureCard = ({ icon, title, children, index = 0, className }: { icon: React.ReactNode, title: string, children: React.ReactNode, index?: number, className?: string }) => {
+    const [isVisible, setIsVisible] = useState(false);
 
-  useEffect(() => {
-    // Stagger the animation based on index
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-    }, index * 150);
-    return () => clearTimeout(timer);
-  }, [index]);
-  
-  return (
-    <Card className={cn(
-      "text-center transition-all duration-700 ease-out transform",
-      isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5',
-      "hover:shadow-xl hover:-translate-y-2"
-    )}>
-        <CardHeader className="items-center">
-            <div className="p-3 bg-primary/10 rounded-full mb-2">
-                {icon}
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsVisible(true);
+        }, index * 150);
+        return () => clearTimeout(timer);
+    }, [index]);
+
+    return (
+        <div className={cn(
+            "relative p-8 rounded-2xl overflow-hidden transform-gpu transition-all duration-500 ease-out",
+            "hover:shadow-2xl hover:scale-105",
+            isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95",
+            className
+        )}>
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 backdrop-blur-sm"></div>
+            <div className="relative z-10 flex flex-col h-full">
+                <div className="mb-4 bg-white/10 p-3 rounded-full w-max shadow-lg">
+                    {icon}
+                </div>
+                <h3 className="font-headline text-2xl font-bold text-card-foreground mb-3">{title}</h3>
+                <p className="font-body text-card-foreground/80 flex-grow">{children}</p>
             </div>
-            <CardTitle className="font-headline">{title}</CardTitle>
-        </CardHeader>
-        <CardContent>
-            <p className="font-body">{children}</p>
-        </CardContent>
-    </Card>
-  )
+        </div>
+    );
 };
 
 
@@ -138,24 +137,27 @@ export default function Home() {
 
       <section className="py-12 md:py-16">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <FeatureCard 
+              <FeatureCard
                 icon={<Edit className="h-8 w-8 text-primary" />}
                 title="Insho yozing"
                 index={0}
+                className="bg-purple-50 dark:bg-purple-900/20"
               >
                 Inshoyim platformasida o‘z insholaringizni chop eting. Har bir fikr qadrlanadi, har bir yozuv esda qoladi.
               </FeatureCard>
-               <FeatureCard 
+               <FeatureCard
                 icon={<BookOpen className="h-8 w-8 text-primary" />}
-                title="Boshqalarning insholarini o‘qing"
+                title="Boshqalarni o‘qing"
                 index={1}
+                className="bg-blue-50 dark:bg-blue-900/20"
               >
                 Minglab foydalanuvchilarning insholari sizni kutmoqda. Yangi mavzular, turli yondashuvlar, real hayotiy fikrlar — barchasi shu yerda.
               </FeatureCard>
-               <FeatureCard 
+               <FeatureCard
                 icon={<Globe className="h-8 w-8 text-primary" />}
                 title="O‘zbek tilida bilim manbai"
                 index={2}
+                className="bg-green-50 dark:bg-green-900/20"
               >
                 Inshoyim — o‘zbek tilidagi insholar uchun maxsus platforma. Yozing, o‘qing, baham ko‘ring — barchasi ona tilingizda.
               </FeatureCard>
@@ -181,7 +183,7 @@ export default function Home() {
               {latestPosts.map((post, index) => (
                 <CarouselItem key={post.id} className="md:basis-1/2 lg:basis-1/3">
                   <div className="p-1">
-                    <EssayCard post={post} index={index} />
+                    <EssayCard post={post} index={index} onClick={() => router.push(`/posts/${post.id}`)} />
                   </div>
                 </CarouselItem>
               ))}
