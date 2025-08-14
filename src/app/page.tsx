@@ -54,7 +54,7 @@ const FeatureCard = ({ icon, title, children, index = 0, className }: { icon: Re
         <div
             ref={cardRef}
             className={cn(
-                "relative p-8 rounded-2xl overflow-hidden transform-gpu transition-all duration-500 ease-out group",
+                "relative p-8 rounded-2xl overflow-hidden transform-gpu transition-all duration-500 ease-out group border",
                 "before:absolute before:inset-0 before:z-0 before:bg-[radial-gradient(400px_circle_at_var(--mouse-x)_var(--mouse-y),_rgba(255,255,255,0.2),_transparent_40%)] before:opacity-0 before:transition-opacity before:duration-500 group-hover:before:opacity-100",
                 isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95",
                 className
