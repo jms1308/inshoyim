@@ -22,9 +22,7 @@ export default function ExplorePage() {
 
   const handleCardClick = (postId: string) => {
     setSelectedPostId(postId);
-    setTimeout(() => {
-      router.push(`/posts/${postId}`);
-    }, 300);
+    router.push(`/posts/${postId}`);
   };
 
   const filteredPosts = useMemo(() => {
