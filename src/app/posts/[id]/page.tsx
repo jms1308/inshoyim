@@ -5,6 +5,9 @@ import { getPostById } from '@/lib/services/posts';
 import { getUserById } from '@/lib/services/users';
 import PostClientPage from './PostClientPage';
 
+export const revalidate = 600; // Revalidate every 10 minutes
+export const dynamic = 'force-static';
+
 // Function to extract text from Editor.js content for SEO
 const getTextFromContent = (content: any): string => {
   if (typeof content === 'string') return content;
@@ -77,7 +80,8 @@ export async function generateMetadata(
 
 
 export default async function PostPage({ params }: Props) {
-  const post = await getPostById(params.id);
+  const postData = getPostById(params.id);
+  const [post] = await Promise.all([postData]);
 
   if (!post) {
     notFound();
