@@ -229,26 +229,26 @@ export default function Home() {
         <section className="py-12 md:py-16">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <FeatureCard
-                  icon={<Edit className="h-8 w-8 text-purple-700 dark:text-primary" />}
+                  icon={<Edit className="h-8 w-8 text-purple-700 dark:text-white" />}
                   title="Insho yozing"
                   index={0}
-                  className="bg-purple-50 dark:bg-secondary"
+                  className="bg-purple-50 dark:bg-card"
                 >
                   Inshoyim platformasida o‘z insholaringizni chop eting. Har bir fikr qadrlanadi, har bir yozuv esda qoladi.
                 </FeatureCard>
                 <FeatureCard
-                  icon={<BookOpen className="h-8 w-8 text-purple-700 dark:text-primary" />}
+                  icon={<BookOpen className="h-8 w-8 text-purple-700 dark:text-white" />}
                   title="Boshqalarni o‘qing"
                   index={1}
-                  className="bg-purple-50 dark:bg-secondary"
+                  className="bg-purple-50 dark:bg-card"
                 >
                   Minglab foydalanuvchilarning insholari sizni kutmoqda. Yangi mavzular, turli yondashuvlar, real hayotiy fikrlar — barchasi shu yerda.
                 </FeatureCard>
                 <FeatureCard
-                  icon={<Globe className="h-8 w-8 text-purple-700 dark:text-primary" />}
+                  icon={<Globe className="h-8 w-8 text-purple-700 dark:text-white" />}
                   title="O‘zbek tilida bilim manbai"
                   index={2}
-                  className="bg-purple-50 dark:bg-secondary"
+                  className="bg-purple-50 dark:bg-card"
                 >
                   Inshoyim — o‘zbek tilidagi insholar uchun maxsus platforma. Yozing, o‘qing, baham ko‘ring — barchasi ona tilingizda.
                 </FeatureCard>
