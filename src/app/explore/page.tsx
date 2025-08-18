@@ -7,11 +7,19 @@ import { EssayCard } from "@/components/EssayCard";
 import { AuthorCard } from "@/components/AuthorCard";
 import { Input } from "@/components/ui/input";
 import { usePosts } from '@/context/PostContext';
-import { Search } from "lucide-react";
+import { Search, ListFilter } from "lucide-react";
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Button } from '@/components/ui/button';
 import type { User, Post } from '@/types';
 
 type AuthorWithPostCount = User & { postCount: number };
@@ -159,22 +167,25 @@ export default function ExplorePage() {
 
        <section className="mt-12">
         <Tabs defaultValue="essays" className="w-full">
-            <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+            <div className="flex items-center justify-between mb-6 gap-4">
                 <TabsList className="grid w-full sm:w-auto grid-cols-2">
                     <TabsTrigger value="essays">Barcha Insholar</TabsTrigger>
                     <TabsTrigger value="authors">Mualliflar</TabsTrigger>
                 </TabsList>
-                 <div className="w-full sm:w-auto">
-                     <Select value={sortOrder} onValueChange={(value: 'newest' | 'most_viewed') => setSortOrder(value)}>
-                        <SelectTrigger className="w-full sm:w-[200px]">
-                            <SelectValue placeholder="Saralash" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="newest">Eng so'nggilari</SelectItem>
-                            <SelectItem value="most_viewed">Eng ko'p ko'rilganlar</SelectItem>
-                        </SelectContent>
-                    </Select>
-                 </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="flex items-center gap-2">
+                      <ListFilter className="h-4 w-4" />
+                      <span>Saralash</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-48" align="end">
+                    <DropdownMenuRadioGroup value={sortOrder} onValueChange={(value) => setSortOrder(value as 'newest' | 'most_viewed')}>
+                      <DropdownMenuRadioItem value="newest">Eng so'nggilari</DropdownMenuRadioItem>
+                      <DropdownMenuRadioItem value="most_viewed">Eng ko'p ko'rilganlar</DropdownMenuRadioItem>
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
             </div>
 
             <TabsContent value="essays">
