@@ -110,25 +110,30 @@ function AnimatedBackground() {
             {/* Dark mode */}
             <div className="hidden dark:block">
                  <div className="moon"></div>
-                 <div className="star" style={{ top: '10%', left: '25%', width: '2px', height: '2px' }}></div>
+                 <div className="star" style={{ top: '10%', left: '25%', width: '2px', height: '2px', animationDelay: '0s' }}></div>
                  <div className="star" style={{ top: '20%', left: '80%', width: '3px', height: '3px', animationDelay: '1s' }}></div>
                  <div className="star" style={{ top: '30%', left: '10%', width: '1px', height: '1px', animationDelay: '2s' }}></div>
                  <div className="star" style={{ top: '40%', left: '90%', width: '2px', height: '2px', animationDelay: '0.5s' }}></div>
-                 <div className="star" style={{ top: '50%', left: '50%', width: '2px', height: '2px' }}></div>
+                 <div className="star" style={{ top: '50%', left: '50%', width: '2px', height: '2px', animationDelay: '3s' }}></div>
                  <div className="star" style={{ top: '60%', left: '15%', width: '1px', height: '1px', animationDelay: '1.5s' }}></div>
                  <div className="star" style={{ top: '70%', left: '75%', width: '3px', height: '3px', animationDelay: '2.5s' }}></div>
-                 <div className="star" style={{ top: '80%', left: '30%', width: '2px', height: '2px', animationDelay: '1s' }}></div>
-                 <div className="star" style={{ top: '90%', left: '60%', width: '1px', height: '1px' }}></div>
-                 <div className="star" style={{ top: '15%', left: '5%', width: '1px', height: '1px', animationDelay: '3s' }}></div>
-                 <div className="star" style={{ top: '25%', left: '95%', width: '2px', height: '2px', animationDelay: '1.2s' }}></div>
+                 <div className="star" style={{ top: '80%', left: '30%', width: '2px', height: '2px', animationDelay: '1.2s' }}></div>
+                 <div className="star" style={{ top: '90%', left: '60%', width: '1px', height: '1px', animationDelay: '0.2s' }}></div>
+                 <div className="star" style={{ top: '15%', left: '5%', width: '1px', height: '1px', animationDelay: '3.8s' }}></div>
+                 <div className="star" style={{ top: '25%', left: '95%', width: '2px', height: '2px', animationDelay: '1.8s' }}></div>
                  <div className="star" style={{ top: '35%', left: '20%', width: '3px', height: '3px', animationDelay: '0.8s' }}></div>
                  <div className="star" style={{ top: '45%', left: '70%', width: '1px', height: '1px', animationDelay: '2.2s' }}></div>
-                 <div className="star" style={{ top: '55%', left: '40%', width: '2px', height: '2px', animationDelay: '1.8s' }}></div>
+                 <div className="star" style={{ top: '55%', left: '40%', width: '2px', height: '2px', animationDelay: '1.4s' }}></div>
                  <div className="star" style={{ top: '65%', left: '85%', width: '1px', height: '1px', animationDelay: '3.5s' }}></div>
-                 <div className="star" style={{ top: '75%', left: '5%', width: '3px', height: '3px', animationDelay: '0.2s' }}></div>
+                 <div className="star" style={{ top: '75%', left: '5%', width: '3px', height: '3px', animationDelay: '0.4s' }}></div>
                  <div className="star" style={{ top: '85%', left: '55%', width: '2px', height: '2px', animationDelay: '2.8s' }}></div>
                  <div className="star" style={{ top: '95%', left: '25%', width: '1px', height: '1px', animationDelay: '1.3s' }}></div>
                  <div className="star" style={{ top: '5%', left: '50%', width: '2px', height: '2px', animationDelay: '0.7s' }}></div>
+                 <div className="star" style={{ top: '12%', left: '35%', width: '1px', height: '1px', animationDelay: '2.1s' }}></div>
+                 <div className="star" style={{ top: '22%', left: '65%', width: '2px', height: '2px', animationDelay: '3.2s' }}></div>
+                 <div className="star" style={{ top: '33%', left: '85%', width: '3px', height: '3px', animationDelay: '0.1s' }}></div>
+                 <div className="star" style={{ top: '48%', left: '15%', width: '1px', height: '1px', animationDelay: '1.9s' }}></div>
+                 <div className="star" style={{ top: '58%', left: '75%', width: '2px', height: '2px', animationDelay: '2.4s' }}></div>
             </div>
         </div>
     );
@@ -206,13 +211,13 @@ export default function Home() {
               </p>
               <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
                   <Link href="/explore">
-                      <Button size="lg" variant="outline" className="font-headline shadow-md hover:shadow-lg transition-shadow">
+                      <Button size="lg" variant="outline" className="font-headline shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all">
                           Barcha insholar
                           <ArrowRight className="ml-2 h-5 w-5" />
                       </Button>
                   </Link>
                   <Link href="/yozish">
-                      <Button size="lg" className="font-headline shadow-md hover:shadow-lg transition-shadow">
+                      <Button size="lg" className="font-headline shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all">
                           Yozishni boshlash
                           <Edit className="ml-2 h-5 w-5" />
                       </Button>
