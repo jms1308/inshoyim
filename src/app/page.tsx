@@ -200,7 +200,7 @@ export default function Home() {
     <div className="relative isolate">
       <AnimatedBackground />
       <div className="container mx-auto px-4 py-8 md:py-12 relative z-10">
-        <section className="text-center py-12 md:py-20 animate-fade-in-up">
+        <section className="text-center py-24 md:py-20 animate-fade-in-up">
           <div>
               <h1 className="font-body text-4xl md:text-6xl font-bold tracking-tighter leading-tight h-20 md:h-24">
               {dynamicText}
