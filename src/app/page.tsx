@@ -232,7 +232,7 @@ export default function Home() {
                   icon={<Edit className="h-8 w-8 text-purple-700 dark:text-primary" />}
                   title="Insho yozing"
                   index={0}
-                  className="bg-purple-50 dark:bg-purple-900/20"
+                  className="bg-purple-50 dark:bg-secondary"
                 >
                   Inshoyim platformasida o‘z insholaringizni chop eting. Har bir fikr qadrlanadi, har bir yozuv esda qoladi.
                 </FeatureCard>
@@ -240,7 +240,7 @@ export default function Home() {
                   icon={<BookOpen className="h-8 w-8 text-purple-700 dark:text-primary" />}
                   title="Boshqalarni o‘qing"
                   index={1}
-                  className="bg-purple-50 dark:bg-purple-900/20"
+                  className="bg-purple-50 dark:bg-secondary"
                 >
                   Minglab foydalanuvchilarning insholari sizni kutmoqda. Yangi mavzular, turli yondashuvlar, real hayotiy fikrlar — barchasi shu yerda.
                 </FeatureCard>
@@ -248,7 +248,7 @@ export default function Home() {
                   icon={<Globe className="h-8 w-8 text-purple-700 dark:text-primary" />}
                   title="O‘zbek tilida bilim manbai"
                   index={2}
-                  className="bg-purple-50 dark:bg-purple-900/20"
+                  className="bg-purple-50 dark:bg-secondary"
                 >
                   Inshoyim — o‘zbek tilidagi insholar uchun maxsus platforma. Yozing, o‘qing, baham ko‘ring — barchasi ona tilingizda.
                 </FeatureCard>
