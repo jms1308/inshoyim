@@ -295,7 +295,7 @@ function CommentSection({ postId, allComments, onCommentChange, loggedInUser }: 
 function renderContent(content: any) {
   if (!content || !content.blocks) {
     if (typeof content === 'string') {
-      return <div dangerouslySetInnerHTML={{ __html: content }} />;
+      return <div className="break-words" dangerouslySetInnerHTML={{ __html: content }} />;
     }
     return <p>Kontent mavjud emas.</p>;
   }
@@ -304,15 +304,15 @@ function renderContent(content: any) {
     switch (block.type) {
       case 'header':
         const Tag = `h${block.data.level}` as keyof JSX.IntrinsicElements;
-        return <Tag key={index} dangerouslySetInnerHTML={{ __html: block.data.text }} />;
+        return <Tag key={index} className="break-words" dangerouslySetInnerHTML={{ __html: block.data.text }} />;
       case 'paragraph':
-        return <p key={index} dangerouslySetInnerHTML={{ __html: block.data.text }} />;
+        return <p key={index} className="break-words" dangerouslySetInnerHTML={{ __html: block.data.text }} />;
       case 'list':
         const ListTag = block.data.style === 'ordered' ? 'ol' : 'ul';
         return (
           <ListTag key={index}>
             {block.data.items.map((item: string, i: number) => (
-              <li key={i} dangerouslySetInnerHTML={{ __html: item }} />
+              <li key={i} className="break-words" dangerouslySetInnerHTML={{ __html: item }} />
             ))}
           </ListTag>
         );
@@ -333,8 +333,8 @@ function renderContent(content: any) {
       case 'quote':
         return (
             <blockquote key={index} className="border-l-4 border-primary pl-4 italic text-muted-foreground my-6">
-                <p className="mb-0" dangerouslySetInnerHTML={{ __html: block.data.text }} />
-                {block.data.caption && <footer className="text-sm not-italic text-right mt-2" dangerouslySetInnerHTML={{ __html: block.data.caption }} />}
+                <p className="mb-0 break-words" dangerouslySetInnerHTML={{ __html: block.data.text }} />
+                {block.data.caption && <footer className="text-sm not-italic text-right mt-2 break-words" dangerouslySetInnerHTML={{ __html: block.data.caption }} />}
             </blockquote>
         );
       default:
@@ -483,7 +483,7 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
             <Badge key={tag} variant="secondary" className="text-sm">{tag}</Badge>
           ))}
         </div>
-        <h1 className="font-headline text-2xl md:text-4xl font-extrabold leading-tight tracking-tighter mb-4">
+        <h1 className="font-headline text-2xl md:text-4xl font-extrabold leading-tight tracking-tighter mb-4 break-words">
           {post.title}
         </h1>
         <div className="flex flex-wrap items-center gap-x-6 gap-y-4 text-sm text-muted-foreground">
@@ -554,3 +554,5 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
     </article>
   );
 }
+
+    
