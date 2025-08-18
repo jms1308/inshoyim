@@ -37,7 +37,7 @@ export function EssayCard({ post, className }: EssayCardProps) {
   return (
     <Link href={`/posts/${post.id}`} className="group block h-full">
       <Card className={cn(
-        "flex flex-col overflow-hidden transition-all duration-300 ease-in-out",
+        "flex flex-col h-full overflow-hidden transition-all duration-300 ease-in-out",
         "group-hover:shadow-xl group-hover:-translate-y-2",
         className
       )}>
