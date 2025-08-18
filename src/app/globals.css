@@ -142,12 +142,12 @@
 
   /* Animated background styles */
   .sun {
-    @apply absolute top-20 left-20 w-24 h-24 bg-yellow-400 rounded-full opacity-30;
+    @apply absolute top-10 left-1/2 -translate-x-1/2 md:left-20 md:translate-x-0 w-24 h-24 bg-yellow-400 rounded-full opacity-30 transition-all;
     box-shadow: 0 0 40px 20px theme('colors.yellow.400');
   }
 
   .moon {
-      @apply absolute top-24 right-20 w-20 h-20 rounded-full opacity-60;
+      @apply absolute top-12 right-1/2 translate-x-1/2 md:right-20 md:translate-x-0 w-20 h-20 rounded-full opacity-60 transition-all;
       box-shadow: inset -10px 2px 0 0px theme('colors.white');
   }
 

@@ -119,6 +119,16 @@ function AnimatedBackground() {
                  <div className="star" style={{ top: '70%', left: '75%', width: '3px', height: '3px', animationDelay: '2.5s' }}></div>
                  <div className="star" style={{ top: '80%', left: '30%', width: '2px', height: '2px', animationDelay: '1s' }}></div>
                  <div className="star" style={{ top: '90%', left: '60%', width: '1px', height: '1px' }}></div>
+                 <div className="star" style={{ top: '15%', left: '5%', width: '1px', height: '1px', animationDelay: '3s' }}></div>
+                 <div className="star" style={{ top: '25%', left: '95%', width: '2px', height: '2px', animationDelay: '1.2s' }}></div>
+                 <div className="star" style={{ top: '35%', left: '20%', width: '3px', height: '3px', animationDelay: '0.8s' }}></div>
+                 <div className="star" style={{ top: '45%', left: '70%', width: '1px', height: '1px', animationDelay: '2.2s' }}></div>
+                 <div className="star" style={{ top: '55%', left: '40%', width: '2px', height: '2px', animationDelay: '1.8s' }}></div>
+                 <div className="star" style={{ top: '65%', left: '85%', width: '1px', height: '1px', animationDelay: '3.5s' }}></div>
+                 <div className="star" style={{ top: '75%', left: '5%', width: '3px', height: '3px', animationDelay: '0.2s' }}></div>
+                 <div className="star" style={{ top: '85%', left: '55%', width: '2px', height: '2px', animationDelay: '2.8s' }}></div>
+                 <div className="star" style={{ top: '95%', left: '25%', width: '1px', height: '1px', animationDelay: '1.3s' }}></div>
+                 <div className="star" style={{ top: '5%', left: '50%', width: '2px', height: '2px', animationDelay: '0.7s' }}></div>
             </div>
         </div>
     );
