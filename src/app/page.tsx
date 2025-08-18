@@ -211,7 +211,7 @@ export default function Home() {
               </p>
               <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
                   <Link href="/explore">
-                      <Button size="lg" variant="outline" className="font-headline shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all">
+                      <Button size="lg" variant="secondary" className="font-headline shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all">
                           Barcha insholar
                           <ArrowRight className="ml-2 h-5 w-5" />
                       </Button>
