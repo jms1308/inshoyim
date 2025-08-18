@@ -286,8 +286,8 @@ export default function Home() {
               <CarouselContent>
                 {latestPosts.map((post, index) => (
                   <CarouselItem key={post.id} className="md:basis-1/2 lg:basis-1/3">
-                    <div className="p-1">
-                      <EssayCard post={post} />
+                    <div className="p-1 h-full">
+                      <EssayCard post={post} className="h-full" />
                     </div>
                   </CarouselItem>
                 ))}

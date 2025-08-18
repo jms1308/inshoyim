@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 
 interface EssayCardProps {
   post: Post;
+  className?: string;
 }
 
 const getExcerptFromContent = (content: any): string => {
@@ -28,7 +29,7 @@ const getExcerptFromContent = (content: any): string => {
     return '';
 };
 
-export function EssayCard({ post }: EssayCardProps) {
+export function EssayCard({ post, className }: EssayCardProps) {
   const excerpt = getExcerptFromContent(post.content);
   const author = post.author;
   const authorInitials = author?.name.split(' ').map(n => n[0]).join('') || 'U';
@@ -36,8 +37,9 @@ export function EssayCard({ post }: EssayCardProps) {
   return (
     <Link href={`/posts/${post.id}`} className="group block h-full">
       <Card className={cn(
-        "flex flex-col h-full overflow-hidden transition-all duration-300 ease-in-out",
-        "group-hover:shadow-xl group-hover:-translate-y-2"
+        "flex flex-col overflow-hidden transition-all duration-300 ease-in-out",
+        "group-hover:shadow-xl group-hover:-translate-y-2",
+        className
       )}>
         <CardHeader>
           <CardTitle className="font-headline text-2xl leading-tight group-hover:text-primary transition-colors">
