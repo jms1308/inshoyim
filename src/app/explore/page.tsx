@@ -59,7 +59,19 @@ export default function ExplorePage() {
   const { posts: allPosts, loading } = usePosts();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState<'newest' | 'most_viewed'>('newest');
+  const [isMobile, setIsMobile] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    const checkWidth = () => {
+      setIsMobile(window.innerWidth < 380);
+    };
+
+    checkWidth(); // Initial check
+    window.addEventListener('resize', checkWidth);
+
+    return () => window.removeEventListener('resize', checkWidth);
+  }, []);
 
   const filteredPosts = useMemo(() => {
     let posts = allPosts;
@@ -68,7 +80,7 @@ export default function ExplorePage() {
       posts = posts.filter(post =>
         post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        post.author?.name.toLowerCase().includes(searchTerm.toLowerCase())
+        (post.author && post.author.name.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
 
@@ -87,7 +99,10 @@ export default function ExplorePage() {
     allPosts.forEach(post => {
       if (post.author) {
         if (authorMap.has(post.author.id)) {
-          authorMap.get(post.author.id)!.postCount++;
+          const authorData = authorMap.get(post.author.id);
+          if (authorData) {
+            authorData.postCount++;
+          }
         } else {
           authorMap.set(post.author.id, {
             ...post.author,
@@ -169,7 +184,7 @@ export default function ExplorePage() {
         <Tabs defaultValue="essays" className="w-full">
             <div className="flex items-center justify-between mb-6 gap-4">
                 <TabsList className="grid w-full sm:w-auto grid-cols-2">
-                    <TabsTrigger value="essays">Barcha Insholar</TabsTrigger>
+                    <TabsTrigger value="essays">{isMobile ? 'Insholar' : 'Barcha Insholar'}</TabsTrigger>
                     <TabsTrigger value="authors">Mualliflar</TabsTrigger>
                 </TabsList>
                 <DropdownMenu>
