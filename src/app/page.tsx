@@ -97,6 +97,32 @@ function EssayCardSkeleton() {
   )
 }
 
+function AnimatedBackground() {
+    return (
+        <div className="absolute top-0 left-0 w-full h-full -z-10 overflow-hidden">
+            {/* Light mode */}
+            <div className="block dark:hidden">
+                <div className="sun"></div>
+                <div className="cloud cloud-1" style={{ top: '10%', left: '10%', width: '150px', height: '50px' }}></div>
+                <div className="cloud cloud-2" style={{ top: '25%', left: '50%', width: '200px', height: '60px', opacity: 0.8 }}></div>
+                <div className="cloud cloud-3" style={{ top: '50%', left: '20%', width: '120px', height: '40px' }}></div>
+            </div>
+            {/* Dark mode */}
+            <div className="hidden dark:block">
+                 <div className="moon"></div>
+                 <div className="star" style={{ top: '10%', left: '25%', width: '2px', height: '2px' }}></div>
+                 <div className="star" style={{ top: '20%', left: '80%', width: '3px', height: '3px', animationDelay: '1s' }}></div>
+                 <div className="star" style={{ top: '30%', left: '10%', width: '1px', height: '1px', animationDelay: '2s' }}></div>
+                 <div className="star" style={{ top: '40%', left: '90%', width: '2px', height: '2px', animationDelay: '0.5s' }}></div>
+                 <div className="star" style={{ top: '50%', left: '50%', width: '2px', height: '2px' }}></div>
+                 <div className="star" style={{ top: '60%', left: '15%', width: '1px', height: '1px', animationDelay: '1.5s' }}></div>
+                 <div className="star" style={{ top: '70%', left: '75%', width: '3px', height: '3px', animationDelay: '2.5s' }}></div>
+                 <div className="star" style={{ top: '80%', left: '30%', width: '2px', height: '2px', animationDelay: '1s' }}></div>
+                 <div className="star" style={{ top: '90%', left: '60%', width: '1px', height: '1px' }}></div>
+            </div>
+        </div>
+    );
+}
 
 export default function Home() {
   const { posts, loading } = usePosts();
@@ -156,104 +182,107 @@ export default function Home() {
   )
 
   return (
-    <div className="container mx-auto px-4 py-8 md:py-12">
-       <section className="text-center py-12 md:py-20 animate-fade-in-up">
-        <div>
-            <h1 className="font-body text-4xl md:text-6xl font-bold tracking-tighter leading-tight h-20 md:h-24">
-            {dynamicText}
-            <span className="animate-ping">|</span>
-            </h1>
-            <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto font-headline">
-              O‘z g‘oyalaringizni barcha bilan bo‘lishishga tayyormisiz? Bizning platformamizda har kim o‘z fikrini erkin ifoda eta oladi.
-            </p>
-            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link href="/explore">
-                    <Button size="lg" variant="outline" className="font-headline shadow-md hover:shadow-lg transition-shadow">
-                        Barcha insholar
-                        <ArrowRight className="ml-2 h-5 w-5" />
-                    </Button>
-                </Link>
-                <Link href="/yozish">
-                    <Button size="lg" className="font-headline shadow-md hover:shadow-lg transition-shadow">
-                        Yozishni boshlash
-                        <Edit className="ml-2 h-5 w-5" />
-                    </Button>
-                </Link>
-            </div>
-        </div>
-      </section>
-
-      <section className="py-12 md:py-16">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <FeatureCard
-                icon={<Edit className="h-8 w-8 text-purple-700" />}
-                title="Insho yozing"
-                index={0}
-                className="bg-purple-50 dark:bg-purple-900/20"
-              >
-                Inshoyim platformasida o‘z insholaringizni chop eting. Har bir fikr qadrlanadi, har bir yozuv esda qoladi.
-              </FeatureCard>
-               <FeatureCard
-                icon={<BookOpen className="h-8 w-8 text-purple-700" />}
-                title="Boshqalarni o‘qing"
-                index={1}
-                className="bg-purple-50 dark:bg-purple-900/20"
-              >
-                Minglab foydalanuvchilarning insholari sizni kutmoqda. Yangi mavzular, turli yondashuvlar, real hayotiy fikrlar — barchasi shu yerda.
-              </FeatureCard>
-               <FeatureCard
-                icon={<Globe className="h-8 w-8 text-purple-700" />}
-                title="O‘zbek tilida bilim manbai"
-                index={2}
-                className="bg-purple-50 dark:bg-purple-900/20"
-              >
-                Inshoyim — o‘zbek tilidagi insholar uchun maxsus platforma. Yozing, o‘qing, baham ko‘ring — barchasi ona tilingizda.
-              </FeatureCard>
+    <div className="relative isolate">
+      <AnimatedBackground />
+      <div className="container mx-auto px-4 py-8 md:py-12 relative z-10">
+        <section className="text-center py-12 md:py-20 animate-fade-in-up">
+          <div>
+              <h1 className="font-body text-4xl md:text-6xl font-bold tracking-tighter leading-tight h-20 md:h-24">
+              {dynamicText}
+              <span className="animate-ping">|</span>
+              </h1>
+              <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto font-headline">
+                O‘z g‘oyalaringizni barcha bilan bo‘lishishga tayyormisiz? Bizning platformamizda har kim o‘z fikrini erkin ifoda eta oladi.
+              </p>
+              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+                  <Link href="/explore">
+                      <Button size="lg" variant="outline" className="font-headline shadow-md hover:shadow-lg transition-shadow">
+                          Barcha insholar
+                          <ArrowRight className="ml-2 h-5 w-5" />
+                      </Button>
+                  </Link>
+                  <Link href="/yozish">
+                      <Button size="lg" className="font-headline shadow-md hover:shadow-lg transition-shadow">
+                          Yozishni boshlash
+                          <Edit className="ml-2 h-5 w-5" />
+                      </Button>
+                  </Link>
+              </div>
           </div>
-      </section>
+        </section>
 
-      <section>
-        <h2 className="font-headline text-3xl font-bold mb-8 text-center md:text-left">So'nggi nashrlar</h2>
-        {loading ? (
-           <Carousel
-            opts={{ align: "start", loop: false }}
-            className="w-full"
-          >
-            <CarouselContent>
-              {Array.from({ length: 3 }).map((_, index) => (
-                <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
-                  <EssayCardSkeleton />
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 md:-left-4" />
-            <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 md:-right-4" />
-          </Carousel>
-        ) : (
-          <Carousel
-            plugins={[plugin.current]}
-            opts={{
-              align: "start",
-              loop: true,
-            }}
-            className="w-full"
-            onMouseEnter={plugin.current.stop}
-            onMouseLeave={plugin.current.reset}
-          >
-            <CarouselContent>
-              {latestPosts.map((post, index) => (
-                <CarouselItem key={post.id} className="md:basis-1/2 lg:basis-1/3">
-                  <div className="p-1">
-                    <EssayCard post={post} />
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 md:-left-4" />
-            <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 md:-right-4" />
-          </Carousel>
-        )}
-      </section>
+        <section className="py-12 md:py-16">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <FeatureCard
+                  icon={<Edit className="h-8 w-8 text-purple-700" />}
+                  title="Insho yozing"
+                  index={0}
+                  className="bg-purple-50 dark:bg-purple-900/20"
+                >
+                  Inshoyim platformasida o‘z insholaringizni chop eting. Har bir fikr qadrlanadi, har bir yozuv esda qoladi.
+                </FeatureCard>
+                <FeatureCard
+                  icon={<BookOpen className="h-8 w-8 text-purple-700" />}
+                  title="Boshqalarni o‘qing"
+                  index={1}
+                  className="bg-purple-50 dark:bg-purple-900/20"
+                >
+                  Minglab foydalanuvchilarning insholari sizni kutmoqda. Yangi mavzular, turli yondashuvlar, real hayotiy fikrlar — barchasi shu yerda.
+                </FeatureCard>
+                <FeatureCard
+                  icon={<Globe className="h-8 w-8 text-purple-700" />}
+                  title="O‘zbek tilida bilim manbai"
+                  index={2}
+                  className="bg-purple-50 dark:bg-purple-900/20"
+                >
+                  Inshoyim — o‘zbek tilidagi insholar uchun maxsus platforma. Yozing, o‘qing, baham ko‘ring — barchasi ona tilingizda.
+                </FeatureCard>
+            </div>
+        </section>
+
+        <section>
+          <h2 className="font-headline text-3xl font-bold mb-8 text-center md:text-left">So'nggi nashrlar</h2>
+          {loading ? (
+            <Carousel
+              opts={{ align: "start", loop: false }}
+              className="w-full"
+            >
+              <CarouselContent>
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                    <EssayCardSkeleton />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 md:-left-4" />
+              <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 md:-right-4" />
+            </Carousel>
+          ) : (
+            <Carousel
+              plugins={[plugin.current]}
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              className="w-full"
+              onMouseEnter={plugin.current.stop}
+              onMouseLeave={plugin.current.reset}
+            >
+              <CarouselContent>
+                {latestPosts.map((post, index) => (
+                  <CarouselItem key={post.id} className="md:basis-1/2 lg:basis-1/3">
+                    <div className="p-1">
+                      <EssayCard post={post} />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 md:-left-4" />
+              <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 md:-right-4" />
+            </Carousel>
+          )}
+        </section>
+      </div>
     </div>
   );
 }

@@ -23,7 +23,6 @@
     --border: 251 20% 88%;
     --input: 251 20% 88%;
     --ring: 259 100% 70%;
-    --radius: 0.5rem;
   }
   .dark {
     --background: 259 15% 10%;
@@ -140,4 +139,38 @@
   .animation-delay-200 { animation-delay: 200ms; }
   .animation-delay-300 { animation-delay: 300ms; }
   .animation-delay-500 { animation-delay: 500ms; }
+
+  /* Animated background styles */
+  .sun {
+    @apply absolute top-20 left-20 w-24 h-24 bg-yellow-400 rounded-full opacity-30;
+    box-shadow: 0 0 40px 20px theme('colors.yellow.400');
+  }
+
+  .moon {
+      @apply absolute top-24 right-20 w-20 h-20 rounded-full opacity-60;
+      box-shadow: inset -10px 2px 0 0px theme('colors.white');
+  }
+
+  .cloud {
+    @apply absolute bg-white/50 dark:bg-gray-400/10 rounded-full;
+  }
+  
+  .star {
+      @apply absolute bg-white rounded-full;
+      animation: twinkle 4s infinite ease-in-out;
+  }
+
+  @keyframes move-clouds {
+    0% { transform: translateX(-200px); }
+    100% { transform: translateX(100vw); }
+  }
+  
+  .cloud-1 { animation: move-clouds 60s linear infinite; }
+  .cloud-2 { animation: move-clouds 75s linear infinite 5s; }
+  .cloud-3 { animation: move-clouds 90s linear infinite 10s; }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
 }
