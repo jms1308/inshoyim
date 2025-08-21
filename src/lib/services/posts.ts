@@ -37,19 +37,15 @@ const postFromDocData = (id: string, data: DocumentData): Post => {
     } as Post;
 }
 
-export async function getPublishedPosts(lastVisible: QueryDocumentSnapshot<DocumentData> | null = null): Promise<{ posts: Post[], lastVisible: QueryDocumentSnapshot<DocumentData> | null }> {
+export async function getPublishedPosts(): Promise<Post[]> {
     const q = query(
         postsCollection, 
         where('status', '==', 'published'),
-        orderBy('created_at', 'desc'),
-        ...(lastVisible ? [startAfter(lastVisible)] : []),
-        limit(9)
+        orderBy('created_at', 'desc')
     );
     const snapshot = await getDocs(q);
     const posts = snapshot.docs.map(doc => postFromDocData(doc.id, doc.data()));
-    const newLastVisible = snapshot.docs.length > 0 ? snapshot.docs[snapshot.docs.length - 1] : null;
-
-    return { posts, lastVisible: newLastVisible };
+    return posts;
 }
 
 
@@ -201,3 +197,5 @@ export async function deletePost(postId: string): Promise<void> {
     const postRef = doc(db, 'posts', postId);
     await deleteDoc(postRef);
 }
+
+    

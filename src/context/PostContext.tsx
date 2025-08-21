@@ -53,7 +53,6 @@ export function PostsProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    // Fetch posts when the provider mounts
     fetchPosts();
   }, [fetchPosts]);
   
@@ -77,3 +76,5 @@ export function usePosts() {
   }
   return context;
 }
+
+    
