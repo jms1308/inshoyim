@@ -191,9 +191,7 @@
     100% { transform: translateX(100vw); }
   }
   
-  .cloud-1 { animation: move-clouds 60s linear infinite; }
-  .cloud-2 { animation: move-clouds 75s linear infinite 5s; }
-  .cloud-3 { animation: move-clouds 90s linear infinite 10s; }
+  .cloud-1 { animation: move-clouds 80s linear infinite; }
 
   @keyframes twinkle {
     0%, 100% { opacity: 0.5; transform: scale(1); }

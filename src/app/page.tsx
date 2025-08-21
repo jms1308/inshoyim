@@ -103,9 +103,7 @@ function AnimatedBackground() {
             {/* Light mode */}
             <div className="block dark:hidden">
                 <div className="sun"></div>
-                <div className="cloud cloud-1" style={{ top: '15%', left: '10%', transform: 'scale(0.8)' }}></div>
-                <div className="cloud cloud-2" style={{ top: '25%', left: '50%', transform: 'scale(1.2)'}}></div>
-                <div className="cloud cloud-3" style={{ top: '60%', left: '20%', transform: 'scale(0.9)' }}></div>
+                <div className="cloud cloud-1" style={{ top: '20%', left: '10%' }}></div>
             </div>
             {/* Dark mode */}
             <div className="hidden dark:block">
@@ -200,7 +198,7 @@ export default function Home() {
     <div className="relative isolate">
       <AnimatedBackground />
       <div className="container mx-auto px-4 py-8 md:py-12 relative z-10">
-        <section className="text-center py-12 md:py-20 animate-fade-in-up">
+        <section className="text-center py-24 md:py-20 animate-fade-in-up">
           <div>
               <h1 className="font-body text-4xl md:text-6xl font-bold tracking-tighter leading-tight h-20 md:h-24">
               {dynamicText}
@@ -229,26 +227,26 @@ export default function Home() {
         <section className="py-12 md:py-16">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <FeatureCard
-                  icon={<Edit className="h-8 w-8 text-purple-700 dark:text-primary" />}
+                  icon={<Edit className="h-8 w-8 text-purple-700 dark:text-white" />}
                   title="Insho yozing"
                   index={0}
-                  className="bg-purple-50 dark:bg-purple-900/20"
+                  className="bg-purple-50 dark:bg-secondary"
                 >
                   Inshoyim platformasida o‘z insholaringizni chop eting. Har bir fikr qadrlanadi, har bir yozuv esda qoladi.
                 </FeatureCard>
                 <FeatureCard
-                  icon={<BookOpen className="h-8 w-8 text-purple-700 dark:text-primary" />}
+                  icon={<BookOpen className="h-8 w-8 text-purple-700 dark:text-white" />}
                   title="Boshqalarni o‘qing"
                   index={1}
-                  className="bg-purple-50 dark:bg-purple-900/20"
+                  className="bg-purple-50 dark:bg-secondary"
                 >
                   Minglab foydalanuvchilarning insholari sizni kutmoqda. Yangi mavzular, turli yondashuvlar, real hayotiy fikrlar — barchasi shu yerda.
                 </FeatureCard>
                 <FeatureCard
-                  icon={<Globe className="h-8 w-8 text-purple-700 dark:text-primary" />}
+                  icon={<Globe className="h-8 w-8 text-purple-700 dark:text-white" />}
                   title="O‘zbek tilida bilim manbai"
                   index={2}
-                  className="bg-purple-50 dark:bg-purple-900/20"
+                  className="bg-purple-50 dark:bg-secondary"
                 >
                   Inshoyim — o‘zbek tilidagi insholar uchun maxsus platforma. Yozing, o‘qing, baham ko‘ring — barchasi ona tilingizda.
                 </FeatureCard>
@@ -286,8 +284,8 @@ export default function Home() {
               <CarouselContent>
                 {latestPosts.map((post, index) => (
                   <CarouselItem key={post.id} className="md:basis-1/2 lg:basis-1/3">
-                    <div className="p-1">
-                      <EssayCard post={post} />
+                    <div className="p-1 h-full">
+                      <EssayCard post={post} className="h-full" />
                     </div>
                   </CarouselItem>
                 ))}
