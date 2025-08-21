@@ -152,23 +152,17 @@
   }
 
   .cloud {
-    @apply absolute bg-white/50 dark:bg-gray-400/10 rounded-full;
+    @apply absolute bg-sky-100/80 dark:bg-sky-900/20 rounded-full blur-[2px];
     width: 200px;
     height: 60px;
-    background: #f2f9fe;
-    box-shadow: 10px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 10px 10px rgba(0, 0, 0, 0.02);
     border-radius: 100px;
   }
 
   .cloud::before, .cloud::after {
     content: '';
-    position: absolute;
-    background: #f2f9fe;
+    @apply absolute bg-sky-100/80 dark:bg-sky-900/20;
     z-index: -1;
-  }
-
-  .dark .cloud, .dark .cloud::before, .dark .cloud::after {
-      background: #4a5568a1;
   }
 
   .cloud::before {
@@ -193,7 +187,7 @@
   }
 
   @keyframes move-clouds {
-    0% { transform: translateX(-200px); }
+    0% { transform: translateX(10%); }
     100% { transform: translateX(100vw); }
   }
   
