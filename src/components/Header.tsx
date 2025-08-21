@@ -15,6 +15,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { LoginDialog } from '@/components/LoginDialog';
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,6 +35,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import type { User } from '@/types';
 import { RegisterDialog } from './RegisterDialog';
 import { useAuthDialog } from '@/context/AuthDialogContext';
+import { Progress } from './ui/progress';
 
 function MobileNav({ user }: { user: User | null }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -106,6 +108,10 @@ function AuthButtons({ isDropdown = false }: { isDropdown?: boolean }) {
 
 export function Header() {
   const [user, setUser] = useState<User | null>(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const pathname = usePathname();
+
+  const isPostPage = pathname.startsWith('/posts/');
 
   useEffect(() => {
     // Check if user data exists in localStorage
@@ -123,8 +129,23 @@ export function Header() {
        }
     };
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+
+    const handleScroll = () => {
+        const totalHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = window.scrollY;
+        const progress = (scrolled / totalHeight) * 100;
+        setScrollProgress(progress);
+    };
+
+    if (isPostPage) {
+        window.addEventListener('scroll', handleScroll);
+    }
+    
+    return () => {
+        window.removeEventListener('storage', handleStorageChange);
+        window.removeEventListener('scroll', handleScroll);
+    };
+  }, [isPostPage]);
 
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -251,6 +272,14 @@ export function Header() {
             )}
           </div>
         </div>
+         {isPostPage && (
+            <div className="absolute bottom-0 left-0 w-full h-[3px]">
+              <div
+                  className="h-full bg-primary transition-all duration-150 ease-linear"
+                  style={{ width: `${scrollProgress}%` }}
+              />
+            </div>
+        )}
       </header>
     </>
   );

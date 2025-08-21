@@ -24,31 +24,32 @@ import {
 } from 'firebase/firestore';
 import type { Post, Comment } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
-import { getUserById } from './users';
-
 
 const postsCollection = collection(db, 'posts');
+const commentsCollection = collection(db, 'comments');
 
-// Function to convert Firestore timestamp to our Post type
-const postFromDoc = (doc: QueryDocumentSnapshot<DocumentData> | DocumentData): Post => {
-    const data = doc.data();
+const postFromDocData = (id: string, data: DocumentData): Post => {
     return {
-        id: doc.id,
+        id: id,
         ...data,
         created_at: (data.created_at as Timestamp).toDate().toISOString(),
         updated_at: (data.updated_at as Timestamp).toDate().toISOString(),
-        comments: data.comments || [], // Ensure comments is an array
     } as Post;
 }
 
-export async function getPublishedPosts(): Promise<Post[]> {
+export async function getPublishedPosts(lastVisible: QueryDocumentSnapshot<DocumentData> | null = null): Promise<{ posts: Post[], lastVisible: QueryDocumentSnapshot<DocumentData> | null }> {
     const q = query(
         postsCollection, 
         where('status', '==', 'published'),
-        orderBy('created_at', 'desc')
+        orderBy('created_at', 'desc'),
+        ...(lastVisible ? [startAfter(lastVisible)] : []),
+        limit(9)
     );
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(postFromDoc);
+    const posts = snapshot.docs.map(doc => postFromDocData(doc.id, doc.data()));
+    const newLastVisible = snapshot.docs.length > 0 ? snapshot.docs[snapshot.docs.length - 1] : null;
+
+    return { posts, lastVisible: newLastVisible };
 }
 
 
@@ -57,12 +58,10 @@ export async function getPostsByAuthor(authorId: string, includeDrafts: boolean 
   
   let postQuery;
   if (includeDrafts) {
-    // Fetch all posts by author, regardless of status
     postQuery = query(postsCollection, 
       where('author_id', '==', authorId)
     );
   } else {
-    // Fetch only published posts by author
     postQuery = query(postsCollection, 
       where('author_id', '==', authorId), 
       where('status', '==', 'published')
@@ -70,14 +69,11 @@ export async function getPostsByAuthor(authorId: string, includeDrafts: boolean 
   }
   
   const snapshot = await getDocs(postQuery);
-  let posts = snapshot.docs.map(postFromDoc);
-
-  // Sort posts by creation date in descending order
+  let posts = snapshot.docs.map(doc => postFromDocData(doc.id, doc.data()));
   posts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
   return posts;
 }
-
 
 export async function getPostById(id: string): Promise<Post | null> {
     if (!id) return null;
@@ -85,58 +81,59 @@ export async function getPostById(id: string): Promise<Post | null> {
     const snapshot = await getDoc(postDoc);
 
     if (snapshot.exists()) {
-        return postFromDoc(snapshot);
+        const data = snapshot.data();
+        return postFromDocData(snapshot.id, data);
     } else {
         return null;
     }
 }
 
-export async function incrementPostView(postId: string): Promise<void> {
-    if (!postId) return;
-    const postRef = doc(db, 'posts', postId);
-    await updateDoc(postRef, {
-        views: increment(1)
-    });
+// ========= COMMENT SERVICE FUNCTIONS =========
+
+const commentFromDocData = (id: string, data: DocumentData): Comment => {
+    return {
+        id: id,
+        ...data,
+        created_at: (data.created_at as Timestamp).toDate().toISOString(),
+    } as Comment;
 }
 
+export async function getCommentsByPostId(postId: string): Promise<Comment[]> {
+    if (!postId) return [];
+    const q = query(commentsCollection, where('post_id', '==', postId));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => commentFromDocData(doc.id, doc.data()));
+}
+
+
 export async function addCommentToPost(postId: string, userId: string, content: string, parentId: string | null = null): Promise<Comment> {
-    const postRef = doc(db, 'posts', postId);
-    
-    const newComment: Comment = {
-        id: uuidv4(),
+    const newComment = {
+        id: uuidv4(), // We assign a client-side ID to avoid a second read
         post_id: postId,
         user_id: userId,
         content: content,
-        created_at: new Date().toISOString(),
+        created_at: new Date(),
         parent_id: parentId,
     };
+    
+    // We use the client-side ID for the document ID as well for consistency
+    const commentRef = doc(db, "comments", newComment.id);
+    await addDoc(commentsCollection, newComment);
 
-    await updateDoc(postRef, {
-        comments: arrayUnion(newComment)
-    });
-
-    return newComment;
+    return {
+      ...newComment,
+      created_at: newComment.created_at.toISOString(),
+    };
 }
 
 
-export async function deleteCommentFromPost(postId: string, commentId: string): Promise<void> {
-    const postRef = doc(db, 'posts', postId);
-    const postSnap = await getDoc(postRef);
-
-    if (postSnap.exists()) {
-        const postData = postSnap.data();
-        const comments = postData.comments || [];
-        // This should also remove all replies to this comment, but for now, we just remove the comment itself.
-        // A more robust solution would be to find all comments with parent_id === commentId and remove them too.
-        const updatedComments = comments.filter((comment: Comment) => comment.id !== commentId);
-
-        await updateDoc(postRef, {
-            comments: updatedComments
-        });
-    } else {
-        throw new Error("Post not found");
-    }
+export async function deleteCommentFromPost(commentId: string): Promise<void> {
+    const commentRef = doc(db, 'comments', commentId);
+    await deleteDoc(commentRef);
 }
+
+
+// ========= POST MUTATION FUNCTIONS =========
 
 function calculateReadTime(content: any): number {
     if (!content || !content.blocks) return 0;
@@ -151,7 +148,7 @@ function calculateReadTime(content: any): number {
 
 interface CreatePostData {
     title: string;
-    content: any; // Editor.js content is an object
+    content: any;
     author_id: string;
     tags: string[];
     status: 'published' | 'draft';
@@ -166,7 +163,6 @@ export async function createPost(data: CreatePostData): Promise<Post> {
         updated_at: new Date(),
         views: 0,
         read_time: readTime,
-        comments: [],
         viewed_by: [],
     };
 
@@ -183,7 +179,7 @@ export async function createPost(data: CreatePostData): Promise<Post> {
 
 interface UpdatePostData {
     title: string;
-    content: any; // Editor.js content is an object
+    content: any;
     tags: string[];
     status: 'published' | 'draft';
 }

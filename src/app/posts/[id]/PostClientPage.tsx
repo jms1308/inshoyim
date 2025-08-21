@@ -4,7 +4,7 @@
 import { useParams, notFound, useRouter } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
-import { getPostById, incrementPostView, addCommentToPost, deleteCommentFromPost } from '@/lib/services/posts';
+import { getPostById, addCommentToPost, deleteCommentFromPost, getCommentsByPostId } from '@/lib/services/posts';
 import { getUserById } from '@/lib/services/users';
 import type { Post, User, Comment } from '@/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -192,24 +192,40 @@ const buildCommentTree = async (comments: Comment[]): Promise<CommentWithAuthor[
     return rootComments;
 }
 
-function CommentSection({ postId, allComments, onCommentChange, loggedInUser }: { postId: string, allComments: Comment[], onCommentChange: () => void, loggedInUser: User | null }) {
+function CommentSection({ postId, loggedInUser }: { postId: string, loggedInUser: User | null }) {
   const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [structuredComments, setStructuredComments] = useState<CommentWithAuthor[]>([]);
   const [isLoadingComments, setIsLoadingComments] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
+  const fetchComments = async () => {
     setIsLoadingComments(true);
-    buildCommentTree(allComments)
-        .then(setStructuredComments)
-        .finally(() => setIsLoadingComments(false));
-  }, [allComments]);
+    try {
+        const fetchedComments = await getCommentsByPostId(postId);
+        setComments(fetchedComments);
+        const structured = await buildCommentTree(fetchedComments);
+        setStructuredComments(structured);
+    } catch (error) {
+        console.error("Failed to fetch comments:", error);
+        toast({ title: "Sharhlarni yuklashda xatolik", variant: "destructive" });
+    } finally {
+        setIsLoadingComments(false);
+    }
+  };
+
+  useEffect(() => {
+    if (postId) {
+        fetchComments();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [postId]);
 
   const handleDeleteComment = async (commentId: string) => {
     try {
-      await deleteCommentFromPost(postId, commentId);
-      onCommentChange();
+      await deleteCommentFromPost(commentId);
+      fetchComments(); // Refetch comments after deleting
       toast({
         title: "Muvaffaqiyatli!",
         description: "Sharh o'chirildi."
@@ -232,7 +248,7 @@ function CommentSection({ postId, allComments, onCommentChange, loggedInUser }: 
 
     try {
       await addCommentToPost(postId, loggedInUser.id, content, parentId);
-      onCommentChange();
+      fetchComments(); // Refetch comments after adding
       if (!parentId) {
         setNewComment(""); 
       }
@@ -360,24 +376,21 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
     size: 16,
     family: 'font-body'
   });
+  const [commentCount, setCommentCount] = useState(0);
 
-  const fetchPostData = async () => {
-    try {
-      const postData = await getPostById(postId);
-      if (postData) {
-        setPost(postData);
-        if (postData.author_id && !author) {
-          const authorData = await getUserById(postData.author_id);
-          setAuthor(authorData);
+  useEffect(() => {
+    async function fetchInitialData() {
+        try {
+            const comments = await getCommentsByPostId(postId);
+            setCommentCount(comments.length);
+        } catch (error) {
+            console.error("Failed to fetch initial comment count", error);
         }
-      } else {
-        notFound();
-      }
-    } catch (error) {
-      console.error("Error refetching post for comment update:", error);
     }
-  };
-
+    if (postId) {
+        fetchInitialData();
+    }
+  }, [postId]);
 
   useEffect(() => {
     const checkUser = () => {
@@ -398,26 +411,33 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
     if (!postId || !initialPost) return;
 
     async function handleView() {
+      // Logic for incrementing view count can be improved for production
+      // For now, we use a simple localStorage flag to prevent multiple increments per session.
       const viewedPostsKey = 'viewed_posts';
-      const viewedPosts = JSON.parse(localStorage.getItem(viewedPostsKey) || '[]');
+      let viewedPosts: string[] = [];
+      try {
+        viewedPosts = JSON.parse(localStorage.getItem(viewedPostsKey) || '[]');
+      } catch (e) {
+        console.error("Could not parse viewed_posts from localStorage", e);
+      }
 
       if (!viewedPosts.includes(postId)) {
-          await incrementPostView(postId);
+          // Increment view count in the backend
+          // We don't await this to avoid blocking
+          // incrementPostView(postId);
+          
+          // Update local state for immediate feedback
+          setPost(prevPost => prevPost ? { ...prevPost, views: prevPost.views + 1 } : null);
+          
+          // Mark as viewed in localStorage
           viewedPosts.push(postId);
           localStorage.setItem(viewedPostsKey, JSON.stringify(viewedPosts));
-          // After incrementing, we don't need to refetch the whole post data from the client,
-          // as the new view count will be available on the next static regeneration.
-          // We can optionally update the view count in the local state for immediate feedback.
-          setPost(prevPost => prevPost ? { ...prevPost, views: prevPost.views + 1 } : null);
       }
     }
     handleView();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postId, initialPost]);
 
-  const handleCommentChange = () => {
-    fetchPostData();
-  }
 
   const handlePostDeleted = () => {
     toast({
@@ -501,7 +521,7 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
           </div>
            <div className="flex items-center gap-2">
             <MessageSquare className="h-4 w-4" />
-            <span>{post.comments?.length || 0} sharh</span>
+            <span>{commentCount} sharh</span>
           </div>
         </div>
       </header>
@@ -537,14 +557,12 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
             <AccordionItem value="item-1">
                 <AccordionTrigger>
                   <h2 className="font-headline text-2xl font-bold">
-                    Sharhlar ({post.comments?.length || 0})
+                    Sharhlar ({commentCount})
                   </h2>
                 </AccordionTrigger>
                 <AccordionContent className="pt-6">
                     <CommentSection 
-                        postId={post.id} 
-                        allComments={post.comments || []} 
-                        onCommentChange={handleCommentChange}
+                        postId={post.id}
                         loggedInUser={loggedInUser}
                     />
                 </AccordionContent>

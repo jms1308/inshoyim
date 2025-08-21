@@ -11,7 +11,6 @@ export interface Post {
   status: 'published' | 'draft';
   read_time: number;
   source?: 'user' | 'imported_from_medium';
-  comments: Comment[];
   viewed_by?: string[]; // Array of user IDs who have viewed the post
   author?: User; // Author data can be attached here
 }
