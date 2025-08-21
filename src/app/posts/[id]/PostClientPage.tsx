@@ -4,7 +4,7 @@
 import { useParams, notFound, useRouter } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
-import { getPostById, addCommentToPost, deleteCommentFromPost, getCommentsByPostId } from '@/lib/services/posts';
+import { getPostById, addCommentToPost, deleteCommentFromPost, getCommentsByPostId, incrementPostView } from '@/lib/services/posts';
 import { getUserById } from '@/lib/services/users';
 import type { Post, User, Comment } from '@/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -424,7 +424,7 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
       if (!viewedPosts.includes(postId)) {
           // Increment view count in the backend
           // We don't await this to avoid blocking
-          // incrementPostView(postId);
+          incrementPostView(postId);
           
           // Update local state for immediate feedback
           setPost(prevPost => prevPost ? { ...prevPost, views: prevPost.views + 1 } : null);

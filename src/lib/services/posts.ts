@@ -198,4 +198,11 @@ export async function deletePost(postId: string): Promise<void> {
     await deleteDoc(postRef);
 }
 
+export async function incrementPostView(postId: string): Promise<void> {
+    if (!postId) return;
+    const postRef = doc(db, 'posts', postId);
+    await updateDoc(postRef, {
+        views: increment(1)
+    });
+}
     
