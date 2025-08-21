@@ -153,6 +153,38 @@
 
   .cloud {
     @apply absolute bg-white/50 dark:bg-gray-400/10 rounded-full;
+    width: 200px;
+    height: 60px;
+    background: #f2f9fe;
+    box-shadow: 10px 10px rgba(0, 0, 0, 0.05);
+    border-radius: 100px;
+  }
+
+  .cloud::before, .cloud::after {
+    content: '';
+    position: absolute;
+    background: #f2f9fe;
+    z-index: -1;
+  }
+
+  .dark .cloud, .dark .cloud::before, .dark .cloud::after {
+      background: #4a5568a1;
+  }
+
+  .cloud::before {
+    width: 100px;
+    height: 100px;
+    top: -50px;
+    left: 50px;
+    border-radius: 100px;
+  }
+
+  .cloud::after {
+    width: 120px;
+    height: 120px;
+    top: -60px;
+    right: 40px;
+    border-radius: 100px;
   }
   
   .star {
