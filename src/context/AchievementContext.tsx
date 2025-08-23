@@ -7,17 +7,17 @@ import { getAllUsers } from '@/lib/services/users';
 import type { User, Post } from '@/types';
 
 interface AchievementContextType {
-    mostPostsHolderId: string | null;
-    mostViewsHolder: {
-        id: string | null;
-        postTitle: string | null;
-    };
+    mostPostsHolderIds: string[];
+    mostViewsHolderIds: {
+        id: string;
+        postTitle: string;
+    }[];
     loading: boolean;
 }
 
 const AchievementContext = createContext<AchievementContextType>({
-    mostPostsHolderId: null,
-    mostViewsHolder: { id: null, postTitle: null },
+    mostPostsHolderIds: [],
+    mostViewsHolderIds: [],
     loading: true,
 });
 
@@ -40,36 +40,46 @@ export function AchievementProvider({ children }: { children: ReactNode }) {
         fetchUsers();
     }, []);
 
-    const mostPostsHolderId = useMemo(() => {
-        if (postsLoading || usersLoading || users.length === 0 || posts.length === 0) return null;
+    const mostPostsHolderIds = useMemo(() => {
+        if (postsLoading || usersLoading || users.length === 0) return [];
 
         const postCounts = users.map(user => {
             const count = posts.filter(post => post.author_id === user.id && post.status === 'published').length;
             return { userId: user.id, count };
         });
+        
+        if (postCounts.length === 0) return [];
+        
+        const maxCount = Math.max(...postCounts.map(pc => pc.count));
+        
+        if (maxCount === 0) return [];
 
-        if (postCounts.every(pc => pc.count === 0)) return null;
+        return postCounts.filter(pc => pc.count === maxCount).map(pc => pc.userId);
 
-        const winner = postCounts.sort((a, b) => b.count - a.count)[0];
-        return winner.count > 0 ? winner.userId : null;
     }, [posts, users, postsLoading, usersLoading]);
 
-    const mostViewsHolder = useMemo(() => {
-        if (postsLoading || posts.length === 0) return { id: null, postTitle: null };
+    const mostViewsHolderIds = useMemo(() => {
+        if (postsLoading || posts.length === 0) return [];
+        
+        const publishedPosts = posts.filter(p => p.status === 'published');
+        if (publishedPosts.length === 0) return [];
 
-        const mostViewedPost = posts.filter(p => p.status === 'published').sort((a, b) => b.views - a.views)[0];
-        
-        if (!mostViewedPost || mostViewedPost.views === 0) return { id: null, postTitle: null };
-        
-        return {
-            id: mostViewedPost.author_id,
-            postTitle: mostViewedPost.title,
-        };
+        const maxViews = Math.max(...publishedPosts.map(p => p.views));
+
+        if (maxViews === 0) return [];
+
+        return publishedPosts
+            .filter(p => p.views === maxViews)
+            .map(p => ({
+                id: p.author_id,
+                postTitle: p.title,
+            }));
+            
     }, [posts, postsLoading]);
     
     const value = {
-        mostPostsHolderId,
-        mostViewsHolder,
+        mostPostsHolderIds,
+        mostViewsHolderIds,
         loading: postsLoading || usersLoading,
     };
 
@@ -86,29 +96,33 @@ export function useAchievement(userId?: string) {
         throw new Error('useAchievement must be used within an AchievementProvider');
     }
 
-    const { mostPostsHolderId, mostViewsHolder, loading } = context;
+    const { mostPostsHolderIds, mostViewsHolderIds, loading } = context;
 
     const achievements = useMemo(() => {
         if (loading || !userId) return [];
         
         const userAchievements = [];
-        if (userId === mostPostsHolderId) {
+        
+        if (mostPostsHolderIds.includes(userId)) {
             userAchievements.push({
                 type: 'most_posts',
                 title: 'Sermahsul Ijodkor',
                 description: 'Eng ko\'p insho yozgan foydalanuvchi.',
             });
         }
-        if (userId === mostViewsHolder.id) {
+        
+        const mostViewsAchievement = mostViewsHolderIds.find(holder => holder.id === userId);
+        if (mostViewsAchievement) {
             userAchievements.push({
                 type: 'most_views',
                 title: 'Ommabop Fikr',
-                description: `"${mostViewsHolder.postTitle}" nomli eng mashhur insho muallifi.`,
+                description: `"${mostViewsAchievement.postTitle}" nomli eng mashhur insho muallifi.`,
             });
         }
+
         return userAchievements;
 
-    }, [userId, mostPostsHolderId, mostViewsHolder, loading]);
+    }, [userId, mostPostsHolderIds, mostViewsHolderIds, loading]);
 
     return { achievements, loading };
 }

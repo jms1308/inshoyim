@@ -154,16 +154,18 @@ export default function ProfilePage() {
                     </div>
                   </TooltipProvider>
                 )}
+            </div>
+             <div className="mt-4 max-w-xl flex flex-col sm:flex-row sm:items-center sm:justify-center md:justify-start gap-x-6 gap-y-2">
+                <p className="text-muted-foreground">{user.email}</p>
                 {isOwnProfile && (
-                    <Button variant="outline" onClick={() => setIsEditDialogOpen(true)}>
+                    <Button variant="outline" size="sm" onClick={() => setIsEditDialogOpen(true)}>
                         <Edit className="mr-2 h-4 w-4" />
                         Profilni tahrirlash
                     </Button>
                 )}
             </div>
-            <p className="mt-2 text-lg text-muted-foreground">{user.email}</p>
-            <div className="mt-4 max-w-xl text-foreground/80">
-                <p className="flex-grow pt-1">{user.bio || "Bu foydalanuvchi hali bio qo'shmagan."}</p>
+            <div className="mt-4 max-w-xl text-foreground/80 text-center md:text-left">
+                <p>{user.bio || "Bu foydalanuvchi hali bio qo'shmagan."}</p>
             </div>
           </div>
         </section>

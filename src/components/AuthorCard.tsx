@@ -44,6 +44,7 @@ export function AuthorCard({ author }: AuthorCardProps) {
                                       className="h-7 w-7 text-amber-500 hover:text-amber-400"
                                       onClick={(e) => {
                                           e.preventDefault(); // Prevents link navigation on tap
+                                          e.stopPropagation(); // Stop event bubbling
                                       }}
                                     >
                                         <Trophy className="h-5 w-5" />
