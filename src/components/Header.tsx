@@ -10,6 +10,7 @@ import {
   Home,
   Compass,
   Edit,
+  Trophy,
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
@@ -65,6 +66,10 @@ function MobileNav({ user }: { user: User | null }) {
              <Link href="/explore" onClick={() => setIsOpen(false)} className="flex items-center gap-3 rounded-md p-2 text-lg font-medium hover:bg-muted font-headline">
                 <Compass className='h-5 w-5' />
                 Insholar
+            </Link>
+            <Link href="/achievements" onClick={() => setIsOpen(false)} className="flex items-center gap-3 rounded-md p-2 text-lg font-medium hover:bg-muted font-headline">
+                <Trophy className='h-5 w-5' />
+                Yutuqlar
             </Link>
             <Link href="/yozish" onClick={() => setIsOpen(false)} className="flex items-center gap-3 rounded-md p-2 text-lg font-medium hover:bg-muted font-headline">
                 <Edit className='h-5 w-5' />
@@ -193,6 +198,12 @@ export function Header() {
             >
               Insholar
             </Link>
+             <Link
+              href="/achievements"
+              className="transition-colors hover:text-foreground/80 text-foreground/60 font-headline"
+            >
+              Yutuqlar
+            </Link>
             <Link
               href="/yozish"
               className="transition-colors hover:text-foreground/80 text-foreground/60 font-headline"
@@ -273,12 +284,7 @@ export function Header() {
           </div>
         </div>
          {isPostPage && (
-            <div className="absolute bottom-0 left-0 w-full h-[3px]">
-              <div
-                  className="h-full bg-primary transition-all duration-150 ease-linear"
-                  style={{ width: `${scrollProgress}%` }}
-              />
-            </div>
+            <Progress value={scrollProgress} className="absolute bottom-0 left-0 w-full h-[3px] rounded-none bg-transparent" />
         )}
       </header>
     </>

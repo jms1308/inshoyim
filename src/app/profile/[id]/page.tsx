@@ -3,18 +3,48 @@
 
 import { notFound, useParams } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
-import { getUserById } from "@/lib/services/users";
-import { getPostsByAuthor } from "@/lib/services/posts";
-import type { User, Post } from "@/types";
+import Link from "next/link";
+import { getUserById, getAllUsers } from "@/lib/services/users";
+import { getPostsByAuthor, getPublishedPosts } from "@/lib/services/posts";
+import { getAchievements } from "@/lib/services/achievements";
+import type { User, Post, Achievement } from "@/types";
 import Image from 'next/image';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { EssayCard } from "@/components/EssayCard";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Edit } from "lucide-react";
+import { Edit, Trophy } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EditProfileDialog } from "@/components/EditProfileDialog";
+import { Skeleton } from "@/components/ui/skeleton";
 
+function ProfilePageSkeleton() {
+  return (
+    <div className="container mx-auto max-w-5xl px-4 py-8 md:py-16 animate-pulse">
+        <section className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12">
+            <Skeleton className="w-28 h-28 md:h-40 md:w-40 rounded-full" />
+            <div className="text-center md:text-left flex-grow space-y-3">
+                <Skeleton className="h-10 w-60 mx-auto md:mx-0" />
+                <Skeleton className="h-5 w-48 mx-auto md:mx-0" />
+                <Skeleton className="h-5 w-full max-w-md mx-auto md:mx-0" />
+                <Skeleton className="h-5 w-3/4 max-w-md mx-auto md:mx-0" />
+            </div>
+        </section>
+        <section>
+            <div className="flex justify-center mb-8">
+                <Skeleton className="h-10 w-64 rounded-md" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="p-1">
+                        <Skeleton className="h-[300px] w-full rounded-lg" />
+                    </div>
+                ))}
+            </div>
+        </section>
+    </div>
+  )
+}
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
@@ -22,6 +52,7 @@ export default function ProfilePage() {
   const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [userAchievements, setUserAchievements] = useState<Achievement[]>([]);
   
   const params = useParams();
   const userId = params.id as string;
@@ -41,15 +72,22 @@ export default function ProfilePage() {
       if (!userId) return;
       try {
         setLoading(true);
-        const userData = await getUserById(userId);
+        const [userData, postsData, allAchievements] = await Promise.all([
+          getUserById(userId),
+          getPostsByAuthor(userId, isOwnProfile),
+          getAchievements()
+        ]);
+        
         if (!userData) {
           notFound();
           return;
         }
         setUser(userData);
-
-        const postsData = await getPostsByAuthor(userId, isOwnProfile);
         setUserPosts(postsData);
+
+        const currentUserAchievements = allAchievements.filter(ach => ach.holderId === userId);
+        setUserAchievements(currentUserAchievements);
+
       } catch (error) {
         console.error("Failed to fetch profile data:", error);
         toast({ title: "Profil ma'lumotlarini yuklashda xatolik", variant: "destructive" });
@@ -57,11 +95,8 @@ export default function ProfilePage() {
         setLoading(false);
       }
     }
-    // We need loggedInUser to be set before we can determine if it's their own profile
-    if (loggedInUser !== undefined) {
-      fetchData();
-    }
-  }, [userId, toast, isOwnProfile, loggedInUser]);
+    fetchData();
+  }, [userId, toast, isOwnProfile]);
 
   const handleProfileUpdate = (updatedUser: User) => {
     setUser(updatedUser);
@@ -71,9 +106,8 @@ export default function ProfilePage() {
     }
   }
 
-
   if (loading) {
-    return <div className="text-center py-10">Yuklanmoqda...</div>;
+    return <ProfilePageSkeleton />;
   }
   
   if (!user) {
@@ -106,6 +140,14 @@ export default function ProfilePage() {
           <div className="text-center md:text-left flex-grow">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center md:justify-start gap-2 md:gap-4 mb-2">
                 <h1 className="font-headline text-4xl md:text-5xl font-bold">{user.name}</h1>
+                 {userAchievements.length > 0 && (
+                  <Link href="/achievements">
+                    <Button variant="ghost" size="icon" className="text-yellow-500 hover:text-yellow-400">
+                      <Trophy className="h-7 w-7" />
+                      <span className="sr-only">Yutuqlarni ko'rish</span>
+                    </Button>
+                  </Link>
+                )}
                 {isOwnProfile && (
                     <Button variant="outline" onClick={() => setIsEditDialogOpen(true)}>
                         <Edit className="mr-2 h-4 w-4" />

@@ -82,6 +82,11 @@ export async function getUserById(id: string): Promise<User | null> {
     }
 }
 
+export async function getAllUsers(): Promise<User[]> {
+    const snapshot = await getDocs(usersCollection);
+    return snapshot.docs.map(doc => userFromDoc(doc));
+}
+
 
 export async function updateUserBio(userId: string, newBio: string): Promise<void> {
     if (!userId) return;
