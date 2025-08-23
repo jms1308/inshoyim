@@ -9,6 +9,7 @@ import { BookUser, Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAchievement } from '@/context/AchievementContext';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { Button } from './ui/button';
 
 interface AuthorCardProps {
   author: User & { postCount: number };
@@ -36,8 +37,17 @@ export function AuthorCard({ author }: AuthorCardProps) {
                     <TooltipProvider>
                         {achievements.map(ach => (
                             <Tooltip key={ach.type}>
-                                <TooltipTrigger>
-                                    <Trophy className="h-4 w-4 text-amber-500 flex-shrink-0" />
+                                <TooltipTrigger asChild>
+                                     <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-7 w-7 text-amber-500 hover:text-amber-400"
+                                      onClick={(e) => {
+                                          e.preventDefault(); // Prevents link navigation on tap
+                                      }}
+                                    >
+                                        <Trophy className="h-5 w-5" />
+                                    </Button>
                                 </TooltipTrigger>
                                 <TooltipContent>
                                     <p className="font-bold">{ach.title}</p>
