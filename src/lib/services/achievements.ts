@@ -1,10 +1,10 @@
 
+
 import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { User, Post, Comment, Achievement } from '@/types';
 import { getAllUsers, getUserById } from './users';
 import { getPublishedPosts } from './posts';
-import { BookUser, Eye, MessageSquare } from 'lucide-react';
 
 async function getMostPostsWrittenHolder(): Promise<Achievement> {
     const users = await getAllUsers();
@@ -21,7 +21,7 @@ async function getMostPostsWrittenHolder(): Promise<Achievement> {
         id: 'most-posts',
         title: 'Sermahsul Ijodkor',
         description: "Eng ko'p insho yozgan va o'z fikrlari bilan bo'lishgan foydalanuvchi.",
-        icon: <BookUser className="h-8 w-8" />,
+        icon: 'BookUser',
         holderId: winner?.user.id ?? null,
         holderName: winner?.user.name ?? null,
         holderAvatarUrl: winner?.user.avatar_url ?? null,
@@ -37,7 +37,7 @@ async function getMostViewedPostHolder(): Promise<Achievement> {
             id: 'most-views',
             title: 'Ommabop Fikr',
             description: "Eng ko'p marta o'qilgan insho muallifi.",
-            icon: <Eye className="h-8 w-8" />,
+            icon: 'Eye',
             holderId: null, holderName: null, holderAvatarUrl: null, value: '0 marta'
         };
     }
@@ -49,7 +49,7 @@ async function getMostViewedPostHolder(): Promise<Achievement> {
         id: 'most-views',
         title: 'Ommabop Fikr',
         description: `"${mostViewedPost.title}" nomli eng ko'p o'qilgan insho muallifi.`,
-        icon: <Eye className="h-8 w-8" />,
+        icon: 'Eye',
         holderId: author?.id ?? null,
         holderName: author?.name ?? null,
         holderAvatarUrl: author?.avatar_url ?? null,
@@ -67,7 +67,7 @@ async function getMostCommentsWrittenHolder(): Promise<Achievement> {
             id: 'most-comments',
             title: 'Faol Muhokamachi',
             description: "Eng ko'p sharh yozib, suhbatlarni jonlantirgan foydalanuvchi.",
-            icon: <MessageSquare className="h-8 w-8" />,
+            icon: 'MessageSquare',
             holderId: null, holderName: null, holderAvatarUrl: null, value: '0 sharh'
        };
     }
@@ -86,7 +86,7 @@ async function getMostCommentsWrittenHolder(): Promise<Achievement> {
         id: 'most-comments',
         title: 'Faol Muhokamachi',
         description: "Eng ko'p sharh yozib, suhbatlarni jonlantirgan foydalanuvchi.",
-        icon: <MessageSquare className="h-8 w-8" />,
+        icon: 'MessageSquare',
         holderId: winner?.id ?? null,
         holderName: winner?.name ?? null,
         holderAvatarUrl: winner?.avatar_url ?? null,

@@ -6,10 +6,24 @@ import type { Achievement } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from './ui/skeleton';
+import { BookUser, Eye, MessageSquare, Trophy } from 'lucide-react';
 
 interface AchievementCardProps {
   achievement: Achievement;
 }
+
+const AchievementIcon = ({ iconName, className }: { iconName: string; className?: string }) => {
+    switch (iconName) {
+        case 'BookUser':
+            return <BookUser className={className} />;
+        case 'Eye':
+            return <Eye className={className} />;
+        case 'MessageSquare':
+            return <MessageSquare className={className} />;
+        default:
+            return <Trophy className={className} />;
+    }
+};
 
 export function AchievementCard({ achievement }: AchievementCardProps) {
   const holderInitials = achievement.holderName?.split(' ').map(n => n[0]).join('') || '?';
@@ -18,7 +32,7 @@ export function AchievementCard({ achievement }: AchievementCardProps) {
     <Card className="flex flex-col h-full text-center">
       <CardHeader>
         <div className="mx-auto bg-amber-100 dark:bg-amber-900/50 text-amber-500 p-4 rounded-full w-max">
-            {achievement.icon}
+            <AchievementIcon iconName={achievement.icon} className="h-8 w-8" />
         </div>
         <CardTitle className="font-headline text-2xl pt-2">{achievement.title}</CardTitle>
         <CardDescription>{achievement.description}</CardDescription>

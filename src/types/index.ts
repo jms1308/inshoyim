@@ -13,7 +13,6 @@ export interface Post {
   source?: 'user' | 'imported_from_medium';
   viewed_by?: string[]; // Array of user IDs who have viewed the post
   author?: User; // Author data can be attached here
-  comments?: Comment[];
 }
 
 export interface User {
@@ -40,7 +39,7 @@ export interface Achievement {
     id: string;
     title: string;
     description: string;
-    icon: React.ReactNode;
+    icon: string;
     holderId: string | null;
     holderName: string | null;
     holderAvatarUrl: string | null;
