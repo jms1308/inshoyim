@@ -37,6 +37,8 @@ import type { User } from '@/types';
 import { RegisterDialog } from './RegisterDialog';
 import { useAuthDialog } from '@/context/AuthDialogContext';
 import { Progress } from './ui/progress';
+import { useAchievement } from '@/context/AchievementContext';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
 function MobileNav({ user }: { user: User | null }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -66,10 +68,6 @@ function MobileNav({ user }: { user: User | null }) {
              <Link href="/explore" onClick={() => setIsOpen(false)} className="flex items-center gap-3 rounded-md p-2 text-lg font-medium hover:bg-muted font-headline">
                 <Compass className='h-5 w-5' />
                 Insholar
-            </Link>
-            <Link href="/achievements" onClick={() => setIsOpen(false)} className="flex items-center gap-3 rounded-md p-2 text-lg font-medium hover:bg-muted font-headline">
-                <Trophy className='h-5 w-5' />
-                Yutuqlar
             </Link>
             <Link href="/yozish" onClick={() => setIsOpen(false)} className="flex items-center gap-3 rounded-md p-2 text-lg font-medium hover:bg-muted font-headline">
                 <Edit className='h-5 w-5' />
@@ -109,6 +107,40 @@ function AuthButtons({ isDropdown = false }: { isDropdown?: boolean }) {
       </Button>
     </>
   );
+}
+
+function UserMenuLabel({ user }: { user: User }) {
+    const { achievements } = useAchievement(user.id);
+
+    return (
+        <DropdownMenuLabel className="font-normal">
+            <div className="flex flex-col space-y-1">
+                <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium leading-none">
+                        {user.name}
+                    </p>
+                    {achievements.length > 0 && (
+                        <TooltipProvider>
+                            {achievements.map(ach => (
+                                <Tooltip key={ach.type}>
+                                    <TooltipTrigger>
+                                        <Trophy className="h-4 w-4 text-amber-500" />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p className="font-bold">{ach.title}</p>
+                                        <p>{ach.description}</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            ))}
+                        </TooltipProvider>
+                    )}
+                </div>
+                <p className="text-xs leading-none text-muted-foreground">
+                    {user.email}
+                </p>
+            </div>
+        </DropdownMenuLabel>
+    );
 }
 
 export function Header() {
@@ -198,12 +230,6 @@ export function Header() {
             >
               Insholar
             </Link>
-             <Link
-              href="/achievements"
-              className="transition-colors hover:text-foreground/80 text-foreground/60 font-headline"
-            >
-              Yutuqlar
-            </Link>
             <Link
               href="/yozish"
               className="transition-colors hover:text-foreground/80 text-foreground/60 font-headline"
@@ -231,16 +257,7 @@ export function Header() {
                     </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-56" align="end" forceMount>
-                    <DropdownMenuLabel className="font-normal">
-                        <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">
-                            {user.name}
-                        </p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                            {user.email}
-                        </p>
-                        </div>
-                    </DropdownMenuLabel>
+                    <UserMenuLabel user={user} />
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                         <Link href={`/profile/${user.id}`}>

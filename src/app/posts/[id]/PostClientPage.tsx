@@ -9,7 +9,7 @@ import { getUserById } from '@/lib/services/users';
 import type { Post, User, Comment } from '@/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Calendar, Eye, MessageSquare, Edit, Trash2, ArrowLeft, CornerUpLeft, MessageCircle, ChevronDown } from 'lucide-react';
+import { Clock, Calendar, Eye, MessageSquare, Edit, Trash2, ArrowLeft, CornerUpLeft, MessageCircle, ChevronDown, Trophy } from 'lucide-react';
 import { ShareButton } from '@/components/ShareButton';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -38,6 +38,7 @@ import { PostSettings, type FontSettings } from '@/components/PostSettings';
 import React from 'react';
 import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useAchievement } from '@/context/AchievementContext';
 
 type CommentWithAuthor = Comment & { author: User | null; replies: CommentWithAuthor[] };
 
@@ -192,7 +193,7 @@ const buildCommentTree = async (comments: Comment[]): Promise<CommentWithAuthor[
     return rootComments;
 }
 
-function CommentSection({ postId, loggedInUser }: { postId: string, loggedInUser: User | null }) {
+function CommentSection({ postId, loggedInUser, onCommentCountChange }: { postId: string, loggedInUser: User | null, onCommentCountChange: (count: number) => void }) {
   const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -207,6 +208,7 @@ function CommentSection({ postId, loggedInUser }: { postId: string, loggedInUser
         setComments(fetchedComments);
         const structured = await buildCommentTree(fetchedComments);
         setStructuredComments(structured);
+        onCommentCountChange(fetchedComments.length);
     } catch (error) {
         console.error("Failed to fetch comments:", error);
         toast({ title: "Sharhlarni yuklashda xatolik", variant: "destructive" });
@@ -377,20 +379,8 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
     family: 'font-body'
   });
   const [commentCount, setCommentCount] = useState(0);
+  const { achievements } = useAchievement(author?.id);
 
-  useEffect(() => {
-    async function fetchInitialData() {
-        try {
-            const comments = await getCommentsByPostId(postId);
-            setCommentCount(comments.length);
-        } catch (error) {
-            console.error("Failed to fetch initial comment count", error);
-        }
-    }
-    if (postId) {
-        fetchInitialData();
-    }
-  }, [postId]);
 
   useEffect(() => {
     const checkUser = () => {
@@ -534,8 +524,25 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
                 <AvatarFallback>{authorInitials}</AvatarFallback>
                 </Avatar>
                 <div>
-                <p className="font-bold text-lg group-hover:text-primary transition-colors">{author.name}</p>
-                <p className="text-sm text-muted-foreground hidden md:block">{author.bio}</p>
+                    <div className="flex items-center gap-2">
+                        <p className="font-bold text-lg group-hover:text-primary transition-colors">{author.name}</p>
+                        {achievements.length > 0 && (
+                            <TooltipProvider>
+                                {achievements.map(ach => (
+                                    <Tooltip key={ach.type}>
+                                        <TooltipTrigger>
+                                            <Trophy className="h-5 w-5 text-amber-500" />
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p className="font-bold">{ach.title}</p>
+                                            <p>{ach.description}</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                ))}
+                            </TooltipProvider>
+                        )}
+                    </div>
+                    <p className="text-sm text-muted-foreground hidden md:block">{author.bio}</p>
                 </div>
             </Link>
         )}
@@ -564,6 +571,7 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
                     <CommentSection 
                         postId={post.id}
                         loggedInUser={loggedInUser}
+                        onCommentCountChange={setCommentCount}
                     />
                 </AccordionContent>
             </AccordionItem>

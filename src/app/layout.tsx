@@ -8,6 +8,7 @@ import { Footer } from '@/components/Footer';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthDialogProvider } from '@/context/AuthDialogContext';
 import { PostsProvider } from '@/context/PostContext';
+import { AchievementProvider } from '@/context/AchievementContext';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://inshoyim.uz'),
@@ -70,10 +71,12 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthDialogProvider>
             <PostsProvider>
-              <Header />
-              <main className="flex-grow">{children}</main>
-              <Footer />
-              <Toaster />
+              <AchievementProvider>
+                <Header />
+                <main className="flex-grow">{children}</main>
+                <Footer />
+                <Toaster />
+              </AchievementProvider>
             </PostsProvider>
           </AuthDialogProvider>
         </ThemeProvider>

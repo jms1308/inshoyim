@@ -80,7 +80,12 @@ export async function generateMetadata(
 
 export default async function PostPage({ params }: Props) {
   const postData = getPostById(params.id);
-  const [post] = await Promise.all([postData]);
+  
+  if (!postData) {
+    notFound();
+  }
+  
+  const post = await postData;
 
   if (!post) {
     notFound();

@@ -6,9 +6,7 @@ import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { getUserById, getAllUsers } from "@/lib/services/users";
 import { getPostsByAuthor, getPublishedPosts } from "@/lib/services/posts";
-import { getAchievements } from "@/lib/services/achievements";
-import type { User, Post, Achievement } from "@/types";
-import Image from 'next/image';
+import type { User, Post } from "@/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { EssayCard } from "@/components/EssayCard";
 import { Button } from "@/components/ui/button";
@@ -17,6 +15,9 @@ import { Edit, Trophy } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EditProfileDialog } from "@/components/EditProfileDialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAchievement } from "@/context/AchievementContext";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
 
 function ProfilePageSkeleton() {
   return (
@@ -52,11 +53,11 @@ export default function ProfilePage() {
   const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [userAchievements, setUserAchievements] = useState<Achievement[]>([]);
   
   const params = useParams();
   const userId = params.id as string;
   const { toast } = useToast();
+  const { achievements } = useAchievement(userId);
 
   const isOwnProfile = loggedInUser?.id === userId;
 
@@ -72,10 +73,9 @@ export default function ProfilePage() {
       if (!userId) return;
       try {
         setLoading(true);
-        const [userData, postsData, allAchievements] = await Promise.all([
+        const [userData, postsData] = await Promise.all([
           getUserById(userId),
           getPostsByAuthor(userId, isOwnProfile),
-          getAchievements()
         ]);
         
         if (!userData) {
@@ -84,9 +84,6 @@ export default function ProfilePage() {
         }
         setUser(userData);
         setUserPosts(postsData);
-
-        const currentUserAchievements = allAchievements.filter(ach => ach.holderId === userId);
-        setUserAchievements(currentUserAchievements);
 
       } catch (error) {
         console.error("Failed to fetch profile data:", error);
@@ -140,13 +137,22 @@ export default function ProfilePage() {
           <div className="text-center md:text-left flex-grow">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center md:justify-start gap-2 md:gap-4 mb-2">
                 <h1 className="font-headline text-4xl md:text-5xl font-bold">{user.name}</h1>
-                 {userAchievements.length > 0 && (
-                  <Link href="/achievements">
-                    <Button variant="ghost" size="icon" className="text-yellow-500 hover:text-yellow-400">
-                      <Trophy className="h-7 w-7" />
-                      <span className="sr-only">Yutuqlarni ko'rish</span>
-                    </Button>
-                  </Link>
+                 {achievements.length > 0 && (
+                  <TooltipProvider>
+                    <div className="flex items-center gap-2">
+                      {achievements.map(ach => (
+                          <Tooltip key={ach.type}>
+                              <TooltipTrigger>
+                                  <Trophy className="h-7 w-7 text-amber-500 hover:text-amber-400 cursor-pointer" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                  <p className="font-bold">{ach.title}</p>
+                                  <p>{ach.description}</p>
+                              </TooltipContent>
+                          </Tooltip>
+                      ))}
+                    </div>
+                  </TooltipProvider>
                 )}
                 {isOwnProfile && (
                     <Button variant="outline" onClick={() => setIsEditDialogOpen(true)}>

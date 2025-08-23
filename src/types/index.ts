@@ -34,14 +34,3 @@ export interface Comment {
   parent_id?: string | null;
   replies?: Comment[];
 }
-
-export interface Achievement {
-    id: string;
-    title: string;
-    description: string;
-    icon: string;
-    holderId: string | null;
-    holderName: string | null;
-    holderAvatarUrl: string | null;
-    value: number | string;
-}
