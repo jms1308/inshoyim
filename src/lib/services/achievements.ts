@@ -58,53 +58,14 @@ async function getMostViewedPostHolder(): Promise<Achievement> {
 }
 
 
-async function getMostCommentsWrittenHolder(): Promise<Achievement> {
-    const commentsSnapshot = await getDocs(collection(db, 'comments'));
-    const comments = commentsSnapshot.docs.map(doc => doc.data() as Comment);
-    
-    if (comments.length === 0) {
-       return {
-            id: 'most-comments',
-            title: 'Faol Muhokamachi',
-            description: "Eng ko'p sharh yozib, suhbatlarni jonlantirgan foydalanuvchi.",
-            icon: 'MessageSquare',
-            holderId: null, holderName: null, holderAvatarUrl: null, value: '0 sharh'
-       };
-    }
-
-    const commentCounts: { [key: string]: number } = {};
-    comments.forEach(comment => {
-        commentCounts[comment.user_id] = (commentCounts[comment.user_id] || 0) + 1;
-    });
-
-    const winnerEntry = Object.entries(commentCounts).sort((a, b) => b[1] - a[1])[0];
-    const winnerId = winnerEntry[0];
-    const winnerCount = winnerEntry[1];
-    const winner = await getUserById(winnerId);
-
-    return {
-        id: 'most-comments',
-        title: 'Faol Muhokamachi',
-        description: "Eng ko'p sharh yozib, suhbatlarni jonlantirgan foydalanuvchi.",
-        icon: 'MessageSquare',
-        holderId: winner?.id ?? null,
-        holderName: winner?.name ?? null,
-        holderAvatarUrl: winner?.avatar_url ?? null,
-        value: `${winnerCount} sharh`,
-    };
-}
-
-
 export async function getAchievements(): Promise<Achievement[]> {
     const [
         mostPostsHolder,
         mostViewsHolder,
-        mostCommentsHolder
     ] = await Promise.all([
         getMostPostsWrittenHolder(),
         getMostViewedPostHolder(),
-        getMostCommentsWrittenHolder()
     ]);
     
-    return [mostPostsHolder, mostViewsHolder, mostCommentsHolder];
+    return [mostPostsHolder, mostViewsHolder];
 }

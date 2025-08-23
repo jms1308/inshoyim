@@ -6,7 +6,7 @@ import type { Achievement } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from './ui/skeleton';
-import { BookUser, Eye, MessageSquare, Trophy } from 'lucide-react';
+import { BookUser, Eye, Trophy } from 'lucide-react';
 
 interface AchievementCardProps {
   achievement: Achievement;
@@ -18,8 +18,6 @@ const AchievementIcon = ({ iconName, className }: { iconName: string; className?
             return <BookUser className={className} />;
         case 'Eye':
             return <Eye className={className} />;
-        case 'MessageSquare':
-            return <MessageSquare className={className} />;
         default:
             return <Trophy className={className} />;
     }
