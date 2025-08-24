@@ -214,13 +214,13 @@ function TopAuthorsSection() {
                     )
                 })}
             </div>
-             <div className="mt-10 flex flex-col sm:flex-row justify-center items-center gap-x-8 gap-y-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                    <Trophy className="h-5 w-5 text-amber-500" />
+             <div className="mt-10 flex flex-col sm:flex-row justify-center items-start gap-x-8 gap-y-4 text-sm text-muted-foreground">
+                <div className="flex items-start gap-2">
+                    <Trophy className="h-5 w-5 text-amber-500 flex-shrink-0" />
                     <span><span className="font-bold text-foreground/90">Sermahsul Ijodkor:</span> Eng ko'p insho yozgan.</span>
                 </div>
-                <div className="flex items-center gap-2">
-                    <Flame className="h-5 w-5 text-red-500" />
+                <div className="flex items-start gap-2">
+                    <Flame className="h-5 w-5 text-red-500 flex-shrink-0" />
                     <span><span className="font-bold text-foreground/90">Ommabop Fikr:</span> Eng ko'p ko'rilgan insho muallifi.</span>
                 </div>
             </div>
@@ -393,3 +393,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
