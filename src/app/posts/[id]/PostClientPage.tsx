@@ -26,6 +26,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import {
   Accordion,
@@ -163,9 +164,7 @@ const buildCommentTree = async (comments: Comment[]): Promise<CommentWithAuthor[
     const userIds = [...new Set(comments.map(c => c.user_id))];
     
     // 2. Fetch all unique users in one go
-    // Note: In a real app, you might fetch users in batches if userIds is very large.
-    const userPromises = userIds.map(id => getUserById(id));
-    const users = (await Promise.all(userPromises)).filter((u): u is User => u !== null);
+    const users = await getAllUsers();
     const userMap = new Map(users.map(u => [u.id, u]));
 
     // 3. Build the comment tree
@@ -189,11 +188,11 @@ const buildCommentTree = async (comments: Comment[]): Promise<CommentWithAuthor[
     }
     
     // 4. Sort root comments and replies by date
-    const sortByDate = (a: Comment, b: Comment) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+    const sortByDate = (a: Comment, b: Comment) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     
-    rootComments.sort(sortByDate).reverse();
+    rootComments.sort(sortByDate);
     for (const comment of commentsWithAuthors) {
-        comment.replies.sort(sortByDate);
+        comment.replies.sort((a,b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
     }
     
     return rootComments;
@@ -209,7 +208,9 @@ function CommentSection({ postId, comments, loggedInUser, onCommentsUpdate }: { 
 
   useEffect(() => {
     setIsLoadingComments(true);
-    buildCommentTree(comments)
+    // Sort comments before building the tree
+    const sortedComments = [...(comments || [])].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    buildCommentTree(sortedComments)
         .then(setStructuredComments)
         .finally(() => setIsLoadingComments(false));
   }, [comments]);
