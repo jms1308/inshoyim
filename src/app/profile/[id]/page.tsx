@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { EssayCard } from "@/components/EssayCard";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Edit, Trophy } from "lucide-react";
+import { Edit } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EditProfileDialog } from "@/components/EditProfileDialog";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -139,11 +139,11 @@ export default function ProfilePage() {
                 <h1 className="font-headline text-4xl md:text-5xl font-bold">{user.name}</h1>
                  {achievements.length > 0 && (
                   <TooltipProvider>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-center md:justify-start gap-2">
                       {achievements.map(ach => (
                           <Tooltip key={ach.type}>
-                              <TooltipTrigger>
-                                  <Trophy className="h-7 w-7 text-amber-500 hover:text-amber-400 cursor-pointer" />
+                              <TooltipTrigger className="h-7 w-7 text-amber-500 hover:text-amber-400 cursor-pointer">
+                                  {ach.icon}
                               </TooltipTrigger>
                               <TooltipContent>
                                   <p className="font-bold">{ach.title}</p>

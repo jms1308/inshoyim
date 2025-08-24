@@ -5,7 +5,7 @@ import Link from 'next/link';
 import type { User } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { BookUser, Trophy } from 'lucide-react';
+import { BookUser } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAchievement } from '@/context/AchievementContext';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
@@ -35,27 +35,29 @@ export function AuthorCard({ author }: AuthorCardProps) {
                 <p className="font-bold truncate group-hover:text-primary transition-colors">{author.name}</p>
                 {achievements.length > 0 && (
                     <TooltipProvider>
-                        {achievements.map(ach => (
-                            <Tooltip key={ach.type}>
-                                <TooltipTrigger asChild>
-                                     <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="h-7 w-7 text-amber-500 hover:text-amber-400"
-                                      onClick={(e) => {
-                                          e.preventDefault(); // Prevents link navigation on tap
-                                          e.stopPropagation(); // Stop event bubbling
-                                      }}
-                                    >
-                                        <Trophy className="h-5 w-5" />
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p className="font-bold">{ach.title}</p>
-                                    <p>{ach.description}</p>
-                                </TooltipContent>
-                            </Tooltip>
-                        ))}
+                        <div className="flex items-center gap-1.5">
+                            {achievements.map(ach => (
+                                <Tooltip key={ach.type}>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-7 w-7 text-amber-500 hover:text-amber-400 cursor-pointer"
+                                            onClick={(e) => {
+                                                e.preventDefault(); 
+                                                e.stopPropagation();
+                                            }}
+                                        >
+                                            <div className='h-5 w-5'>{ach.icon}</div>
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p className="font-bold">{ach.title}</p>
+                                        <p>{ach.description}</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            ))}
+                        </div>
                     </TooltipProvider>
                 )}
             </div>

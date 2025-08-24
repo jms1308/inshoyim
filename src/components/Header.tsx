@@ -10,7 +10,6 @@ import {
   Home,
   Compass,
   Edit,
-  Trophy,
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
@@ -121,17 +120,19 @@ function UserMenuLabel({ user }: { user: User }) {
                     </p>
                     {achievements.length > 0 && (
                         <TooltipProvider>
-                            {achievements.map(ach => (
-                                <Tooltip key={ach.type}>
-                                    <TooltipTrigger>
-                                        <Trophy className="h-4 w-4 text-amber-500" />
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        <p className="font-bold">{ach.title}</p>
-                                        <p>{ach.description}</p>
-                                    </TooltipContent>
-                                </Tooltip>
-                            ))}
+                            <div className="flex items-center gap-1.5">
+                                {achievements.map(ach => (
+                                    <Tooltip key={ach.type}>
+                                        <TooltipTrigger className="h-4 w-4 text-amber-500">
+                                            {ach.icon}
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p className="font-bold">{ach.title}</p>
+                                            <p>{ach.description}</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                ))}
+                            </div>
                         </TooltipProvider>
                     )}
                 </div>

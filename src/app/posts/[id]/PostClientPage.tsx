@@ -9,7 +9,7 @@ import { getUserById } from '@/lib/services/users';
 import type { Post, User, Comment } from '@/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Calendar, Eye, MessageSquare, Edit, Trash2, ArrowLeft, CornerUpLeft, MessageCircle, ChevronDown, Trophy } from 'lucide-react';
+import { Clock, Calendar, Eye, MessageSquare, Edit, Trash2, ArrowLeft, CornerUpLeft, MessageCircle, ChevronDown } from 'lucide-react';
 import { ShareButton } from '@/components/ShareButton';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -528,17 +528,19 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
                         <p className="font-bold text-lg group-hover:text-primary transition-colors">{author.name}</p>
                         {achievements.length > 0 && (
                             <TooltipProvider>
-                                {achievements.map(ach => (
-                                    <Tooltip key={ach.type}>
-                                        <TooltipTrigger>
-                                            <Trophy className="h-5 w-5 text-amber-500" />
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p className="font-bold">{ach.title}</p>
-                                            <p>{ach.description}</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                ))}
+                                <div className="flex items-center gap-1.5">
+                                    {achievements.map(ach => (
+                                        <Tooltip key={ach.type}>
+                                            <TooltipTrigger className="h-5 w-5 text-amber-500">
+                                                {ach.icon}
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p className="font-bold">{ach.title}</p>
+                                                <p>{ach.description}</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    ))}
+                                </div>
                             </TooltipProvider>
                         )}
                     </div>
