@@ -135,11 +135,11 @@ export default function ProfilePage() {
               </Avatar>
             </div>
           <div className="text-center md:text-left flex-grow">
-            <div className="flex items-center justify-center md:justify-start gap-4 mb-2">
-                <h1 className="font-headline text-4xl md:text-5xl font-bold">{user.name}</h1>
+             <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
+                <h1 className="font-headline text-3xl md:text-5xl font-bold truncate min-w-0">{user.name}</h1>
                  {achievements.length > 0 && (
                   <TooltipProvider>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center shrink-0">
                       {achievements.map(ach => (
                           <Tooltip key={ach.type}>
                               <TooltipTrigger className="h-7 w-7 text-amber-500 hover:text-amber-400 cursor-pointer">
