@@ -134,9 +134,9 @@ export default function ProfilePage() {
                 <AvatarFallback className="text-4xl">{authorInitials}</AvatarFallback>
               </Avatar>
             </div>
-          <div className="text-center md:text-left flex-grow">
+          <div className="text-center md:text-left flex-grow min-w-0">
              <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
-                <h1 className="font-headline text-3xl md:text-5xl font-bold truncate min-w-0">{user.name}</h1>
+                <h1 className="font-headline text-3xl md:text-5xl font-bold truncate">{user.name}</h1>
                  {achievements.length > 0 && (
                   <TooltipProvider>
                     <div className="flex items-center shrink-0">
