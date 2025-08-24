@@ -135,11 +135,11 @@ export default function ProfilePage() {
               </Avatar>
             </div>
           <div className="text-center md:text-left flex-grow">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center md:justify-start gap-2 md:gap-4 mb-2">
+            <div className="flex items-center justify-center md:justify-start gap-4 mb-2">
                 <h1 className="font-headline text-4xl md:text-5xl font-bold">{user.name}</h1>
                  {achievements.length > 0 && (
                   <TooltipProvider>
-                    <div className="flex items-center justify-center md:justify-start gap-2">
+                    <div className="flex items-center gap-2">
                       {achievements.map(ach => (
                           <Tooltip key={ach.type}>
                               <TooltipTrigger className="h-7 w-7 text-amber-500 hover:text-amber-400 cursor-pointer">
@@ -155,7 +155,7 @@ export default function ProfilePage() {
                   </TooltipProvider>
                 )}
             </div>
-             <div className="mt-4 max-w-xl flex flex-col sm:flex-row sm:items-center sm:justify-center md:justify-start gap-x-6 gap-y-2">
+             <div className="mt-4 max-w-xl flex flex-col items-center justify-center gap-y-2 gap-x-6 sm:flex-row md:justify-start">
                 <p className="text-muted-foreground">{user.email}</p>
                 {isOwnProfile && (
                     <Button variant="outline" size="sm" onClick={() => setIsEditDialogOpen(true)}>
