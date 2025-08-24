@@ -15,11 +15,11 @@ interface Achievement {
 }
 
 interface AchievementContextType {
-    mostPostsHolderIds: string[];
+    mostPostsHolderIds: string[] | undefined;
     mostViewsHolderIds: {
         id: string;
         postTitle: string;
-    }[];
+    }[] | undefined;
     loading: boolean;
 }
 
@@ -49,7 +49,7 @@ export function AchievementProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const mostPostsHolderIds = useMemo(() => {
-        if (postsLoading || usersLoading || users.length === 0) return [];
+        if (postsLoading || usersLoading || users.length === 0) return undefined;
 
         const postCounts = users.map(user => {
             const count = posts.filter(post => post.author_id === user.id && post.status === 'published').length;
@@ -67,7 +67,7 @@ export function AchievementProvider({ children }: { children: ReactNode }) {
     }, [posts, users, postsLoading, usersLoading]);
 
     const mostViewsHolderIds = useMemo(() => {
-        if (postsLoading || posts.length === 0) return [];
+        if (postsLoading || posts.length === 0) return undefined;
         
         const publishedPosts = posts.filter(p => p.status === 'published');
         if (publishedPosts.length === 0) return [];
@@ -111,7 +111,7 @@ export function useAchievement(userId?: string) {
         
         const userAchievements: Achievement[] = [];
         
-        if (mostPostsHolderIds.includes(userId)) {
+        if (mostPostsHolderIds && mostPostsHolderIds.includes(userId)) {
             userAchievements.push({
                 type: 'most_posts',
                 title: 'Sermahsul Ijodkor',
@@ -120,19 +120,21 @@ export function useAchievement(userId?: string) {
             });
         }
         
-        const mostViewsAchievement = mostViewsHolderIds.find(holder => holder.id === userId);
-        if (mostViewsAchievement) {
-            userAchievements.push({
+        const mostViewsAchievements = mostViewsHolderIds?.filter(holder => holder.id === userId);
+        if (mostViewsAchievements && mostViewsAchievements.length > 0) {
+           mostViewsAchievements.forEach(ach => {
+             userAchievements.push({
                 type: 'most_views',
                 title: 'Ommabop Fikr',
-                description: `"${mostViewsAchievement.postTitle}" nomli eng mashhur insho muallifi.`,
+                description: `"${ach.postTitle}" nomli eng mashhur insho muallifi.`,
                 icon: <Flame className="h-full w-full" />
             });
+           })
         }
 
         return userAchievements;
 
     }, [userId, mostPostsHolderIds, mostViewsHolderIds, loading]);
 
-    return { achievements, loading };
+    return { ...context, achievements };
 }

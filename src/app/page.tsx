@@ -143,43 +143,43 @@ function AnimatedBackground() {
 
 function TopAuthorsSection() {
     const { mostPostsHolderIds, mostViewsHolderIds, loading: achievementsLoading } = useAchievement();
-    const [allUsers, setAllUsers] = useState<User[]>([]);
-    const [usersLoading, setUsersLoading] = useState(true);
-
-    useEffect(() => {
-        async function fetchUsers() {
-            try {
-                const users = await getAllUsers();
-                setAllUsers(users);
-            } catch (error) {
-                console.error("Failed to fetch users:", error);
-            } finally {
-                setUsersLoading(false);
-            }
-        }
-        fetchUsers();
-    }, []);
+    const { posts, loading: postsLoading } = usePosts(); // We get users from posts context
 
     const topAuthors = useMemo(() => {
-        if (achievementsLoading || usersLoading || !mostPostsHolderIds || !mostViewsHolderIds) return [];
+        if (achievementsLoading || postsLoading) return [];
 
+        // Combine IDs and remove duplicates
         const holderIds = new Set([
-            ...mostPostsHolderIds,
-            ...mostViewsHolderIds.map(h => h.id)
+            ...(mostPostsHolderIds || []),
+            ...(mostViewsHolderIds?.map(h => h.id) || [])
         ]);
 
-        return allUsers.filter(user => holderIds.has(user.id));
-    }, [mostPostsHolderIds, mostViewsHolderIds, allUsers, achievementsLoading, usersLoading]);
+        const allAuthorsFromPosts = posts.map(p => p.author).filter((a): a is User => !!a);
+        
+        // Create a unique list of authors
+        const uniqueAuthors = new Map<string, User>();
+        allAuthorsFromPosts.forEach(author => {
+            if (!uniqueAuthors.has(author.id)) {
+                uniqueAuthors.set(author.id, author);
+            }
+        });
+        
+        return Array.from(uniqueAuthors.values()).filter(user => holderIds.has(user.id));
 
-    if (achievementsLoading || usersLoading) {
+    }, [mostPostsHolderIds, mostViewsHolderIds, posts, achievementsLoading, postsLoading]);
+
+    if (achievementsLoading || postsLoading) {
         return (
             <div className="py-12 md:py-16">
                  <Skeleton className="h-10 w-1/2 mx-auto mb-8" />
-                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                 <div className="flex justify-center items-start flex-wrap gap-8">
                     {Array.from({length: 2}).map((_, i) => (
-                         <div key={i} className="flex flex-col items-center gap-2">
-                             <Skeleton className="h-20 w-20 rounded-full" />
+                         <div key={i} className="flex flex-col items-center gap-3">
+                             <Skeleton className="h-24 w-24 rounded-full" />
                              <Skeleton className="h-6 w-32" />
+                             <div className="flex gap-2">
+                                <Skeleton className="h-5 w-5 rounded-full" />
+                             </div>
                          </div>
                     ))}
                  </div>
@@ -195,8 +195,8 @@ function TopAuthorsSection() {
             <p className="text-muted-foreground mb-8 max-w-xl mx-auto">Platformamizning eng faol va ommabop ijodkorlari bilan tanishing.</p>
             <div className="flex justify-center items-start flex-wrap gap-8">
                 {topAuthors.map(author => {
-                    const hasMostPosts = mostPostsHolderIds.includes(author.id);
-                    const hasMostViews = mostViewsHolderIds.some(h => h.id === author.id);
+                    const hasMostPosts = mostPostsHolderIds?.includes(author.id);
+                    const hasMostViews = mostViewsHolderIds?.some(h => h.id === author.id);
                     const authorInitials = author.name.split(' ').map(n => n[0]).join('') || 'U';
 
                     return (
@@ -205,10 +205,10 @@ function TopAuthorsSection() {
                                 <AvatarImage src={author.avatar_url} alt={author.name} />
                                 <AvatarFallback className="text-3xl">{authorInitials}</AvatarFallback>
                             </Avatar>
+                            <p className="font-bold text-lg group-hover:text-primary transition-colors">{author.name}</p>
                             <div className="flex items-center gap-2">
-                                <p className="font-bold text-lg group-hover:text-primary transition-colors">{author.name}</p>
-                                {hasMostPosts && <Trophy className="h-5 w-5 text-amber-500" />}
-                                {hasMostViews && <Flame className="h-5 w-5 text-red-500" />}
+                                {hasMostPosts && <Trophy className="h-5 w-5 text-amber-500" title="Sermahsul Ijodkor"/>}
+                                {hasMostViews && <Flame className="h-5 w-5 text-red-500" title="Ommabop Fikr"/>}
                             </div>
                         </Link>
                     )
