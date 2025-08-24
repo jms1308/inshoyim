@@ -28,10 +28,10 @@ export function PostsProvider({ children }: { children: ReactNode }) {
       
       // Fetch all authors in parallel
       const authorPromises = authorIds.map(id => getUserById(id));
-      const authors = await Promise.all(authorPromises);
+      const authors = (await Promise.all(authorPromises)).filter((u): u is User => u !== null);
       
       // Create a map for quick lookup
-      const authorMap = new Map<string, User | null>();
+      const authorMap = new Map<string, User>();
       authors.forEach(author => {
         if (author) {
           authorMap.set(author.id, author);
@@ -41,7 +41,7 @@ export function PostsProvider({ children }: { children: ReactNode }) {
       // Attach author to each post
       const postsWithAuthors = fetchedPosts.map(post => ({
         ...post,
-        author: authorMap.get(post.author_id) || undefined,
+        author: authorMap.get(post.author_id),
       }));
 
       setPosts(postsWithAuthors);
@@ -76,5 +76,3 @@ export function usePosts() {
   }
   return context;
 }
-
-    

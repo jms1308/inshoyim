@@ -4,12 +4,12 @@
 import { useParams, notFound, useRouter } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
-import { getPostById, addCommentToPost, deleteCommentFromPost, getCommentsByPostId, incrementPostView } from '@/lib/services/posts';
-import { getUserById } from '@/lib/services/users';
+import { getPostById, addCommentToPost, deleteCommentFromPost, incrementPostView } from '@/lib/services/posts';
+import { getUserById, getAllUsers } from '@/lib/services/users';
 import type { Post, User, Comment } from '@/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Calendar, Eye, MessageSquare, Edit, Trash2, ArrowLeft, CornerUpLeft, MessageCircle, ChevronDown } from 'lucide-react';
+import { Clock, Calendar, Eye, MessageSquare, Edit, Trash2, ArrowLeft, CornerUpLeft, MessageCircle } from 'lucide-react';
 import { ShareButton } from '@/components/ShareButton';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -26,7 +26,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import {
   Accordion,
@@ -55,7 +54,6 @@ function CommentSkeleton() {
         </div>
     );
 }
-
 
 function CommentCard({ comment, onReply, onDelete, loggedInUser }: { comment: CommentWithAuthor; onReply: (parentId: string, content: string) => Promise<void>; onDelete: (commentId: string) => void; loggedInUser: User | null; }) {
     const [replyContent, setReplyContent] = useState('');
@@ -160,74 +158,68 @@ function CommentCard({ comment, onReply, onDelete, loggedInUser }: { comment: Co
 
 const buildCommentTree = async (comments: Comment[]): Promise<CommentWithAuthor[]> => {
     if (!comments || comments.length === 0) return [];
-
-    const commentsWithAuthors = await Promise.all(
-        comments.map(async (comment) => {
-            const author = await getUserById(comment.user_id);
-            return { ...comment, author, replies: [] } as CommentWithAuthor;
-        })
-    );
     
+    // 1. Get unique author IDs
+    const userIds = [...new Set(comments.map(c => c.user_id))];
+    
+    // 2. Fetch all unique users in one go
+    // Note: In a real app, you might fetch users in batches if userIds is very large.
+    const userPromises = userIds.map(id => getUserById(id));
+    const users = (await Promise.all(userPromises)).filter((u): u is User => u !== null);
+    const userMap = new Map(users.map(u => [u.id, u]));
+
+    // 3. Build the comment tree
+    const commentsWithAuthors: CommentWithAuthor[] = comments
+        .map(comment => ({
+            ...comment,
+            author: userMap.get(comment.user_id) || null,
+            replies: [],
+        }));
+
     const commentMap = new Map(commentsWithAuthors.map(c => [c.id, c]));
     const rootComments: CommentWithAuthor[] = [];
 
     for (const comment of commentsWithAuthors) {
         if (comment.parent_id && commentMap.has(comment.parent_id)) {
             const parent = commentMap.get(comment.parent_id)!;
-            if (!parent.replies) {
-              parent.replies = [];
-            }
             parent.replies.push(comment);
         } else {
             rootComments.push(comment);
         }
     }
     
+    // 4. Sort root comments and replies by date
+    const sortByDate = (a: Comment, b: Comment) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+    
+    rootComments.sort(sortByDate).reverse();
     for (const comment of commentsWithAuthors) {
-        if (comment.replies) {
-            comment.replies.sort((a,b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-        }
+        comment.replies.sort(sortByDate);
     }
-
-    rootComments.sort((a,b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    
     return rootComments;
-}
+};
 
-function CommentSection({ postId, loggedInUser, onCommentCountChange }: { postId: string, loggedInUser: User | null, onCommentCountChange: (count: number) => void }) {
+
+function CommentSection({ postId, comments, loggedInUser, onCommentsUpdate }: { postId: string, comments: Comment[], loggedInUser: User | null, onCommentsUpdate: (updatedComments: Comment[]) => void }) {
   const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [comments, setComments] = useState<Comment[]>([]);
   const [structuredComments, setStructuredComments] = useState<CommentWithAuthor[]>([]);
   const [isLoadingComments, setIsLoadingComments] = useState(true);
   const { toast } = useToast();
 
-  const fetchComments = async () => {
-    setIsLoadingComments(true);
-    try {
-        const fetchedComments = await getCommentsByPostId(postId);
-        setComments(fetchedComments);
-        const structured = await buildCommentTree(fetchedComments);
-        setStructuredComments(structured);
-        onCommentCountChange(fetchedComments.length);
-    } catch (error) {
-        console.error("Failed to fetch comments:", error);
-        toast({ title: "Sharhlarni yuklashda xatolik", variant: "destructive" });
-    } finally {
-        setIsLoadingComments(false);
-    }
-  };
-
   useEffect(() => {
-    if (postId) {
-        fetchComments();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [postId]);
+    setIsLoadingComments(true);
+    buildCommentTree(comments)
+        .then(setStructuredComments)
+        .finally(() => setIsLoadingComments(false));
+  }, [comments]);
+
 
   const handleDeleteComment = async (commentId: string) => {
     try {
-      await deleteCommentFromPost(commentId);
-      fetchComments(); // Refetch comments after deleting
+      await deleteCommentFromPost(postId, commentId);
+      const updatedComments = comments.filter(c => c.id !== commentId);
+      onCommentsUpdate(updatedComments);
       toast({
         title: "Muvaffaqiyatli!",
         description: "Sharh o'chirildi."
@@ -249,8 +241,8 @@ function CommentSection({ postId, loggedInUser, onCommentCountChange }: { postId
     }
 
     try {
-      await addCommentToPost(postId, loggedInUser.id, content, parentId);
-      fetchComments(); // Refetch comments after adding
+      const addedComment = await addCommentToPost(postId, loggedInUser.id, content, parentId);
+      onCommentsUpdate([...comments, addedComment]);
       if (!parentId) {
         setNewComment(""); 
       }
@@ -378,7 +370,6 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
     size: 16,
     family: 'font-body'
   });
-  const [commentCount, setCommentCount] = useState(0);
   const { achievements } = useAchievement(author?.id);
 
 
@@ -401,8 +392,6 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
     if (!postId || !initialPost) return;
 
     async function handleView() {
-      // Logic for incrementing view count can be improved for production
-      // For now, we use a simple localStorage flag to prevent multiple increments per session.
       const viewedPostsKey = 'viewed_posts';
       let viewedPosts: string[] = [];
       try {
@@ -412,14 +401,8 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
       }
 
       if (!viewedPosts.includes(postId)) {
-          // Increment view count in the backend
-          // We don't await this to avoid blocking
           incrementPostView(postId);
-          
-          // Update local state for immediate feedback
           setPost(prevPost => prevPost ? { ...prevPost, views: prevPost.views + 1 } : null);
-          
-          // Mark as viewed in localStorage
           viewedPosts.push(postId);
           localStorage.setItem(viewedPostsKey, JSON.stringify(viewedPosts));
       }
@@ -428,13 +411,16 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postId, initialPost]);
 
-
   const handlePostDeleted = () => {
     toast({
         title: "Muvaffaqiyatli!",
         description: "Insho o'chirildi."
     });
     router.push('/');
+  }
+
+  const handleCommentsUpdate = (updatedComments: Comment[]) => {
+      setPost(prevPost => prevPost ? { ...prevPost, comments: updatedComments } : null);
   }
 
   if (!post) {
@@ -445,6 +431,7 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
   const isAdmin = loggedInUser?.name === 'Anonim';
   const authorInitials = author?.name.split(' ').map(n => n[0]).join('') || 'U';
   const formattedDate = format(new Date(post.created_at), 'dd.MM.yyyy');
+  const commentCount = post.comments?.length || 0;
 
   return (
     <article className="container mx-auto max-w-3xl px-4 py-8 md:py-16">
@@ -531,8 +518,18 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
                                 <div className="flex items-center gap-1.5">
                                     {achievements.map(ach => (
                                         <Tooltip key={ach.type}>
-                                            <TooltipTrigger className="h-5 w-5 text-amber-500">
-                                                {ach.icon}
+                                            <TooltipTrigger asChild>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="icon"
+                                                  className="h-7 w-7 text-amber-500 hover:text-amber-400 cursor-pointer"
+                                                  onClick={(e) => {
+                                                      e.preventDefault(); 
+                                                      e.stopPropagation();
+                                                  }}
+                                                >
+                                                  <div className='h-5 w-5'>{ach.icon}</div>
+                                                </Button>
                                             </TooltipTrigger>
                                             <TooltipContent>
                                                 <p className="font-bold">{ach.title}</p>
@@ -572,8 +569,9 @@ export default function PostClientPage({ initialPost, initialAuthor }: PostClien
                 <AccordionContent className="pt-6">
                     <CommentSection 
                         postId={post.id}
+                        comments={post.comments || []}
                         loggedInUser={loggedInUser}
-                        onCommentCountChange={setCommentCount}
+                        onCommentsUpdate={handleCommentsUpdate}
                     />
                 </AccordionContent>
             </AccordionItem>

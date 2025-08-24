@@ -13,6 +13,7 @@ export interface Post {
   source?: 'user' | 'imported_from_medium';
   viewed_by?: string[]; // Array of user IDs who have viewed the post
   author?: User; // Author data can be attached here
+  comments?: Comment[]; // Comments are nested within the post
 }
 
 export interface User {
@@ -27,10 +28,9 @@ export interface User {
 
 export interface Comment {
   id: string;
-  post_id: string;
   user_id: string;
   content: string;
   created_at: string;
   parent_id?: string | null;
-  replies?: Comment[];
+  // replies array is dynamically built, not stored in DB
 }

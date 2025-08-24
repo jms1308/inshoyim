@@ -13,26 +13,27 @@ import {
     Timestamp,
     addDoc,
     orderBy,
-    limit,
     deleteDoc,
-    writeBatch,
-    startAfter,
-    QueryDocumentSnapshot,
-    DocumentData
+    arrayRemove
 } from 'firebase/firestore';
-import type { Post, Comment } from '@/types';
+import type { Post, Comment, User } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
+import { getUserById } from './users';
 
 const postsCollection = collection(db, 'posts');
-const commentsCollection = collection(db, 'comments');
 
 const postFromDocData = (id: string, data: DocumentData): Post => {
-    return {
+    const postData = {
         id: id,
         ...data,
         created_at: (data.created_at as Timestamp).toDate().toISOString(),
         updated_at: (data.updated_at as Timestamp).toDate().toISOString(),
     } as Post;
+    // Ensure comments array exists
+    if (!postData.comments) {
+        postData.comments = [];
+    }
+    return postData;
 }
 
 export async function getPublishedPosts(): Promise<Post[]> {
@@ -42,8 +43,21 @@ export async function getPublishedPosts(): Promise<Post[]> {
         orderBy('created_at', 'desc')
     );
     const snapshot = await getDocs(q);
-    const posts = snapshot.docs.map(doc => postFromDocData(doc.id, doc.data()));
-    return posts;
+    const postsData = snapshot.docs.map(doc => postFromDocData(doc.id, doc.data()));
+
+    // Efficiently fetch all unique authors
+    const authorIds = [...new Set(postsData.map(p => p.author_id))];
+    const authorPromises = authorIds.map(id => getUserById(id));
+    const authors = (await Promise.all(authorPromises)).filter((u): u is User => u !== null);
+    const authorMap = new Map(authors.map(u => [u.id, u]));
+
+    // Attach author to each post and calculate comment count
+    const postsWithAuthors = postsData.map(post => ({
+        ...post,
+        author: authorMap.get(post.author_id),
+    }));
+    
+    return postsWithAuthors;
 }
 
 
@@ -82,48 +96,45 @@ export async function getPostById(id: string): Promise<Post | null> {
     }
 }
 
+
 // ========= COMMENT SERVICE FUNCTIONS =========
 
-const commentFromDocData = (id: string, data: DocumentData): Comment => {
-    return {
-        id: id,
-        ...data,
-        created_at: (data.created_at as Timestamp).toDate().toISOString(),
-    } as Comment;
-}
-
-export async function getCommentsByPostId(postId: string): Promise<Comment[]> {
-    if (!postId) return [];
-    const q = query(commentsCollection, where('post_id', '==', postId));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => commentFromDocData(doc.id, doc.data()));
-}
-
-
 export async function addCommentToPost(postId: string, userId: string, content: string, parentId: string | null = null): Promise<Comment> {
-    const newComment = {
-        id: uuidv4(), // We assign a client-side ID to avoid a second read
-        post_id: postId,
+    const postRef = doc(db, 'posts', postId);
+    
+    const newComment: Comment = {
+        id: uuidv4(),
         user_id: userId,
         content: content,
-        created_at: new Date(),
+        created_at: new Date().toISOString(),
         parent_id: parentId,
     };
     
-    // We use the client-side ID for the document ID as well for consistency
-    const commentRef = doc(db, "comments", newComment.id);
-    await addDoc(commentsCollection, newComment);
-
-    return {
-      ...newComment,
-      created_at: newComment.created_at.toISOString(),
-    };
+    await updateDoc(postRef, {
+        comments: arrayUnion(newComment)
+    });
+    
+    return newComment;
 }
 
+export async function deleteCommentFromPost(postId: string, commentId: string): Promise<void> {
+    const postRef = doc(db, 'posts', postId);
+    const postSnap = await getDoc(postRef);
 
-export async function deleteCommentFromPost(commentId: string): Promise<void> {
-    const commentRef = doc(db, 'comments', commentId);
-    await deleteDoc(commentRef);
+    if (!postSnap.exists()) {
+        throw new Error("Post not found");
+    }
+
+    const postData = postSnap.data() as Post;
+    const commentToDelete = postData.comments?.find(c => c.id === commentId);
+
+    if (commentToDelete) {
+        await updateDoc(postRef, {
+            comments: arrayRemove(commentToDelete)
+        });
+    } else {
+        console.warn("Comment not found in post, could not delete.");
+    }
 }
 
 
@@ -157,7 +168,7 @@ export async function createPost(data: CreatePostData): Promise<Post> {
         updated_at: new Date(),
         views: 0,
         read_time: readTime,
-        viewed_by: [],
+        comments: [], // Initialize with empty comments array
     };
 
     const docRef = await addDoc(postsCollection, newPost);
@@ -188,7 +199,7 @@ export async function updatePost(postId: string, data: UpdatePostData): Promise<
         updated_at: new Date(),
     };
 
-    await updateDoc(postRef, updateData);
+    await updateDoc(postRef, updateData as any);
 }
 
 export async function deletePost(postId: string): Promise<void> {
