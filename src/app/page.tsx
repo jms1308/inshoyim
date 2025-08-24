@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { EssayCard } from '@/components/EssayCard';
 import { usePosts } from '@/context/PostContext';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Edit, BookOpen, Globe } from 'lucide-react';
+import { ArrowRight, Edit, BookOpen, Globe, Trophy, Flame } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import {
@@ -19,6 +19,10 @@ import {
 import Autoplay from "embla-carousel-autoplay"
 import { useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useAchievement } from '@/context/AchievementContext';
+import type { User } from '@/types';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { getAllUsers } from '@/lib/services/users';
 
 const FeatureCard = ({ icon, title, children, index = 0, className }: { icon: React.ReactNode, title: string, children: React.ReactNode, index?: number, className?: string }) => {
     const cardRef = useRef<HTMLDivElement>(null);
@@ -137,6 +141,94 @@ function AnimatedBackground() {
     );
 }
 
+function TopAuthorsSection() {
+    const { mostPostsHolderIds, mostViewsHolderIds, loading: achievementsLoading } = useAchievement();
+    const [allUsers, setAllUsers] = useState<User[]>([]);
+    const [usersLoading, setUsersLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchUsers() {
+            try {
+                const users = await getAllUsers();
+                setAllUsers(users);
+            } catch (error) {
+                console.error("Failed to fetch users:", error);
+            } finally {
+                setUsersLoading(false);
+            }
+        }
+        fetchUsers();
+    }, []);
+
+    const topAuthors = useMemo(() => {
+        if (achievementsLoading || usersLoading) return [];
+
+        const holderIds = new Set([
+            ...mostPostsHolderIds,
+            ...mostViewsHolderIds.map(h => h.id)
+        ]);
+
+        return allUsers.filter(user => holderIds.has(user.id));
+    }, [mostPostsHolderIds, mostViewsHolderIds, allUsers, achievementsLoading, usersLoading]);
+
+    if (achievementsLoading || usersLoading) {
+        return (
+            <div className="py-12 md:py-16">
+                 <Skeleton className="h-10 w-1/2 mx-auto mb-8" />
+                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {Array.from({length: 2}).map((_, i) => (
+                         <div key={i} className="flex flex-col items-center gap-2">
+                             <Skeleton className="h-20 w-20 rounded-full" />
+                             <Skeleton className="h-6 w-32" />
+                         </div>
+                    ))}
+                 </div>
+            </div>
+        )
+    }
+    
+    if(topAuthors.length === 0) return null;
+
+    return (
+        <section className="py-12 md:py-16 text-center">
+            <h2 className="font-headline text-3xl font-bold mb-2">Yutuqlar Doskasi</h2>
+            <p className="text-muted-foreground mb-8 max-w-xl mx-auto">Platformamizning eng faol va ommabop ijodkorlari bilan tanishing.</p>
+            <div className="flex justify-center items-start flex-wrap gap-8">
+                {topAuthors.map(author => {
+                    const hasMostPosts = mostPostsHolderIds.includes(author.id);
+                    const hasMostViews = mostViewsHolderIds.some(h => h.id === author.id);
+                    const authorInitials = author.name.split(' ').map(n => n[0]).join('') || 'U';
+
+                    return (
+                        <Link href={`/profile/${author.id}`} key={author.id} className="flex flex-col items-center gap-3 group">
+                            <Avatar className="h-24 w-24 border-4 border-transparent group-hover:border-primary transition-colors">
+                                <AvatarImage src={author.avatar_url} alt={author.name} />
+                                <AvatarFallback className="text-3xl">{authorInitials}</AvatarFallback>
+                            </Avatar>
+                            <div className="flex items-center gap-2">
+                                <p className="font-bold text-lg group-hover:text-primary transition-colors">{author.name}</p>
+                                {hasMostPosts && <Trophy className="h-5 w-5 text-amber-500" />}
+                                {hasMostViews && <Flame className="h-5 w-5 text-red-500" />}
+                            </div>
+                        </Link>
+                    )
+                })}
+            </div>
+             <div className="mt-10 flex flex-col sm:flex-row justify-center items-center gap-x-8 gap-y-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                    <Trophy className="h-5 w-5 text-amber-500" />
+                    <span><span className="font-bold text-foreground/90">Sermahsul Ijodkor:</span> Eng ko'p insho yozgan.</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <Flame className="h-5 w-5 text-red-500" />
+                    <span><span className="font-bold text-foreground/90">Ommabop Fikr:</span> Eng ko'p ko'rilgan insho muallifi.</span>
+                </div>
+            </div>
+        </section>
+    )
+
+}
+
 export default function Home() {
   const { posts, loading } = usePosts();
   const latestPosts = useMemo(() => posts.slice(0, 6), [posts]);
@@ -253,8 +345,10 @@ export default function Home() {
             </div>
         </section>
 
-        <section>
-          <h2 className="font-headline text-3xl font-bold mb-8 text-center md:text-left">So'nggi nashrlar</h2>
+        <TopAuthorsSection />
+
+        <section className="py-12 md:py-16">
+          <h2 className="font-headline text-3xl font-bold mb-8 text-center">So'nggi nashrlar</h2>
           {loading ? (
             <Carousel
               opts={{ align: "start", loop: false }}
