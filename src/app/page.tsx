@@ -161,7 +161,7 @@ function TopAuthorsSection() {
     }, []);
 
     const topAuthors = useMemo(() => {
-        if (achievementsLoading || usersLoading) return [];
+        if (achievementsLoading || usersLoading || !mostPostsHolderIds || !mostViewsHolderIds) return [];
 
         const holderIds = new Set([
             ...mostPostsHolderIds,
