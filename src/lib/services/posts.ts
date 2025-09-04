@@ -14,7 +14,10 @@ import {
     addDoc,
     orderBy,
     deleteDoc,
-    arrayRemove
+    arrayRemove,
+    limit,
+    startAfter,
+    DocumentData
 } from 'firebase/firestore';
 import type { Post, Comment, User } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
@@ -28,38 +31,37 @@ const postFromDocData = (id: string, data: DocumentData): Post => {
         ...data,
         created_at: (data.created_at as Timestamp).toDate().toISOString(),
         updated_at: (data.updated_at as Timestamp).toDate().toISOString(),
+        comments: data.comments || [],
     } as Post;
-    // Ensure comments array exists
-    if (!postData.comments) {
-        postData.comments = [];
-    }
     return postData;
 }
 
-export async function getPublishedPosts(): Promise<Post[]> {
-    const q = query(
-        postsCollection, 
+export async function getPublishedPosts(
+    postsLimit: number = 9, 
+    paginate: boolean = true, 
+    lastVisible: DocumentData | null = null
+): Promise<{ posts: Post[], lastVisible: DocumentData | null }> {
+    let queries = [
         where('status', '==', 'published'),
         orderBy('created_at', 'desc')
-    );
-    const snapshot = await getDocs(q);
-    const postsData = snapshot.docs.map(doc => postFromDocData(doc.id, doc.data()));
+    ];
 
-    // Efficiently fetch all unique authors
-    const authorIds = [...new Set(postsData.map(p => p.author_id))];
-    const authorPromises = authorIds.map(id => getUserById(id));
-    const authors = (await Promise.all(authorPromises)).filter((u): u is User => u !== null);
-    const authorMap = new Map(authors.map(u => [u.id, u]));
-
-    // Attach author to each post and calculate comment count
-    const postsWithAuthors = postsData.map(post => ({
-        ...post,
-        author: authorMap.get(post.author_id),
-    }));
+    if (paginate && lastVisible) {
+        queries.push(startAfter(lastVisible));
+    }
     
-    return postsWithAuthors;
-}
+    if (paginate) {
+        queries.push(limit(postsLimit));
+    }
 
+    const q = query(postsCollection, ...queries);
+    const snapshot = await getDocs(q);
+
+    const postsData = snapshot.docs.map(doc => postFromDocData(doc.id, doc.data()));
+    const newLastVisible = snapshot.docs[snapshot.docs.length - 1] || null;
+    
+    return { posts: postsData, lastVisible: newLastVisible };
+}
 
 export async function getPostsByAuthor(authorId: string, includeDrafts: boolean = false): Promise<Post[]> {
   if (!authorId) return [];
@@ -79,6 +81,12 @@ export async function getPostsByAuthor(authorId: string, includeDrafts: boolean 
   const snapshot = await getDocs(postQuery);
   let posts = snapshot.docs.map(doc => postFromDocData(doc.id, doc.data()));
   posts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+  // Attach author data
+  const author = await getUserById(authorId);
+  if(author) {
+    posts = posts.map(p => ({...p, author}));
+  }
 
   return posts;
 }

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { EssayCard } from '@/components/EssayCard';
 import { usePosts } from '@/context/PostContext';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Edit, BookOpen, Globe, Trophy, Flame } from 'lucide-react';
+import { ArrowRight, Edit, BookOpen, Globe, Trophy, Flame, Loader2 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import {
@@ -143,20 +143,18 @@ function AnimatedBackground() {
 
 function TopAuthorsSection() {
     const { mostPostsHolderIds, mostViewsHolderIds, loading: achievementsLoading } = useAchievement();
-    const { posts, loading: postsLoading } = usePosts(); // We get users from posts context
+    const { allPosts, allPostsLoaded } = usePosts();
 
     const topAuthors = useMemo(() => {
-        if (achievementsLoading || postsLoading) return [];
+        if (achievementsLoading || !allPostsLoaded) return [];
 
-        // Combine IDs and remove duplicates
         const holderIds = new Set([
             ...(mostPostsHolderIds || []),
             ...(mostViewsHolderIds?.map(h => h.id) || [])
         ]);
 
-        const allAuthorsFromPosts = posts.map(p => p.author).filter((a): a is User => !!a);
+        const allAuthorsFromPosts = allPosts.map(p => p.author).filter((a): a is User => !!a);
         
-        // Create a unique list of authors
         const uniqueAuthors = new Map<string, User>();
         allAuthorsFromPosts.forEach(author => {
             if (!uniqueAuthors.has(author.id)) {
@@ -166,22 +164,15 @@ function TopAuthorsSection() {
         
         return Array.from(uniqueAuthors.values()).filter(user => holderIds.has(user.id));
 
-    }, [mostPostsHolderIds, mostViewsHolderIds, posts, achievementsLoading, postsLoading]);
+    }, [mostPostsHolderIds, mostViewsHolderIds, allPosts, achievementsLoading, allPostsLoaded]);
 
-    if (achievementsLoading || postsLoading) {
+    if (!allPostsLoaded) {
         return (
-            <div className="py-12 md:py-16">
-                 <Skeleton className="h-10 w-1/2 mx-auto mb-8" />
-                 <div className="flex justify-center items-start flex-wrap gap-8">
-                    {Array.from({length: 2}).map((_, i) => (
-                         <div key={i} className="flex flex-col items-center gap-3">
-                             <Skeleton className="h-24 w-24 rounded-full" />
-                             <Skeleton className="h-6 w-32" />
-                             <div className="flex gap-2">
-                                <Skeleton className="h-5 w-5 rounded-full" />
-                             </div>
-                         </div>
-                    ))}
+            <div className="py-12 md:py-16 text-center">
+                 <h2 className="font-headline text-3xl font-bold mb-2">Yutuqlar Doskasi</h2>
+                 <div className="flex items-center justify-center gap-2 text-muted-foreground mt-4">
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <span>Barcha insholar yuklanmoqda...</span>
                  </div>
             </div>
         )
@@ -230,8 +221,7 @@ function TopAuthorsSection() {
 }
 
 export default function Home() {
-  const { posts, loading } = usePosts();
-  const latestPosts = useMemo(() => posts.slice(0, 6), [posts]);
+  const { posts: latestPosts, loading } = usePosts();
   const router = useRouter();
   
   const [isMounted, setIsMounted] = useState(false);
@@ -393,5 +383,3 @@ export default function Home() {
     </div>
   );
 }
-
-    

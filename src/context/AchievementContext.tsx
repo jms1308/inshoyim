@@ -30,12 +30,13 @@ const AchievementContext = createContext<AchievementContextType>({
 });
 
 export function AchievementProvider({ children }: { children: ReactNode }) {
-    const { posts, loading: postsLoading } = usePosts();
+    const { allPosts, allPostsLoaded } = usePosts();
     const [users, setUsers] = useState<User[]>([]);
     const [usersLoading, setUsersLoading] = useState(true);
 
     useEffect(() => {
         const fetchUsers = async () => {
+            if (!allPostsLoaded) return;
             try {
                 const allUsers = await getAllUsers();
                 setUsers(allUsers);
@@ -46,13 +47,13 @@ export function AchievementProvider({ children }: { children: ReactNode }) {
             }
         };
         fetchUsers();
-    }, []);
+    }, [allPostsLoaded]);
 
     const mostPostsHolderIds = useMemo(() => {
-        if (postsLoading || usersLoading || users.length === 0) return undefined;
+        if (!allPostsLoaded || usersLoading || users.length === 0) return undefined;
 
         const postCounts = users.map(user => {
-            const count = posts.filter(post => post.author_id === user.id && post.status === 'published').length;
+            const count = allPosts.filter(post => post.author_id === user.id && post.status === 'published').length;
             return { userId: user.id, count };
         });
         
@@ -64,12 +65,12 @@ export function AchievementProvider({ children }: { children: ReactNode }) {
 
         return postCounts.filter(pc => pc.count === maxCount).map(pc => pc.userId);
 
-    }, [posts, users, postsLoading, usersLoading]);
+    }, [allPosts, users, allPostsLoaded, usersLoading]);
 
     const mostViewsHolderIds = useMemo(() => {
-        if (postsLoading || posts.length === 0) return undefined;
+        if (!allPostsLoaded || allPosts.length === 0) return undefined;
         
-        const publishedPosts = posts.filter(p => p.status === 'published');
+        const publishedPosts = allPosts.filter(p => p.status === 'published');
         if (publishedPosts.length === 0) return [];
 
         const maxViews = Math.max(...publishedPosts.map(p => p.views));
@@ -83,12 +84,12 @@ export function AchievementProvider({ children }: { children: ReactNode }) {
                 postTitle: p.title,
             }));
             
-    }, [posts, postsLoading]);
+    }, [allPosts, allPostsLoaded]);
     
     const value = {
         mostPostsHolderIds,
         mostViewsHolderIds,
-        loading: postsLoading || usersLoading,
+        loading: !allPostsLoaded || usersLoading,
     };
 
     return (

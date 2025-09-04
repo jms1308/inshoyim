@@ -7,7 +7,7 @@ import { EssayCard } from "@/components/EssayCard";
 import { AuthorCard } from "@/components/AuthorCard";
 import { Input } from "@/components/ui/input";
 import { usePosts } from '@/context/PostContext';
-import { Search, ListFilter } from "lucide-react";
+import { Search, ListFilter, Loader2 } from "lucide-react";
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from '@/components/ui/button';
 import type { User, Post } from '@/types';
+import { getAllUsers } from '@/lib/services/users';
 
 type AuthorWithPostCount = User & { postCount: number };
 
@@ -56,11 +57,21 @@ function EssayCardSkeleton() {
 
 
 export default function ExplorePage() {
-  const { posts: allPosts, loading } = usePosts();
+  const { 
+    posts: displayedPosts, 
+    loading: postsLoading, 
+    loadMorePosts, 
+    hasMore, 
+    isFetchingMore,
+    allPostsLoaded,
+    allPosts,
+  } = usePosts();
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState<'newest' | 'most_viewed'>('newest');
   const [isMobile, setIsMobile] = useState(false);
-  const router = useRouter();
+  const [authors, setAuthors] = useState<AuthorWithPostCount[]>([]);
+  const [authorsLoading, setAuthorsLoading] = useState(true);
 
   useEffect(() => {
     const checkWidth = () => {
@@ -72,9 +83,42 @@ export default function ExplorePage() {
 
     return () => window.removeEventListener('resize', checkWidth);
   }, []);
+  
+  useEffect(() => {
+    async function fetchAllAuthors() {
+        if (!allPostsLoaded) return;
+        
+        try {
+            setAuthorsLoading(true);
+            const userList = await getAllUsers();
+            
+            const postCounts = new Map<string, number>();
+            allPosts.forEach(post => {
+                if (post.status === 'published') {
+                    postCounts.set(post.author_id, (postCounts.get(post.author_id) || 0) + 1);
+                }
+            });
+
+            const authorsWithCounts: AuthorWithPostCount[] = userList.map(user => ({
+                ...user,
+                postCount: postCounts.get(user.id) || 0
+            })).filter(user => user.postCount > 0);
+            
+            setAuthors(authorsWithCounts.sort((a,b) => b.postCount - a.postCount));
+
+        } catch (error) {
+            console.error("Failed to fetch authors:", error);
+        } finally {
+            setAuthorsLoading(false);
+        }
+    }
+
+    fetchAllAuthors();
+  }, [allPostsLoaded, allPosts]);
 
   const filteredPosts = useMemo(() => {
-    let posts = allPosts;
+    let postsToFilter = allPostsLoaded ? allPosts : displayedPosts;
+    let posts = postsToFilter;
 
     if (searchTerm) {
       posts = posts.filter(post =>
@@ -88,40 +132,22 @@ export default function ExplorePage() {
       return [...posts].sort((a, b) => b.views - a.views);
     }
     
-    // Default is 'newest', which is already sorted from the context.
+    // Default is 'newest', which is already sorted from the context for initial posts.
+    // If all posts are loaded, we need to sort them.
+    if (allPostsLoaded) {
+        return [...posts].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    }
+
     return posts;
 
-  }, [searchTerm, allPosts, sortOrder]);
+  }, [searchTerm, allPosts, displayedPosts, sortOrder, allPostsLoaded]);
   
-  const authors: AuthorWithPostCount[] = useMemo(() => {
-    const authorMap = new Map<string, AuthorWithPostCount>();
-    
-    allPosts.forEach(post => {
-      if (post.author) {
-        if (authorMap.has(post.author.id)) {
-          const authorData = authorMap.get(post.author.id);
-          if (authorData) {
-            authorData.postCount++;
-          }
-        } else {
-          authorMap.set(post.author.id, {
-            ...post.author,
-            postCount: 1,
-          });
-        }
-      }
-    });
-
-    let authorList = Array.from(authorMap.values());
-    
-    if (searchTerm) {
-        authorList = authorList.filter(author => 
-            author.name.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-    }
-    
-    return authorList.sort((a,b) => b.postCount - a.postCount);
-  }, [allPosts, searchTerm]);
+  const filteredAuthors = useMemo(() => {
+    if (!searchTerm) return authors;
+    return authors.filter(author => 
+        author.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [authors, searchTerm]);
 
   const phrases = ['Insholar', 'Xulosalar', 'Tahlillar'];
   const [dynamicText, setDynamicText] = useState(phrases[0]);
@@ -185,7 +211,10 @@ export default function ExplorePage() {
             <div className="flex items-center justify-between mb-6 gap-4">
                 <TabsList className="grid w-full sm:w-auto grid-cols-2">
                     <TabsTrigger value="essays">{isMobile ? 'Insholar' : 'Barcha Insholar'}</TabsTrigger>
-                    <TabsTrigger value="authors">Mualliflar</TabsTrigger>
+                    <TabsTrigger value="authors" disabled={!allPostsLoaded && authorsLoading}>
+                        Mualliflar
+                        {!allPostsLoaded && <Loader2 className="ml-2 h-4 w-4 animate-spin"/>}
+                    </TabsTrigger>
                 </TabsList>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -204,28 +233,42 @@ export default function ExplorePage() {
             </div>
 
             <TabsContent value="essays">
-                 {loading ? (
+                 {postsLoading ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {Array.from({ length: 6 }).map((_, index) => (
                             <EssayCardSkeleton key={index} />
                         ))}
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {filteredPosts.map((post, index) => (
-                        <div 
-                            key={post.id} 
-                            className="animate-fade-in-up" 
-                            style={{ animationDelay: `${index * 100}ms`}}
-                        >
-                            <EssayCard post={post} />
+                    <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {filteredPosts.map((post, index) => (
+                            <div 
+                                key={post.id} 
+                                className="animate-fade-in-up" 
+                                style={{ animationDelay: `${index * 100}ms`}}
+                            >
+                                <EssayCard post={post} />
+                            </div>
+                            ))}
                         </div>
-                        ))}
-                    </div>
+                         {hasMore && !searchTerm && (
+                            <div className="mt-12 text-center">
+                                <Button onClick={loadMorePosts} disabled={isFetchingMore}>
+                                    {isFetchingMore ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            Yuklanmoqda...
+                                        </>
+                                    ) : "Ko'proq ko'rish"}
+                                </Button>
+                            </div>
+                        )}
+                    </>
                 )}
             </TabsContent>
             <TabsContent value="authors">
-                {loading ? (
+                {authorsLoading ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                         {Array.from({ length: 8 }).map((_, index) => (
                              <Card key={index} className="p-4 space-y-3">
@@ -241,7 +284,7 @@ export default function ExplorePage() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                        {authors.map((author, index) => (
+                        {filteredAuthors.map((author, index) => (
                              <div 
                                 key={author.id} 
                                 className="animate-fade-in-up" 
@@ -258,5 +301,3 @@ export default function ExplorePage() {
     </div>
   )
 }
-
-    
