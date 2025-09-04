@@ -117,30 +117,29 @@ export default function ExplorePage() {
   }, [allPostsLoaded, allPosts]);
 
   const filteredPosts = useMemo(() => {
-    let postsToFilter = allPostsLoaded ? allPosts : displayedPosts;
+    // If there's a search term, filter from all available posts for a comprehensive search.
+    // Otherwise, use the paginated `displayedPosts`.
+    const postsToFilter = searchTerm ? allPosts : displayedPosts;
+
     let posts = postsToFilter;
 
     if (searchTerm) {
-      posts = posts.filter(post =>
-        post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (post.author && post.author.name.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-    }
-
-    if (sortOrder === 'most_viewed') {
-      return [...posts].sort((a, b) => b.views - a.views);
+        posts = posts.filter(post =>
+            post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (post.author && post.author.name.toLowerCase().includes(searchTerm.toLowerCase()))
+        );
     }
     
-    // Default is 'newest', which is already sorted from the context for initial posts.
-    // If all posts are loaded, we need to sort them.
-    if (allPostsLoaded) {
-        return [...posts].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    // Sorting logic should apply to the currently visible set of posts
+    if (sortOrder === 'most_viewed') {
+        return [...posts].sort((a, b) => b.views - a.views);
     }
+    
+    // Default is 'newest'
+    return [...posts].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-    return posts;
-
-  }, [searchTerm, allPosts, displayedPosts, sortOrder, allPostsLoaded]);
+  }, [searchTerm, allPosts, displayedPosts, sortOrder]);
   
   const filteredAuthors = useMemo(() => {
     if (!searchTerm) return authors;
@@ -301,3 +300,5 @@ export default function ExplorePage() {
     </div>
   )
 }
+
+    
