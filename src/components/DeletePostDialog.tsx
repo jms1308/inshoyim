@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -15,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { deletePost } from '@/lib/services/posts';
+import { usePosts } from '@/context/PostContext';
 
 interface DeletePostDialogProps {
   postId: string;
@@ -26,11 +28,13 @@ export function DeletePostDialog({ postId, onPostDeleted, children }: DeletePost
   const [isOpen, setIsOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
+  const { refetchPosts } = usePosts();
 
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
       await deletePost(postId);
+      await refetchPosts();
       onPostDeleted();
       setIsOpen(false);
     } catch (error) {

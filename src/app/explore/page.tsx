@@ -62,7 +62,6 @@ export default function ExplorePage() {
     loading: postsLoading, 
     loadMorePosts, 
     hasMore, 
-    isFetchingMore,
     allPostsLoaded,
     allPosts,
   } = usePosts();
@@ -86,12 +85,14 @@ export default function ExplorePage() {
   
   useEffect(() => {
     async function fetchAllAuthors() {
+        // Wait until all posts are loaded in the background
         if (!allPostsLoaded) return;
         
         try {
             setAuthorsLoading(true);
-            const userList = await getAllUsers();
+            const userList = await getAllUsers(); // This should be fast
             
+            // This calculation is now done on the client based on allPosts
             const postCounts = new Map<string, number>();
             allPosts.forEach(post => {
                 if (post.status === 'published') {
@@ -102,7 +103,7 @@ export default function ExplorePage() {
             const authorsWithCounts: AuthorWithPostCount[] = userList.map(user => ({
                 ...user,
                 postCount: postCounts.get(user.id) || 0
-            })).filter(user => user.postCount > 0);
+            })).filter(user => (user.postCount || 0) > 0);
             
             setAuthors(authorsWithCounts.sort((a,b) => b.postCount - a.postCount));
 
@@ -253,13 +254,8 @@ export default function ExplorePage() {
                         </div>
                          {hasMore && !searchTerm && (
                             <div className="mt-12 text-center">
-                                <Button onClick={loadMorePosts} disabled={isFetchingMore}>
-                                    {isFetchingMore ? (
-                                        <>
-                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            Yuklanmoqda...
-                                        </>
-                                    ) : "Ko'proq ko'rish"}
+                                <Button onClick={loadMorePosts}>
+                                    Ko'proq ko'rish
                                 </Button>
                             </div>
                         )}
@@ -300,5 +296,3 @@ export default function ExplorePage() {
     </div>
   )
 }
-
-    
