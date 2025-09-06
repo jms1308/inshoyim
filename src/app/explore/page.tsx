@@ -55,6 +55,7 @@ function EssayCardSkeleton() {
   )
 }
 
+const INITIAL_LOAD_COUNT = 9;
 
 export default function ExplorePage() {
   const { 
@@ -245,8 +246,10 @@ export default function ExplorePage() {
                             {filteredPosts.map((post, index) => (
                             <div 
                                 key={post.id} 
-                                className="animate-fade-in-up" 
-                                style={{ animationDelay: `${index * 100}ms`}}
+                                className={index < INITIAL_LOAD_COUNT ? "animate-fade-in-up" : ""}
+                                style={{ 
+                                  animationDelay: index < INITIAL_LOAD_COUNT ? `${index * 100}ms` : '0ms'
+                                }}
                             >
                                 <EssayCard post={post} />
                             </div>
@@ -296,3 +299,5 @@ export default function ExplorePage() {
     </div>
   )
 }
+
+    
