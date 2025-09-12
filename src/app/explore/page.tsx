@@ -119,9 +119,9 @@ export default function ExplorePage() {
   }, [allPostsLoaded, allPosts]);
 
   const filteredPosts = useMemo(() => {
-    // If there's a search term, filter from all available posts for a comprehensive search.
-    // Otherwise, use the paginated `displayedPosts`.
-    const postsToFilter = searchTerm ? allPosts : displayedPosts;
+    // Use allPosts for a comprehensive search if a search term exists and all posts are loaded.
+    // Otherwise, use the currently displayed (paginated) posts.
+    const postsToFilter = searchTerm && allPostsLoaded ? allPosts : displayedPosts;
 
     let posts = postsToFilter;
 
@@ -141,7 +141,7 @@ export default function ExplorePage() {
     // Default is 'newest'
     return [...posts].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-  }, [searchTerm, allPosts, displayedPosts, sortOrder]);
+  }, [searchTerm, allPosts, displayedPosts, sortOrder, allPostsLoaded]);
   
   const filteredAuthors = useMemo(() => {
     if (!searchTerm) return authors;
@@ -248,7 +248,7 @@ export default function ExplorePage() {
                                 key={post.id} 
                                 className={index < INITIAL_LOAD_COUNT ? "animate-fade-in-up" : ""}
                                 style={{ 
-                                  animationDelay: index < INITIAL_LOAD_COUNT ? `${index * 100}ms` : '0ms'
+                                  animationDelay: `${index * 100}ms`
                                 }}
                             >
                                 <EssayCard post={post} />
@@ -299,5 +299,3 @@ export default function ExplorePage() {
     </div>
   )
 }
-
-    
