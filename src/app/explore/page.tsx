@@ -63,8 +63,10 @@ export default function ExplorePage() {
     loading: postsLoading, 
     loadMorePosts, 
     hasMore, 
-    allPostsLoaded,
     allPosts,
+    allPostsLoaded,
+    postsPerPage,
+    currentPage
   } = usePosts();
   
   const [searchTerm, setSearchTerm] = useState('');
@@ -91,9 +93,8 @@ export default function ExplorePage() {
         
         try {
             setAuthorsLoading(true);
-            const userList = await getAllUsers(); // This should be fast
+            const userList = await getAllUsers();
             
-            // This calculation is now done on the client based on allPosts
             const postCounts = new Map<string, number>();
             allPosts.forEach(post => {
                 if (post.status === 'published') {
@@ -117,28 +118,32 @@ export default function ExplorePage() {
 
     fetchAllAuthors();
   }, [allPostsLoaded, allPosts]);
+  
+  const sortedPosts = useMemo(() => {
+      if (!allPostsLoaded) return [];
+      
+      const postsToSort = [...allPosts];
+      
+      if (sortOrder === 'most_viewed') {
+          return postsToSort.sort((a, b) => b.views - a.views);
+      }
+      
+      // Default is 'newest'
+      return postsToSort.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  }, [allPosts, sortOrder, allPostsLoaded]);
 
-  const filteredPosts = useMemo(() => {
-    // If a search term exists, search from all available posts.
-    if (searchTerm && allPostsLoaded) {
-      return allPosts.filter(post =>
-        post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (post.author && post.author.name.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-    }
-    
-    // Otherwise, use the paginated/displayed posts and sort them.
-    const postsToSort = [...displayedPosts];
-    
-    if (sortOrder === 'most_viewed') {
-        return postsToSort.sort((a, b) => b.views - a.views);
-    }
-    
-    // Default is 'newest'
-    return postsToSort.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-  }, [searchTerm, allPosts, displayedPosts, sortOrder, allPostsLoaded]);
+  const paginatedAndFilteredPosts = useMemo(() => {
+    if (searchTerm) {
+        return sortedPosts.filter(post =>
+            post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (post.author && post.author.name.toLowerCase().includes(searchTerm.toLowerCase()))
+        );
+    }
+    return sortedPosts.slice(0, currentPage * postsPerPage);
+  }, [searchTerm, sortedPosts, currentPage, postsPerPage]);
+  
   
   const filteredAuthors = useMemo(() => {
     if (!searchTerm) return authors;
@@ -182,6 +187,9 @@ export default function ExplorePage() {
     const timer = setTimeout(handleTyping, isDeleting ? deletingSpeed : typingSpeed);
     return () => clearTimeout(timer);
   }, [charIndex, isDeleting, phraseIndex, phrases]);
+
+  // Determine if there are more posts to load based on the currently rendered list and the total sorted list.
+  const hasMoreToLoad = paginatedAndFilteredPosts.length < sortedPosts.length;
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -231,7 +239,7 @@ export default function ExplorePage() {
             </div>
 
             <TabsContent value="essays">
-                 {postsLoading ? (
+                 {postsLoading && paginatedAndFilteredPosts.length === 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {Array.from({ length: 6 }).map((_, index) => (
                             <EssayCardSkeleton key={index} />
@@ -240,7 +248,7 @@ export default function ExplorePage() {
                 ) : (
                     <>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {filteredPosts.map((post, index) => (
+                            {paginatedAndFilteredPosts.map((post, index) => (
                             <div 
                                 key={post.id} 
                                 className={index < INITIAL_LOAD_COUNT ? "animate-fade-in-up" : ""}
@@ -252,7 +260,7 @@ export default function ExplorePage() {
                             </div>
                             ))}
                         </div>
-                         {hasMore && !searchTerm && (
+                         {hasMoreToLoad && !searchTerm && (
                             <div className="mt-12 text-center">
                                 <Button onClick={loadMorePosts}>
                                     Ko'proq ko'rish
@@ -296,5 +304,3 @@ export default function ExplorePage() {
     </div>
   )
 }
-
-    
