@@ -120,20 +120,21 @@ export default function ExplorePage() {
   }, [allPostsLoaded, allPosts]);
   
   const sortedPosts = useMemo(() => {
-      if (!allPostsLoaded) return [];
-      
-      const postsToSort = [...allPosts];
-      
-      if (sortOrder === 'most_viewed') {
-          return postsToSort.sort((a, b) => b.views - a.views);
-      }
-      
-      // Default is 'newest'
-      return postsToSort.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    if (!allPostsLoaded) return []; // Return empty if all posts not loaded yet.
+    
+    const postsToSort = [...allPosts];
+    
+    if (sortOrder === 'most_viewed') {
+        return postsToSort.sort((a, b) => b.views - a.views);
+    }
+    
+    // Default is 'newest'
+    return postsToSort.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   }, [allPosts, sortOrder, allPostsLoaded]);
 
 
   const paginatedAndFilteredPosts = useMemo(() => {
+    // If searching, filter from all sorted posts and show all results (no pagination)
     if (searchTerm) {
         return sortedPosts.filter(post =>
             post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -141,8 +142,16 @@ export default function ExplorePage() {
             (post.author && post.author.name.toLowerCase().includes(searchTerm.toLowerCase()))
         );
     }
-    return sortedPosts.slice(0, currentPage * postsPerPage);
-  }, [searchTerm, sortedPosts, currentPage, postsPerPage]);
+
+    // If sorting is active but not searching, show paginated results from the sorted list
+    if (sortOrder !== 'newest') {
+        return sortedPosts.slice(0, currentPage * postsPerPage);
+    }
+
+    // Default behavior: show the initially loaded/paginated posts
+    return displayedPosts;
+
+  }, [searchTerm, sortOrder, sortedPosts, displayedPosts, currentPage, postsPerPage]);
   
   
   const filteredAuthors = useMemo(() => {
@@ -188,8 +197,9 @@ export default function ExplorePage() {
     return () => clearTimeout(timer);
   }, [charIndex, isDeleting, phraseIndex, phrases]);
 
-  // Determine if there are more posts to load based on the currently rendered list and the total sorted list.
-  const hasMoreToLoad = paginatedAndFilteredPosts.length < sortedPosts.length;
+  // Determine if there are more posts to load.
+  // If searching, we don't show the "Load More" button.
+  const hasMoreToLoad = !searchTerm && hasMore;
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -253,14 +263,14 @@ export default function ExplorePage() {
                                 key={post.id} 
                                 className={index < INITIAL_LOAD_COUNT ? "animate-fade-in-up" : ""}
                                 style={{ 
-                                  animationDelay: `${index * 100}ms`
+                                  animationDelay: index < INITIAL_LOAD_COUNT ? `${index * 100}ms` : '0ms'
                                 }}
                             >
                                 <EssayCard post={post} />
                             </div>
                             ))}
                         </div>
-                         {hasMoreToLoad && !searchTerm && (
+                         {hasMoreToLoad && (
                             <div className="mt-12 text-center">
                                 <Button onClick={loadMorePosts}>
                                     Ko'proq ko'rish

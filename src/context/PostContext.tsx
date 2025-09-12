@@ -10,7 +10,7 @@ import { DocumentData } from 'firebase/firestore';
 const POSTS_PER_PAGE = 9;
 
 interface PostContextType {
-  posts: Post[];
+  posts: Post[]; // Renamed from displayedPosts to posts for simplicity
   allPosts: Post[];
   loading: boolean;
   allPostsLoaded: boolean;
@@ -24,14 +24,13 @@ interface PostContextType {
 const PostContext = createContext<PostContextType | undefined>(undefined);
 
 export function PostsProvider({ children }: { children: ReactNode }) {
-  const [posts, setPosts] = useState<Post[]>([]); // Initially displayed posts
-  const [allPosts, setAllPosts] = useState<Post[]>([]); // All posts cached
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [allPosts, setAllPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [allPostsLoaded, setAllPostsLoaded] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Helper to attach author data to posts
-  const attachAuthorsToPosts = async (postsToProcess: Post[]): Promise<Post[]> => {
+  const attachAuthorsToPosts = useCallback(async (postsToProcess: Post[]): Promise<Post[]> => {
     const authorIds = [...new Set(postsToProcess.map(p => p.author_id))];
     if (authorIds.length === 0) return postsToProcess;
 
@@ -43,53 +42,58 @@ export function PostsProvider({ children }: { children: ReactNode }) {
       ...post,
       author: authorMap.get(post.author_id),
     }));
-  };
+  }, []);
 
-  // Fetches initial posts for quick display and all posts for background cache
   const fetchPosts = useCallback(async () => {
     setLoading(true);
     setAllPostsLoaded(false);
+    setPosts([]);
+    setAllPosts([]);
+    setCurrentPage(1);
 
     try {
-      // Fetch initial posts
-      const { posts: initialPosts } = await getPublishedPosts(POSTS_PER_PAGE, true);
-      const initialPostsWithAuthors = await attachAuthorsToPosts(initialPosts);
+      // 1. Fetch initial posts for immediate display
+      const { posts: initialPostsResult } = await getPublishedPosts(POSTS_PER_PAGE, true);
+      const initialPostsWithAuthors = await attachAuthorsToPosts(initialPostsResult);
       setPosts(initialPostsWithAuthors);
-      setCurrentPage(1);
       setLoading(false);
 
-      // Fetch all posts in the background
+      // 2. Fetch all posts in the background for searching, sorting, and pagination
       const { posts: allFetchedPosts } = await getPublishedPosts(undefined, false); // No limit, no pagination
       const allPostsWithAuthors = await attachAuthorsToPosts(allFetchedPosts);
-      setAllPosts(allPostsWithAuthors);
+      
+      // Sort all posts by creation date by default
+      const sortedAllPosts = allPostsWithAuthors.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      setAllPosts(sortedAllPosts);
       setAllPostsLoaded(true);
 
     } catch (error) {
       console.error("Error fetching posts:", error);
-      setPosts([]);
-      setAllPosts([]);
       setLoading(false);
       setAllPostsLoaded(true); // Stop loading indicators on error
     }
-  }, []);
+  }, [attachAuthorsToPosts]);
 
   useEffect(() => {
     fetchPosts();
   }, [fetchPosts]);
 
   const loadMorePosts = () => {
-    if (!allPostsLoaded) return;
-    setCurrentPage(prevPage => prevPage + 1);
+     if (!allPostsLoaded) return;
+     const nextPage = currentPage + 1;
+     const newPosts = allPosts.slice(0, nextPage * POSTS_PER_PAGE);
+     setPosts(newPosts);
+     setCurrentPage(nextPage);
   };
 
   const refetchPosts = async () => {
     await fetchPosts();
   };
-
-  const hasMore = allPostsLoaded && (currentPage * POSTS_PER_PAGE < allPosts.length);
+  
+  const hasMore = allPostsLoaded && posts.length < allPosts.length;
 
   const value = {
-    posts: posts, // This will be replaced by the paginated slice in the component
+    posts,
     allPosts,
     loading,
     allPostsLoaded,
