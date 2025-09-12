@@ -104,7 +104,7 @@ export default function ExplorePage() {
             const authorsWithCounts: AuthorWithPostCount[] = userList.map(user => ({
                 ...user,
                 postCount: postCounts.get(user.id) || 0
-            })).filter(user => (user.postCount || 0) > 0);
+            }));
             
             setAuthors(authorsWithCounts.sort((a,b) => b.postCount - a.postCount));
 
@@ -119,27 +119,24 @@ export default function ExplorePage() {
   }, [allPostsLoaded, allPosts]);
 
   const filteredPosts = useMemo(() => {
-    // Use allPosts for a comprehensive search if a search term exists and all posts are loaded.
-    // Otherwise, use the currently displayed (paginated) posts.
-    const postsToFilter = searchTerm && allPostsLoaded ? allPosts : displayedPosts;
-
-    let posts = postsToFilter;
-
-    if (searchTerm) {
-        posts = posts.filter(post =>
-            post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
-            (post.author && post.author.name.toLowerCase().includes(searchTerm.toLowerCase()))
-        );
+    // If a search term exists, search from all available posts.
+    if (searchTerm && allPostsLoaded) {
+      return allPosts.filter(post =>
+        post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (post.author && post.author.name.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
     }
     
-    // Sorting logic should apply to the currently visible set of posts
+    // Otherwise, use the paginated/displayed posts and sort them.
+    const postsToSort = [...displayedPosts];
+    
     if (sortOrder === 'most_viewed') {
-        return [...posts].sort((a, b) => b.views - a.views);
+        return postsToSort.sort((a, b) => b.views - a.views);
     }
     
     // Default is 'newest'
-    return [...posts].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    return postsToSort.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
   }, [searchTerm, allPosts, displayedPosts, sortOrder, allPostsLoaded]);
   
@@ -299,3 +296,5 @@ export default function ExplorePage() {
     </div>
   )
 }
+
+    
