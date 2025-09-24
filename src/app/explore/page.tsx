@@ -119,23 +119,19 @@ export default function ExplorePage() {
   }, [allPostsLoaded, allPosts]);
   
   const paginatedAndFilteredPosts = useMemo(() => {
-    // If not searching and not sorting, just show what's been displayed.
-    // This is the CRITICAL CHANGE to ensure initial posts are always interactive.
-    if (!searchTerm && sortOrder === 'newest') {
+    // If not all posts are loaded yet, and we are not searching/sorting,
+    // just show the initial posts that are available. This is crucial for interactivity.
+    if (!allPostsLoaded && !searchTerm && sortOrder === 'newest') {
       return displayedPosts;
     }
 
-    // Wait until all posts are loaded for search or sort
-    if (!allPostsLoaded) {
-      return []; 
-    }
-    
+    // From this point on, we assume allPosts are loaded for any search/sort operation
     let postsToProcess = [...allPosts];
 
-    // 1. Sort
+    // 1. Sort the entire collection
     if (sortOrder === 'most_viewed') {
         postsToProcess.sort((a, b) => b.views - a.views);
-    } else { // 'newest'
+    } else { // 'newest' is the default
         postsToProcess.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     }
 
@@ -148,7 +144,14 @@ export default function ExplorePage() {
         );
     }
     
-    // 3. Paginate the sorted list if not searching
+    // 3. If not searching, return the currently displayed (paginated) posts
+    // This ensures that "Load More" works as expected without being reset by the sort memo.
+    // The `displayedPosts` from the context is already sorted and paginated.
+    if (sortOrder === 'newest') {
+        return displayedPosts;
+    }
+
+    // 4. For any other sort order, paginate the fully sorted list.
     return postsToProcess.slice(0, currentPage * postsPerPage);
 
   }, [searchTerm, sortOrder, allPosts, displayedPosts, allPostsLoaded, currentPage, postsPerPage]);
@@ -196,8 +199,8 @@ export default function ExplorePage() {
     return () => clearTimeout(timer);
   }, [charIndex, isDeleting, phraseIndex, phrases]);
 
-  // If searching or sorting, we don't show the "Load More" button.
-  const hasMoreToLoad = !searchTerm && sortOrder === 'newest' && hasMore;
+  // The "Load More" button should only show if we are not searching and there are more posts available.
+  const hasMoreToLoad = !searchTerm && hasMore;
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -247,7 +250,7 @@ export default function ExplorePage() {
             </div>
 
             <TabsContent value="essays">
-                 {postsLoading && paginatedAndFilteredPosts.length === 0 ? (
+                 {postsLoading ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {Array.from({ length: 6 }).map((_, index) => (
                             <EssayCardSkeleton key={index} />
@@ -270,13 +273,21 @@ export default function ExplorePage() {
                         </div>
                          {hasMoreToLoad && (
                             <div className="mt-12 text-center">
-                                <Button onClick={loadMorePosts}>
-                                    Ko'proq ko'rish
+                                <Button onClick={loadMorePosts} disabled={!allPostsLoaded}>
+                                    {allPostsLoaded ? 'Ko\'proq ko\'rish' : <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                    {allPostsLoaded ? '' : 'Yuklanmoqda...'}
                                 </Button>
                             </div>
                         )}
                     </>
                 )}
+                 {!postsLoading && paginatedAndFilteredPosts.length === 0 && (
+                    <div className="text-center py-10">
+                        <p className="text-lg text-muted-foreground">
+                            {searchTerm ? "Hech qanday natija topilmadi." : "Hozircha insholar mavjud emas."}
+                        </p>
+                    </div>
+                 )}
             </TabsContent>
             <TabsContent value="authors">
                 {authorsLoading ? (

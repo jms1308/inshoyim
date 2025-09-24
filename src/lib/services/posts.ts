@@ -37,8 +37,8 @@ const postFromDocData = (id: string, data: DocumentData): Post => {
 }
 
 export async function getPublishedPosts(
-    postsLimit: number = 9, 
-    paginate: boolean = true, 
+    paginate: boolean = false, 
+    postsLimit?: number, 
     lastVisible: DocumentData | null = null
 ): Promise<{ posts: Post[], lastVisible: DocumentData | null }> {
     let queries = [
@@ -50,7 +50,7 @@ export async function getPublishedPosts(
         queries.push(startAfter(lastVisible));
     }
     
-    if (paginate) {
+    if (paginate && postsLimit) {
         queries.push(limit(postsLimit));
     }
 
