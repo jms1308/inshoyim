@@ -95,7 +95,7 @@ export default function WritePage() {
         return;
     }
 
-    if (getWordCount(content) < 70) {
+    if (status === 'published' && getWordCount(content) < 70) {
         toast({ title: "Xatolik", description: "Insho kamida 70 ta so'zdan iborat bo'lishi kerak.", variant: "destructive" });
         return;
     }
