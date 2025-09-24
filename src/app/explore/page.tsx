@@ -120,7 +120,8 @@ export default function ExplorePage() {
   }, [allPostsLoaded, allPosts]);
   
   const sortedPosts = useMemo(() => {
-    if (!allPostsLoaded) return []; // Return empty if all posts not loaded yet.
+    // We can sort all posts once they are loaded.
+    if (!allPostsLoaded) return []; 
     
     const postsToSort = [...allPosts];
     
@@ -134,24 +135,33 @@ export default function ExplorePage() {
 
 
   const paginatedAndFilteredPosts = useMemo(() => {
-    // If searching, filter from all sorted posts and show all results (no pagination)
+    // If we are still waiting for all posts to load, and there is no search or special sort,
+    // just show the initially displayed posts. This ensures the first page is interactive immediately.
+    if (!allPostsLoaded && !searchTerm && sortOrder === 'newest') {
+        return displayedPosts;
+    }
+
+    // Once all posts are loaded, or if search/sort is active, use the full sorted list.
+    const sourcePosts = allPostsLoaded ? sortedPosts : displayedPosts;
+
     if (searchTerm) {
-        return sortedPosts.filter(post =>
+        return sourcePosts.filter(post =>
             post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
             (post.author && post.author.name.toLowerCase().includes(searchTerm.toLowerCase()))
         );
     }
 
-    // If sorting is active but not searching, show paginated results from the sorted list
-    if (sortOrder !== 'newest') {
-        return sortedPosts.slice(0, currentPage * postsPerPage);
+    // If not searching, return the paginated view of the sorted posts.
+    // When allPosts are not loaded yet, displayedPosts is already paginated.
+    // When allPosts are loaded, we paginate the `sortedPosts` array.
+    if (allPostsLoaded) {
+      return sortedPosts.slice(0, currentPage * postsPerPage);
     }
-
-    // Default behavior: show the initially loaded/paginated posts
+    
     return displayedPosts;
-
-  }, [searchTerm, sortOrder, sortedPosts, displayedPosts, currentPage, postsPerPage]);
+    
+  }, [searchTerm, sortOrder, sortedPosts, displayedPosts, allPostsLoaded, currentPage, postsPerPage]);
   
   
   const filteredAuthors = useMemo(() => {
@@ -314,3 +324,5 @@ export default function ExplorePage() {
     </div>
   )
 }
+
+    
