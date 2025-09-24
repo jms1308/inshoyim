@@ -120,7 +120,7 @@ export default function ExplorePage() {
   }, [allPostsLoaded, allPosts]);
   
   const sortedPosts = useMemo(() => {
-    // We can sort all posts once they are loaded.
+    // This sorting should only happen once all posts are available.
     if (!allPostsLoaded) return []; 
     
     const postsToSort = [...allPosts];
@@ -135,30 +135,25 @@ export default function ExplorePage() {
 
 
   const paginatedAndFilteredPosts = useMemo(() => {
-    // If we are still waiting for all posts to load, and there is no search or special sort,
-    // just show the initially displayed posts. This ensures the first page is interactive immediately.
-    if (!allPostsLoaded && !searchTerm && sortOrder === 'newest') {
-        return displayedPosts;
-    }
-
-    // Once all posts are loaded, or if search/sort is active, use the full sorted list.
-    const sourcePosts = allPostsLoaded ? sortedPosts : displayedPosts;
-
+    // If there's a search term, filter from all available posts.
     if (searchTerm) {
-        return sourcePosts.filter(post =>
+        // Wait until all posts are loaded to perform a search
+        if (!allPostsLoaded) return [];
+        return sortedPosts.filter(post =>
             post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
             (post.author && post.author.name.toLowerCase().includes(searchTerm.toLowerCase()))
         );
     }
 
-    // If not searching, return the paginated view of the sorted posts.
-    // When allPosts are not loaded yet, displayedPosts is already paginated.
-    // When allPosts are loaded, we paginate the `sortedPosts` array.
-    if (allPostsLoaded) {
+    // If not searching, decide what to paginate.
+    // If sorting is active ('most_viewed'), or if all posts are loaded, use the full sorted list.
+    if (sortOrder !== 'newest' || allPostsLoaded) {
       return sortedPosts.slice(0, currentPage * postsPerPage);
     }
     
+    // Fallback for the initial load: show the posts that are already displayed.
+    // This ensures the first 9 posts are clickable immediately.
     return displayedPosts;
     
   }, [searchTerm, sortOrder, sortedPosts, displayedPosts, allPostsLoaded, currentPage, postsPerPage]);
@@ -324,5 +319,3 @@ export default function ExplorePage() {
     </div>
   )
 }
-
-    
