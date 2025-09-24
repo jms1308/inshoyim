@@ -13,6 +13,7 @@ import { getPostById, updatePost } from '@/lib/services/posts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { usePosts } from '@/context/PostContext';
+import { cn } from '@/lib/utils';
 
 const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { 
   ssr: false,
@@ -77,6 +78,8 @@ export default function EditPostPage() {
     }
     fetchPost();
   }, [postId, toast]);
+
+  const wordCount = useMemo(() => getWordCount(content), [content]);
 
   const handleSubmit = async (status: 'published' | 'draft') => {
     if (!loggedInUser || !post) {
@@ -176,7 +179,12 @@ export default function EditPostPage() {
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="content" className="text-lg">Kontent</Label>
+                        <div className="flex justify-between items-center">
+                          <Label htmlFor="content" className="text-lg">Kontent</Label>
+                          <div className={cn("text-sm", wordCount < 70 ? "text-destructive" : "text-muted-foreground")}>
+                            So'zlar soni: {wordCount} / 70
+                          </div>
+                        </div>
                         <RichTextEditor
                            id="content"
                            data={content}

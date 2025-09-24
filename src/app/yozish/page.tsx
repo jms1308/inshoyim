@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useAuthDialog } from '@/context/AuthDialogContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { usePosts } from '@/context/PostContext';
+import { cn } from '@/lib/utils';
 
 const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { 
   ssr: false,
@@ -80,6 +81,8 @@ export default function WritePage() {
     window.addEventListener('storage', checkUser);
     return () => window.removeEventListener('storage', checkUser);
   }, []);
+
+  const wordCount = useMemo(() => getWordCount(content), [content]);
 
   const handleSubmit = async (status: 'published' | 'draft') => {
     if (!user) {
@@ -177,7 +180,12 @@ export default function WritePage() {
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="content" className="text-lg">Kontent</Label>
+                        <div className="flex justify-between items-center">
+                          <Label htmlFor="content" className="text-lg">Kontent</Label>
+                          <div className={cn("text-sm", wordCount < 70 ? "text-destructive" : "text-muted-foreground")}>
+                            So'zlar soni: {wordCount} / 70
+                          </div>
+                        </div>
                         <RichTextEditor
                             id="content"
                             data={content}
