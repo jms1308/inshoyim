@@ -88,7 +88,6 @@ export default function ExplorePage() {
   
   useEffect(() => {
     async function fetchAllAuthors() {
-        // Wait until all posts are loaded in the background
         if (!allPostsLoaded) return;
         
         try {
@@ -119,45 +118,40 @@ export default function ExplorePage() {
     fetchAllAuthors();
   }, [allPostsLoaded, allPosts]);
   
-  const sortedPosts = useMemo(() => {
-    // This sorting should only happen once all posts are available.
-    if (!allPostsLoaded) return []; 
-    
-    const postsToSort = [...allPosts];
-    
-    if (sortOrder === 'most_viewed') {
-        return postsToSort.sort((a, b) => b.views - a.views);
+  const paginatedAndFilteredPosts = useMemo(() => {
+    // If not searching and not sorting, just show what's been displayed.
+    // This is the CRITICAL CHANGE to ensure initial posts are always interactive.
+    if (!searchTerm && sortOrder === 'newest') {
+      return displayedPosts;
+    }
+
+    // Wait until all posts are loaded for search or sort
+    if (!allPostsLoaded) {
+      return []; 
     }
     
-    // Default is 'newest'
-    return postsToSort.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-  }, [allPosts, sortOrder, allPostsLoaded]);
+    let postsToProcess = [...allPosts];
 
+    // 1. Sort
+    if (sortOrder === 'most_viewed') {
+        postsToProcess.sort((a, b) => b.views - a.views);
+    } else { // 'newest'
+        postsToProcess.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    }
 
-  const paginatedAndFilteredPosts = useMemo(() => {
-    // If there's a search term, filter from all available posts.
+    // 2. Filter by search term (if any)
     if (searchTerm) {
-        // Wait until all posts are loaded to perform a search
-        if (!allPostsLoaded) return [];
-        return sortedPosts.filter(post =>
+        return postsToProcess.filter(post =>
             post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
             (post.author && post.author.name.toLowerCase().includes(searchTerm.toLowerCase()))
         );
     }
+    
+    // 3. Paginate the sorted list if not searching
+    return postsToProcess.slice(0, currentPage * postsPerPage);
 
-    // If not searching, decide what to paginate.
-    // If sorting is active ('most_viewed'), or if all posts are loaded, use the full sorted list.
-    if (sortOrder !== 'newest' || allPostsLoaded) {
-      return sortedPosts.slice(0, currentPage * postsPerPage);
-    }
-    
-    // Fallback for the initial load: show the posts that are already displayed.
-    // This ensures the first 9 posts are clickable immediately.
-    return displayedPosts;
-    
-  }, [searchTerm, sortOrder, sortedPosts, displayedPosts, allPostsLoaded, currentPage, postsPerPage]);
-  
+  }, [searchTerm, sortOrder, allPosts, displayedPosts, allPostsLoaded, currentPage, postsPerPage]);
   
   const filteredAuthors = useMemo(() => {
     if (!searchTerm) return authors;
@@ -202,9 +196,8 @@ export default function ExplorePage() {
     return () => clearTimeout(timer);
   }, [charIndex, isDeleting, phraseIndex, phrases]);
 
-  // Determine if there are more posts to load.
-  // If searching, we don't show the "Load More" button.
-  const hasMoreToLoad = !searchTerm && hasMore;
+  // If searching or sorting, we don't show the "Load More" button.
+  const hasMoreToLoad = !searchTerm && sortOrder === 'newest' && hasMore;
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
